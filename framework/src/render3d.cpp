@@ -225,6 +225,9 @@ void Render3D::update_render_domain()
     local_domain->Update();
     local_domain_geom->Update();
 
+    this->update_segment_index_lookup_table_range(lutSegmentIndices, this->segment_size());
+
+
     emit grid_updated();
 
 
@@ -552,9 +555,23 @@ void Render3D::color_quantity_cell()
 //    }
 }
 
+//if(segment_index < actors.size())
+//    actors[segment_index]->GetProperty()->SetColor(rgb[0], rgb[1], rgb[2]);
+
+void Render3D::color_solid()
+{
+    for(Mappers::iterator iter = mappers.begin(); iter != mappers.end(); iter++)
+        (*iter)->ScalarVisibilityOff();
+
+    this->set_solid_color(last_solid_color);
+
+    state = SOLID;
+}
+
 void Render3D::color_segments()
 {
-  this->update_segment_index_lookup_table_range(lutSegmentIndices, this->segment_size());
+  for(Mappers::iterator iter = mappers.begin(); iter != mappers.end(); iter++)
+      (*iter)->ScalarVisibilityOff();
 
   for(int i = 0; i < this->segment_size(); i++)
   {
@@ -562,7 +579,6 @@ void Render3D::color_segments()
       lutSegmentIndices->GetColor(double(i), rgb);
       this->set_segment_color(i, rgb);
   }
-
   state = SEGMENT;
 }
 
@@ -668,8 +684,17 @@ void Render3D::set_background_color(double* rgb)
 
 void Render3D::set_solid_color(double* rgb)
 {
-    for(Actors::iterator iter = actors.begin(); iter != actors.end(); iter++ )
-        (*iter)->GetProperty()->SetColor(rgb[0], rgb[1], rgb[2]);
+  last_solid_color[0] = rgb[0];
+  last_solid_color[1] = rgb[1];
+  last_solid_color[2] = rgb[2];
+
+  for(int i = 0; i < this->segment_size(); i++)
+  {
+    this->set_segment_color(i, rgb);
+  }
+
+//    for(Actors::iterator iter = actors.begin(); iter != actors.end(); iter++ )
+//        (*iter)->GetProperty()->SetColor(rgb[0], rgb[1], rgb[2]);
 }
 
 void Render3D::set_edge_color(double* rgb)
@@ -696,14 +721,6 @@ void Render3D::reset_view()
 {
     resetCameraParameters();
     renderer->ResetCamera();
-}
-
-void Render3D::color_solid()
-{
-    state = SOLID;
-    for(Mappers::iterator iter = mappers.begin(); iter != mappers.end(); iter++)
-        (*iter)->ScalarVisibilityOff();
-    //mapper->ScalarVisibilityOff();
 }
 
 void Render3D::switch_to_surface_with_edges_representation()

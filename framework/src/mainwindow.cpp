@@ -330,24 +330,34 @@ void MainWindow::apply_module_end(QString const& module)
     //
     QString current_module = active_modules->item(active_modules->currentRow())->text();
     QuantitySet& quantity_set = avail_modules.value(current_module)->get_quantity_set();
+
     if(quantity_set.size() > 0)
     {
+      // store the number of default entries, so we have an index
+      // pointing to the first module quantity at the subsequent step
+      //
+      int first_module_quantity_index = comboBoxFieldViz->count();
+
       // update the quantity selection combobox with this module's generated quantities
       repopulate_quantity_selection(quantity_set);
 
-      // by default, visualize the first (1) quantity
-      comboBoxFieldViz->setCurrentIndex(1);
-      //change_quantity_visualization(1);
+      // at this point,comboboxfieldviz cotains the default two entries
+      // - being the 'solid' and 'segment index' key - plus at least one
+      // quantity entry from the module.
+      // Therefore, we use the element count of the comboBoxFieldViz object
+      // before we populated it with the module quantities.
+      // This way, we make sure that we visualize the first result quantity of the module
+      //
+      comboBoxFieldViz->setCurrentIndex(first_module_quantity_index); // emits 'currentIndexChanged'
     }
     else // there is no quantity, so do a plain 'solid' render
     {
-      comboBoxFieldViz->setCurrentIndex(0);
-      multi_view->show_current_grid();
+      comboBoxFieldViz->setCurrentIndex(0); // emits 'currentIndexChanged'
     }
 
-    // record the current quantity for later restore of the quantity selection in the combobox due to view-switching
-    int current_view_index = multi_view->getCurrentViewIndex();
-    quan_views[current_view_index] = comboBoxFieldViz->currentIndex();
+//    // record the current quantity for later restore of the quantity selection in the combobox due to view-switching
+//    //
+//    quan_views[ multi_view->getCurrentViewIndex() ] = comboBoxFieldViz->currentIndex();
 }
 
 /**
@@ -379,9 +389,9 @@ void MainWindow::apply_module_end_error(QString const& module)
 void MainWindow::reset_comboBoxFieldViz()
 {
   comboBoxFieldViz->blockSignals(true);
-    comboBoxFieldViz->clear();
-    comboBoxFieldViz->addItem(QIcon("://resources/icons/pqSolidColor16.png"), key::solid_color);
-    comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), key::segment_index);
+  comboBoxFieldViz->clear();
+  comboBoxFieldViz->addItem(QIcon("://resources/icons/pqSolidColor16.png"), key::solid_color);
+  comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), key::segment_index);
   comboBoxFieldViz->blockSignals(false);
 }
 
@@ -391,17 +401,19 @@ void MainWindow::repopulate_quantity_selection(QuantitySet const& quantityset)
 
   foreach(Quantity quantity, quantityset) {
 
+    // we store the actual ViennaMOS::Quantity within the QVariant value of the
+    // combobox item. This way we have access to the quantity at a later point
+    // when we retrieve an item again.
+    //
     QVariant var;
     var.setValue(quantity);
 
     if(quantity.cell_level == VERTEX)
     {
-        //comboBoxFieldViz->addItem(QIcon("://resources/icons/pqPointData16.png"), QString::fromStdString(boost::get<tuple::KEY>(tuple)));
         comboBoxFieldViz->addItem(QIcon("://resources/icons/vertex_data.png"), QString::fromStdString(quantity.name), var);
     }
     else if(quantity.cell_level == CELL)
     {
-        //comboBoxFieldViz->addItem(QIcon("://resources/icons/pqCellCenterData16.png"), QString::fromStdString(boost::get<tuple::KEY>(tuple)));
         comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), QString::fromStdString(quantity.name), var);
     }
     else
@@ -409,29 +421,10 @@ void MainWindow::repopulate_quantity_selection(QuantitySet const& quantityset)
         QMessageBox::warning(this, QString("Error"), QString("Only vertex and cell quantity fields are supported"));
     }
   }
+
   // make sure the combobox is large enough to accomodate the recently added quantity names and icons
+  //
   comboBoxFieldViz->adjustSize();
-
-
-//    foreach(Quantity::Tuple tuple, quantity_tuples) {
-//        int cell_lvl = boost::get<tuple::CELLLVL>(tuple);
-//        if(cell_lvl == VERTEX)
-//        {
-//            //comboBoxFieldViz->addItem(QIcon("://resources/icons/pqPointData16.png"), QString::fromStdString(boost::get<tuple::KEY>(tuple)));
-//            comboBoxFieldViz->addItem(QIcon("://resources/icons/vertex_data.png"), QString::fromStdString(boost::get<tuple::KEY>(tuple)));
-//        }
-//        else if(cell_lvl == CELL)
-//        {
-//            //comboBoxFieldViz->addItem(QIcon("://resources/icons/pqCellCenterData16.png"), QString::fromStdString(boost::get<tuple::KEY>(tuple)));
-//            comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), QString::fromStdString(boost::get<tuple::KEY>(tuple)));
-//        }
-//        else
-//        {
-//            QMessageBox::warning(this, QString("Error"), QString("Only vertex and cell quantity fields are supported"));
-//        }
-//    }
-//    // make sure the combobox is large enough to accomodate the recently added quantity names and icons
-//    comboBoxFieldViz->adjustSize();
 }
 
 /**
@@ -535,6 +528,7 @@ void MainWindow::update_dockModuleConfig_view_action()
 
 void MainWindow::change_quantity_visualization(int idx)
 {
+//  qDebug() << "change_quantity_visualization: " << idx;
   if(idx < 0) return;
 
   if(comboBoxFieldViz->count() < 1) return;
@@ -549,15 +543,18 @@ void MainWindow::change_quantity_visualization(int idx)
 
   if(idx == 0)
   {
+//      qDebug() << "  showing current grid" ;
       multi_view->show_current_grid();
   }
   else
   if(idx == 1)
   {
-    multi_view->show_current_grid_segments();
+//      qDebug() << "  showing current grid segment ids" ;
+      multi_view->show_current_grid_segments();
   }
   else
   {
+//      qDebug() << "  showing quantity" ;
     Quantity quantity = comboBoxFieldViz->itemData(idx).value<Quantity>();
 
     // get the currently selected active module ..
@@ -580,34 +577,6 @@ void MainWindow::change_quantity_visualization(int idx)
     //module_quan_index[module][id] = 0;
 
   }
-
-
-
-//    // get the currently selected active module ..
-//    QListWidgetItem* item = active_modules->currentItem();
-
-//    // make sure that there is actually one .. otherwise there is a segfault
-//    if(!item) return;
-
-//    QString module = item->text();
-
-//    if(id == key::solid_color)
-//    {
-//        // pass an empty string to the module's renderer
-//        // this will trigger a 'solid coloring'
-//        avail_modules[module]->render();
-//    }
-//    else
-//    {
-//        // forward the quantity id to the module's renderer
-//        // the module will render the quantity accordingly
-//        // by default, we show the first result of a sequence
-//        // that's why we pass a '0' here to the plugin's render method
-//        avail_modules[module]->render(id.toStdString(), 0);
-
-//        // set the current index of the current module's quantity to 0
-//        module_quan_index[module][id] = 0;
-//    }
 }
 
 void MainWindow::toggle_color_legend()

@@ -446,9 +446,9 @@ void MultiView::show_current_grid()
   Render3D* render = this->getCurrentRender3D();
   if(render)
   {
-      //render->update_render_domain();
-      render->color_solid();
-      render->update();
+//    qDebug() << "MultiView::showing current grid" ;
+    render->color_solid();
+    render->update();
   }
 }
 
@@ -457,9 +457,9 @@ void MultiView::show_current_grid_segments()
   Render3D* render = this->getCurrentRender3D();
   if(render)
   {
-      //render->update_render_domain();
-      render->color_segments();
-      render->update();
+//    qDebug() << "MultiView::showing current grid segment ids" ;
+    render->color_segments();
+    render->update();
   }
 }
 

@@ -207,6 +207,8 @@ private:
     double initial_cameraPosition[3];
     double initial_cameraViewUp[3];
 
+    double last_solid_color[3];
+
     bool use_log;
     int  current_quantity_cell_lvl;
     std::string current_quantity_key;
