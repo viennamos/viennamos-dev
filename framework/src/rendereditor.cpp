@@ -152,6 +152,7 @@ void RenderEditor::update()
         //
         QTableWidgetItem* color = new QTableWidgetItem;
         color->setBackground(QBrush(QColor::fromRgbF(segment_rgbs[i][0], segment_rgbs[i][1], segment_rgbs[i][2])));
+        color->setFlags(Qt::NoItemFlags|Qt::ItemIsSelectable|Qt::ItemIsEnabled);
         ui->tableWidgetSegments->setItem(i, 2, color);
     }
 }
