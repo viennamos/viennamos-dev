@@ -1,0 +1,28 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/icons/pqPointData16.png</file>
+        <file>resources/icons/pqEditColor24.png</file>
+        <file>resources/icons/pqScalarBar32.png</file>
+        <file>resources/icons/pqResetCamera32.png</file>
+        <file>resources/icons/pqSolidColor16.png</file>
+        <file>resources/icons/vertex_data.png</file>
+        <file>resources/icons/cell_data.png</file>
+        <file>resources/icons/coordinates.png</file>
+        <file>resources/icons/viennamos.png</file>
+        <file>resources/icons/pqVcrBack32.png</file>
+        <file>resources/icons/pqVcrFirst32.png</file>
+        <file>resources/icons/pqVcrForward32.png</file>
+        <file>resources/icons/pqVcrLast32.png</file>
+        <file>resources/icons/pqVcrPlay32.png</file>
+        <file>resources/icons/2d3d.png</file>
+        <file>resources/icons/chart_editor.png</file>
+        <file>resources/materials.xml</file>
+        <file>resources/icons/material_manager.png</file>
+        <file>resources/icons/orientation_axes.png</file>
+        <file>resources/icons/module_manager.png</file>
+        <file>resources/icons/module.png</file>
+    </qresource>
+    <qresource prefix="/pictures">
+        <file>resources/splashimage/viennamos_splashimage.png</file>
+    </qresource>
+</RCC>

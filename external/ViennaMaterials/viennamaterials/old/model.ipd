@@ -1,0 +1,6442 @@
+// $Id: model.ipd,v 1.138 2008/09/23 10:28:55 mwagner Exp $
+
+/*  ==================================================================================  */
+/*  This file is parsed to automatically create the default parameter list              */
+/*  in the docu. Please adhere to the following rules when inserting comments:          */
+/*  ----------------------------------------------------------------------------------  */
+/*  To hide models or values, type "PRIVATE" into the comment line.                     */
+/*  To hide a comment, type "PRIVC" somewhere into the comment.                         */
+/*  To hide a part of a comment, type "ENDC". Everything following "ENDC" is ignored.   */
+/*  To break a value's table into several tables, type "NEWTABLE" into a comment line.  */
+/*  ==================================================================================  */
+
+SpecialModels 
+{
+  Minimos6Electrons
+  {
+     // Lattice scattering parameters
+     uL300        = 1430 "cm^2/V*s";       // Zero field mobility at 300 K.
+     uLexpT       = -2;                    // Temperature exponent  
+ 					   
+     // NEWTABLE Impurity scattering parameters	   
+     uLImin300    = 80 "cm^2/V*s";         // Impurity minimum mobility at 300 K.
+     uLIexpTabove = -0.45;                 // Temperature exponent above Tswitch.
+     uLIexpTbelow = -0.15;                 // Temperature exponent below Tswitch.
+     Tswitch      = 200 K;	           // Temperature where to switch exponents
+     Cref300      = 1.12e17 "cm^-3";       // Reference doping concentration at 300 K
+     CrefexpT     = 3.2;	           // Temperature exponent       
+     alpha300     = 0.72;                  // Concentration exponent	       
+     alphaexpT    = 0.065;                 // Temperature exponent
+ 					   
+     // NEWTABLE Surface scattering parameters	   
+     uLISref300   = 638 "cm^2/V*s";        // Surface reference mobility at 300 K
+     uLISexpT     = -1.19;                 // Temperature exponent
+     dref         = 10 nm;	           // Surface reference distance
+     eta          = 0.0;                   // Surface reference distance correction
+     ESref        = 7e7 "V/m";	           // Surface reference field
+     ESref2       = 0 "V/m";	           // Surface reference field, quadratic term
+ 					   // additiv to std term
+     gammaS       = 1.69;                  // Field exponent
+ 					   
+     // NEWTABLE Field reduction parameters	   
+     beta         = 2;                     // Velocity exponent
+
+     // ENDC ---------------------------------------
+     //      Experimental Parameters for FullHaensch
+     //      ---------------------------------------
+     full = no; // PRIVATE
+   }
+
+  Minimos6Holes : Minimos6Electrons
+  {
+     // Lattice scattering parameters
+     uL300        = 460 "cm^2/V*s";        // Zero field mobility at 300 K.
+     uLexpT       = -2.18;                 // Temperature exponent  
+ 					   
+     // NEWTABLE Impurity scattering parameters	   
+     uLImin300    = 45 "cm^2/V*s";         // Impurity minimum mobility at 300 K.
+     Cref300      = 2.23e17 "cm^-3";       // Reference doping concentration at 300 K
+ 					   
+     // NEWTABLE Surface scattering parameters	   
+     uLISref300   = 240 "cm^2/V*s";        // Surface reference mobility at 300 K
+     uLISexpT     = -1.09;                 // Temperature exponent
+     eta          = 1.0;                   // Surface reference distance correction
+     ESref        = 2.7e7 "V/m";	   // Surface reference field
+     gammaS       = 1.0;                   // Field exponent
+ 					   
+     // NEWTABLE Field reduction parameters	   
+     beta         = 1;                     // Velocity exponent
+
+     // ENDC ---------------------------------------
+     // Experimental Parameters for FullHaensch
+     // ---------------------------------------
+     full = no;  // PRIVATE
+  }
+
+  SiGeElectrons : Minimos6Electrons;
+  SiGeHoles     : Minimos6Holes;
+
+  IIIVElectrons
+  {
+    // Lattice scattering parameters
+    uL300        = 8830 "cm^2/V*s";    // Zero field mobility at 300 K.
+    uLexpT       = -2.2;               // Temperature exponent  
+
+    // NEWTABLE Impurity scattering parameters
+    uLImin300    = 1500 "cm^2/V*s";    // Impurity minimum mobility at 300 K.
+    uLIexpT      = -0.9;               // Temperature exponent  
+    Cref300      = 1.426e17 "cm^-3";   // Reference doping concentration at 300 K
+    CrefexpT     = 6.2;	               // Temperature exponent       
+    alpha300     = 0.5;                // Concentration exponent	       
+
+    // NEWTABLE Field reduction parameters
+    beta         = 2;                  // Velocity exponent
+  }
+
+  IIIVHoles
+  {
+    // Lattice scattering parameters
+    uL300        = 420 "cm^2/V*s";     // Zero field mobility at 300 K.
+    uLexpT       = -2.3;               // Temperature exponent  
+
+    // NEWTABLE Impurity scattering parameters
+    uLImin300    = 40 "cm^2/V*s";      // Impurity minimum mobility at 300 K.
+    uLIexpT      = 1.2;                // Temperature exponent   
+    Cref300      = 1.3e17 "cm^-3";     // Reference doping at 300 K
+    CrefexpT     = 0.5;	               // Temperature exponent   
+    alpha300     = 1.0;                // Concentration exponent	       
+
+    // NEWTABLE Field reduction parameters
+    beta         = 1;                  // Velocity exponent
+  }
+
+  OverIIIVElectrons : IIIVElectrons
+  {
+     // Field reduction parameters
+     beta            = 4;                  // Driving force exponent
+     +Fcrit          = 4.0e5 "V/m";        // Critical driving force
+  }
+
+  IIIV_TwoValleyElectrons 
+  {
+     // Lattice Mobility
+     uL300G = 8000 "cm^2/V*s";    	   // G-valley low field mobility
+     uL300L = 400 "cm^2/V*s";     	   // L-valley low field mobility
+			          	   
+     // NEWTABLE Impurity scattering       	   
+     uLImin = 1500 "cm^2/V*s";    	   // min.mobility due to impurity scattering
+     CrefG  = 1.426e+17 "cm^-3";  	   // G-valley reference impurity concentration
+     CrefL  = 1.426e+17 "cm^-3";  	   // L-valley reference impurity concentration
+     alphaG = 0.5385;             	   // G-valley exponent for impurity concentration
+     alphaL = 0.5385;             	   // L-valley exponent for impurity concentration
+     				  	   
+     // NEWTABLE Field reduction 	  	   
+     vsatG   = 2.5e5 "m/s";       	   // G-valley saturation velocity
+     vsatL   = 0.9e5 "m/s";       	   // L-valley saturation velocity
+     tauG    = 1.2 ps;            	   // G-valley energy relaxation time
+     tauL    = 0.6 ps;            	   // L-valley energy relaxation time
+     dEg     = 0.33 eV;           	   // band gap difference
+     rGL     = 94.08;             	   // valley degeneracy and masses
+  }
+
+  Doping
+  {
+     Donor
+     {
+        materials = "Donor,Donors";
+
+        dopant = "Const";
+        Dopant
+        {
+           Const
+           {
+              chargeState = 1;
+           }
+           IncompleteIonization  
+           {
+              chargeState = 1;
+              energyLevel = 0.10 eV;  
+              degeneracy  = 2;       
+           }
+        }
+     }
+
+     Acceptor
+     {
+        materials = "Acceptor,Acceptors";
+
+        dopant = "Const";
+        Dopant
+        {
+           Const
+           {
+              chargeState = -1;
+           }
+           IncompleteIonization  
+           {
+              chargeState = -1;
+              energyLevel = 0.20 eV;  
+              degeneracy  = 4;       
+           }
+        }
+     }
+
+     Neutral
+     {
+        materials = "None,traps,Unknown";
+
+        dopant = "Const";
+        Dopant
+        {
+           Const
+           {
+              chargeState = 0;
+           }
+        }
+     }
+
+     Multi
+     {  // PRIVATE
+        materials = "Multi";
+
+        chargeState = "MultiLevel";
+        ChargeState
+        {
+           /* CHECK_THIS [AG]: This model is not in the code! */
+           MultiLevel
+           {
+              chargeState = [-1,        0,        1       ];
+	      /* nrgLevel    = [-0.123 eV, 0.001 eV, 0.123 eV]; */
+              energyLevel = [-0.123 eV, 0.001 eV, 0.123 eV];
+              factor      = [ 4,        1,        2       ];
+           }
+        }
+     }
+  }
+     
+  DopingIV : Doping
+  {
+     +Donors     : Donor    { materials = "P,Phosphorus,As,Arsenic,Sb,Antimony,Fe"; }
+     +Acceptors  : Acceptor { materials = "B,Boron,Ga,Gallium,In,Indium,O,Oxygen"; }
+     +Neutrals   : Neutral  { materials = "C,Carbon,Si,Silicon,Ge,Germanium,Sn,As-c"; }
+     +Multilevel : Multi    
+     {  //PRIVATE
+	materials = "Au"; 
+     }
+  }
+  
+  DopingIIIV : Doping
+  {
+     +Donors     : Donor    { materials = "Si,O,S,Se";     }
+     +Acceptors  : Acceptor { materials = "Cr,C,Mg,Be,Zn"; }
+  }
+
+  SrhLifetimes
+  {
+     Nt   = 0.0 "cm^-3";  // Must be set in material specific section 
+     Et   = 0.0  eV;      // Must be set in material specific section 
+     type = "";           // Must be set in material specific section 
+     
+     // NEWTABLE Capture cross section relation is used by default
+     ste  = 1.0e-19 "m^2"; // set ste == 0 if you want to use the Scharfetter relation
+     sth  = 1.0e-19 "m^2"; // set sth == 0 if you want to use the Scharfetter relation
+     
+     // NEWTABLE Scharfetter relation: DESSIS default values
+     tmine  = 0.0 s;
+     tmaxe  = 1e-5 s;
+     Nrefe  = 1e16 "cm^-3";
+     gammae = 1.0;
+     
+     tminh  = 0.0 s;
+     tmaxh  = 3e-6 s;
+     Nrefh  = 1e16 "cm^-3";
+     gammah = 1.0;
+     
+     // NEWTABLE Surface recombination velocity
+     srve = 0.0 "cm/s"; // PRIVC typical values: 1e1 - 1e5
+     srvh = 0.0 "cm/s"; // PRIVC typical values: 1e1 - 1e5
+  }
+
+  MCTableMobilityElectrons
+  {
+     dirMaj     = "";
+     dirMin     = "";
+     nameField  = "field_x";
+     nameDoping = "doping";
+     nameW      = "M2E";
+     nameMob0   = "mob_n";
+     nameMob1   = "mob_S";
+     nameMob2   = "mob_K";
+
+     useThot    = no;
+
+     useDamp    = no;
+     dref       = 10 nm;
+     damp       = 0.5;
+
+     // Surface mobility model (Reggiani, SISPAD 2002)
+     N1     = 2.34e16 "cm^-3";
+     N2     = 4.00e15 "cm^-3";
+     N3     = 1.00e17 "cm^-3";
+     N4     = 2.40e18 "cm^-3";
+     A      = 1.86e4  "cm^2/V*s";
+     B      = 5.80e18 "cm^2/V*s";
+     tau    = 1;
+     r      = 0.3;
+     a      = 0.026;
+     b      = 0.11;
+     delta  = 0.29;
+     lambda = 2.64;
+
+     ghdm = no;
+  }
+
+  MCTableMobilityHoles : MCTableMobilityElectrons
+  {
+     // Surface mobility model (Reggiani, SISPAD 2002)
+     N1     = 2.02e16 "cm^-3";
+     N2     = 7.80e15 "cm^-3";
+     N3     = 2.00e15 "cm^-3";
+     N4     = 6.60e17 "cm^-3";
+     A      = 5.726e4 "cm^2/V*s";
+     B      = 7.82e18 "cm^2/V*s";
+     tau    = 3;
+     r      = 0.5;
+     a      = -0.02;
+     b      = 0.08;
+     delta  = 0.3;
+     lambda = 2.24;
+  }
+}
+
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  //
+  //   Every section has a materials keyword, which determines the materials
+  //   these defaults belong to. Can be a comma-separated wildcarded list, e.g.
+  //
+  //   materials = "Si,SiGe";  //   only Si and SiGe
+  //   materials = "Ga*";      //   all kind of GaAs, GaInAs, ...
+  //
+  //   This section or an equivalent user-defined section has to be used in the
+  //   Device.Phys.SegmentDefaults section, which is the actually read section.
+  //   The first subsection in the Device.Phys.SegmentDefaults section matching
+  //   the material of the segment will be used, so use the materials = "*" in 
+  //   the last subsection.
+  //
+  //   Note that the name of the section is arbitrary, only the materials
+  //   keyword and the order matter.
+  //
+  // ==========================================================================
+  // ==========================================================================
+
+
+MaterialDefaults
+{
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // 
+  //             Base Material
+  //
+  //             Contains models which might be applicable to all materials
+  //
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+
+  BaseMaterial
+  {
+     class     = "BaseMaterial";
+     materials = ""; //"Semiconductor,Insulator";
+
+     hydrogen0Transport = "Diffusion";
+     Hydrogen0Transport
+     {
+	Diffusion
+	{
+	   D0         = 5.64e-4 "cm^2 s^-1"; // Arrhenius prefactor
+	   Ea         = 0.45 "eV";           // Arrhenius activation energy
+           oneD       = no;
+	   freeze     = no; // if set yes the transport is turned off
+           consistent = no; // add charges of mobile carriers to Poisson's equation
+
+           initVal    = 1e-9 "cm^-3";
+
+           Z = 0.0;  // charge state of mobile species
+	}
+     }
+
+     hydrogen2Transport = "Diffusion";
+     Hydrogen2Transport
+     {
+	Diffusion
+	{
+	   D0         = 5.64e-4 "cm^2 s^-1"; // Arrhenius prefactor
+	   Ea         = 0.45 "eV";           // Arrhenius activation energy
+           oneD       = no;
+	   freeze     = no; // if set yes the transport is turned off
+           consistent = no; // add charges of mobile carriers to Poisson's equation
+
+           initVal    = 1e-9 "cm^-3";
+
+           Z          = 0.0;  // charge state of mobile species
+	}
+     }
+
+     hydrogenPTransport = "DriftDiffusion";
+     HydrogenPTransport : Hydrogen2Transport
+     {
+	+DriftDiffusion : Diffusion
+	{
+	   D0 = 5.64e-4 "cm^2 s^-1"; // Arrhenius prefactor
+	   Ea = 0.45 "eV";           // Arrhenius activation energy
+	   Z  = +1.0;
+	}
+     }
+
+     hydrogenTraps = "None";
+     HydrogenTraps
+     {
+        _Common_
+        {
+           occ  = yes; // consider occupancy of trap levels
+           stat = no;  // use equilibrium assumption for trap dynamics
+
+           // remove those
+	   //chargedTrapped = yes;
+           //Z = +1;
+        }
+        <General> : _Common_
+        {
+           Nc0 = 1e16 "cm^-3";
+           nu0 = 300 Hz;
+           Nc2 = 1e16 "cm^-3";
+           nu2 = 300 Hz;
+           NcP = 1e16 "cm^-3";
+           nuP = 300 Hz;
+        }
+     }
+
+     hydrogenTrapDOS = "Exponential";
+     HydrogenTrapDOS
+     {
+        _Common_
+        {
+           Emax  =  0 eV;  // the mobility edge
+           Emin  = -1 eV;
+           Nt    =  1e10 "cm^-3";
+           Nf    =  0 "cm^-3"; // fixed contribution, currently not implemented
+           //Mt    = ~Num.EnergyDiscretization.intervals;
+           useEc = no;
+           useEv = no;
+        }
+        <Single> : _Common_
+        {
+           Et  = - 0.3 eV;
+           tch = + 1;
+           Mt  =   1;
+        }
+        <Box> : _Common_
+        {
+           tch = + 1;
+        }
+        <Exponential> : _Common_
+        {
+           E0  =   0.3 eV;  // reference energy
+           tch = + 1;
+        }
+        <Gaussian> : _Common_
+        {
+           E0    =   0.3 eV;      // reference energy for exponential tail states
+           Em    = - 0.3 eV;      // average energy
+           sigma =   0.3 "eV^2";  // variance
+           r     =   1;           // ratio between Gaussian and exponential distribution
+           tch   = + 1;
+        }
+     }
+
+     oxideChargeCollector = "None";
+     OxideChargeCollector
+     {
+        Default
+        {
+           tox = -1;
+        }
+     }
+
+  }
+
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // 
+  //             IdealConductors 
+  //
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+
+  IdealConductor
+  {
+     // PRIVC we use "Conductor" here instead of the Conductor section
+     // as we use infinity as default conductivity.
+     class      = "IdealConductor";
+     materials  = "IdealConductor,Conductor";
+
+     contact = "Ohmic";          // Use "None" for non-contact segments
+     Contact
+     {
+	_Common_
+        {
+	  // This section contains the keywords which are 
+	  // supported by the contact model base class and
+	  // are therefore available for all contact models.
+
+	  type = "Voltage";      // Determines the basic contact type. 
+                         	 // Might be "Voltage", "Current",
+		 		 // or "Charge" controlled. For thermal
+				 // contacts use "Thermal", for a combination
+				 // of both separate with a comma.
+          R    = 0.0 Ohm;        // Ohmic contact resistance
+          Rth  = 0.0 "K cm^2/W"; // Thermal contact resistivity
+          Rg   = 0.0 "K/W";      // Global thermal contact resistance
+          Rth3d  = 0.0 "K cm^2/W"; // Thermal width contact resistivity 
+	  only3d = no;             // Don't work as 2d contact, just
+				   // pick up heat from the 3rd dimension
+	  Ew   = 0.0 eV;         // Work function difference
+	  qfl  = "";             // Segments where contact controls qfl
+  				 // ENDC 
+                                 // NOTE: Use only when the potential on
+  				 // this contact is significantly different
+  				 // from zero since it deteriorates the
+  				 // condition of the linear system.
+  				 // However, for high bias on this contact
+  				 // it is absolutely necessary.
+
+	  Z0     = 50.0 Ohm;       // characteristic impedance
+	  parR   =  0.0 Ohm;       // parasitic resistance
+          parL   =  0.0 pH;        // parasitic inductance
+	  parC   =  0.0 fF;        // parasitic capacitance
+        }
+
+	Ohmic : _Common_;
+
+        Schottky : _Common_
+        {
+          +rve  = 0.0 "cm/s";    // Electron recombination velocity
+          +rvh  = 0.0 "cm/s";    // Hole recombination velocity
+          +me   = 0.0;           // electron mass / free electron mass
+          +mh   = 0.0;           // hole mass     / free electron mass
+        }
+        PolySilicon : _Common_
+        {
+	  +delta = 5e-10 m;      // Oxide thickness
+	  +rv    = 62e3 "cm/s";  // Minority carrier recombination velocity	
+	  +sigma = 2.8 "S/um^2"; // Majority carrier conductivity	  
+	  +epsr  = 3.9;	         // Relative permittivity of oxide
+        }
+     }
+
+     // In metals, there is no carrier heating 
+     Electron  
+     {  // PRIVATE
+        distribution = "ColdMaxwellian";
+        Distribution
+        {
+           ColdMaxwellian
+           {
+              T   = 300 K;
+              exp = 1.0;
+           }
+        }
+     }
+     Hole  
+     {  // PRIVATE
+        distribution = "ColdMaxwellian";
+        Distribution
+        {
+           ColdMaxwellian
+           {
+              T   = 300 K;
+              exp = 1.0;
+           }
+        }
+     }
+  }
+
+  IdealConductors : IdealConductor
+  {
+     materials = "n-Poly,Poly,Al,Aluminum,Metal,Cu,Ti";
+  }
+
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // 
+  //             Conductors 
+  //
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+
+  Conductor
+  {
+     // The base section is virtual, i.e. there is no default conductivity
+     class     = "Conductor";
+     materials = "";
+
+     conductivity = "Const";
+     Conductivity { Const { s = 0.0 "S/m"; } }
+  }
+
+  Silicide : Conductor;
+
+  TiSi2 : Silicide
+  {
+     materials = "TiSi2";
+     Conductivity { Const { s = 5e6 "S/m"; } }
+  }
+
+  MoSi2 : Silicide
+  {
+     materials = "MoSi2";
+     Conductivity { Const { s = 1e6 "S/m"; } }
+  }
+
+  TaSi2 : Silicide
+  {
+     materials = "TaSi2";
+     Conductivity { Const { s = 2e6 "S/m"; } }
+  }
+
+  WSi2 : Silicide
+  {
+     materials = "WSi2";
+     Conductivity { Const { s = 1.43e6 "S/m"; } }
+  }
+
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // 
+  //             Semiconductor
+  //
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+
+  <Semiconductor> : BaseMaterial
+  {
+     class      = "Semiconductor";
+     materials  = class;
+
+     fermiIntegralP12 = "MM6";   // PRIVATE
+     fermiIntegralM12 = "MM6";   // PRIVATE
+     fermiIntegralI12 = "MM6";   // PRIVATE
+     fermiRatioP12M12 = "MM6";   // PRIVATE
+     fermiRatioP32P12 = "MM6";   // PRIVATE
+     test             = "Fermi"; // PRIVATE
+     quantumCorrection= "None";
+
+     QuantumCorrection
+     {
+	Haensch
+	{
+	   z0     = 1.0 "nm";
+	   hLimit = 1.0e-5;
+	   lFit   = 1.0;
+	}
+	VanDort
+	{
+	   beta = 4.1e-8 "eV*cm";
+	   zref = 1.0 "nm";
+	}
+	IMLDA
+	{
+	   p1       = 4.026e-2;
+	   p2       = 71.442;
+	   p3       = 1.353;
+           mt       = 0.19;
+	   ml       = 0.92;
+        }
+     }
+     Electron
+     {
+        interfaceDD = "CQFL";
+        interfaceHD = "CQFL";
+
+        InterfaceDD
+        {
+	   TFE
+	   {
+	      d = 7e-9 m;
+	      scaleFactor = 1.0;
+	   }
+        }
+        InterfaceHD : InterfaceDD;
+
+        distribution = "ColdMaxwellian";
+        Distribution
+        {
+           ColdMaxwellian
+           {
+              T   = 300 K;
+              exp = 1.0;
+           }
+           HeatedMaxwellian  // T from carrier temperature
+           {
+              exp = 1.0;
+           }
+           NonMaxwellian  // no parameters needed
+           {
+           }
+        }
+        tunnel = "None";
+        Tunnel
+        {
+           _Common_
+           {
+              consistent = yes;
+           }
+           FNPure : _Common_
+           {  // values for m=0.5m_ox, Phi_b = 3.1eV
+              +a          = 994.6316e-9 "A/V^2"; 
+              +b          = 2.635706e10 "V/m";
+           }
+           FrenkelPoole : _Common_
+           {  
+              +a          = 994.6316; 
+              +b          = 2e-24;
+              +trapNrg    = 1.5 "eV";
+           }
+           FNLenzlingerSnow : _Common_
+           {
+              +mOx        = 0.5;       
+              +phiB       = 0 "eV";
+           }
+           DTSchuegraf : _Common_
+           {
+              +mOx        = 0.5;       
+              +phiB       = 0 "eV";
+           }
+           TsuEsaki : _Common_
+           {
+              +ccb        = yes;             // consider conduction band tunneling                      
+              +cvb        = no;              // consider valence band tunneling                      
+              +tat        = no;              // consider trap-assisted tunneling              
+	      +mtat       = no;              // consider multi-trap-assisted tunneling
+              +mOx        = 0.5;             // carrier mass in the dielectric                
+              +tcType     = "numericalWKB";  // "analyticalWKB,qtbm"                          
+              +dfType     = "fermi";         // "heated"                                      
+              +trapRadius = 0.25 nm;         // trap radius                                   
+              +dNrg       = 10 "meV";        // energy step width for numerical integration   
+              +huangRhys  = 65;              // Huang-Rhys factor for trap-assisted tunneling 
+              +phononNrg  = 0.030 eV;        // Phonon energy for trap-assisted tunneling     
+              +imageForce = no;              // image force correction                        
+              +conc       = no;              // calculate concentration                       
+              +deltaX     = 0.1 "nm";        // spacing for qtbm method                       
+              +checkBd    = no;              // check for breakdown                           
+              +J0         = 1 "A*cm^-2";     // breakdown current prefactor                   
+              +beta       = 2.0;             // breakdown current exponent                    
+              +connL      = 5 "nm";          // connection length for qtb method
+              +singlePoint = no;
+           }
+        }
+
+     }
+     Hole : Electron
+     {
+        tunnel = "None";
+        Tunnel
+        {
+           _Common_
+           {
+              consistent = yes;
+           }
+           FNPure : _Common_
+           {  // values for m=0.8m_ox, Phi_b = 4.8eV
+              +a          = 4.013e-7  "A/V^2"; 
+              +b          = 6.4216e10 "V/m";
+           }
+           FrenkelPoole : _Common_
+           {  
+              +a          = 0.0;   // FrenkelPoole model used for electrons only
+              +b          = 0.0;
+              +trapNrg    = 0.0 "eV";
+           }
+           FNLenzlingerSnow : _Common_
+           {
+              +mOx        = 0.8;       
+              +phiB       = 0 "eV";
+           }
+           DTSchuegraf : _Common_
+           {
+              +mOx        = 0.8;       
+              +phiB       = 0 "eV";
+           }
+           TsuEsaki : _Common_
+           {
+              +ccb        = yes;             // consider conduction band tunneling                      
+              +cvb        = no;              // consider valence band tunneling                      
+              +tat        = no;              // consider trap-assisted tunneling               
+	      +mtat       = no;              // consider multi-trap-assisted tunneling
+              +mOx        = 0.8;             // carrier mass in the dielectric                 
+              +tcType     = "numericalWKB";  // "analyticalWKB,qtbm"                           
+              +dfType     = "fermi";         // "heated"                                       
+              +trapRadius = 0.25 nm;         // trap radius                                    
+              +dNrg       = 10 "meV";        // energy step width for numerical integration    
+              +huangRhys  = 65;              // Huang-Rhys factor for trap-assisted tunneling  
+              +phononNrg  = 0.030 eV;        // Phonon energy for trap-assisted tunneling      
+              +imageForce = no;              // image force correction                         
+              +conc       = no;              // calculate concentration                        
+              +deltaX     = 0.1 "nm";       // spacing for qtbm method                        
+              +checkBd    = no;              // check for breakdown                            
+              +J0         = 1 "A*cm^-2";     // breakdown current prefactor                    
+              +beta       = 2.0;             // breakdown current exponent                     
+              +connL      = 5 "nm";          // connection length for qtb method
+              +singlePoint = no;
+           }
+        }
+     }
+
+     streamingTermCorrection = "None";
+     closureCorrection = "None";
+
+     contact = "None";           // Use "Ohmic" for thermal contacts
+     Contact
+     {
+	Ohmic : ^^IdealConductor.Contact.Ohmic
+        {
+	  type = "Thermal";
+        }
+     }
+
+     // As long as we don't have proper models
+     // for the kurtosis relaxation time, we
+     // define a global for all semiconductors
+     kurtosisRelaxTime = "Const";
+     KurtosisRelaxTime
+     {
+	Const
+	{
+	   tke = 0.35 ps;
+	   tkh = 0.4  ps;
+	}
+     }
+     
+     discretization = "SM"; // "Choi";
+     Discretization
+     {
+	_Common_
+	{
+  	   alpha = 0.0 eV;
+	}
+	Choi : _Common_
+        {
+           +delta0 = 5.0/2.0;
+           +delta1 = 5.0/2.0;
+        }
+	SM   : _Common_
+	{
+	   +closure   = 2.7;
+           
+           +lambda0   = 0;
+           +lambda1   = 0;
+           +lambda2   = 0;
+
+           +betaHD    = no;
+           +betaHDMin = 0.7;
+           +Eref      = 0;
+	   +betaHDClosure = 1.0;
+	   +betaHDField   = 1.0;
+
+           +beta0     = 1.0;
+           +TrefBeta  = 600 K;
+           +gamma0x   = 1.0;
+           +gamma0y   = 1.0;
+           +TrefGamma = 600 K;
+	}
+	SMHF   : _Common_
+	{
+	   +closure      = 2.7;
+           +fHf          = 1;
+           +useHfClosure = no;
+
+           +betaHD    = no;
+           +betaHDMin = 0.7;
+           +Eref      = 0;
+
+	   +betaHDClosure = 1.0;
+	   +betaHDField   = 1.0;
+
+           +beta0     = 1.0;
+           +TrefBeta  = 600 K;
+           +gamma0x   = 1.0;
+           +gamma0y   = 1.0;
+           +TrefGamma = 600 K;
+        }
+	SM2 : _Common_
+	{
+	   +closure   = 2.7;
+           
+           +lambda0   = 0;
+           +lambda1   = 0;
+           +lambda2   = 0;
+        }
+	HF : _Common_
+	{
+           +useGradH1 = no;
+           +delta0    = 5.0/2.0;
+           +delta1    = 5.0/2.0;
+           +streamingCorrectionType = "Const"; // Const or GHDM
+        }
+	Ringhofer1 : _Common_;
+	Ringhofer2 : _Common_;
+     }
+     debugDiscretization = "SM";
+     DebugDiscretization : Discretization;
+     
+     hallFactors = "Const";
+     HallFactors
+     {
+        Const
+        {
+           rh = 0.7;  // Hall factor for holes.  
+           re = 1.15;  // Hall factor for electrons.
+        }
+     }
+
+     densityOfStates = "None";
+     DensityOfStates
+     {
+        _Common_
+        {
+           // 2 (2 pi m0 kB 300 / (h^2))^1.5
+           Ncv0 = 2.50933670314359713002e19 "cm^-3";
+	}
+	Ltm_Pure  : _Common_;
+     }
+     opticalG = "None";
+     OpticalG
+     {
+	Simple
+	{
+	   xmin = 0.0 "um";  // in 1D xmin must be xmax and they
+			     // denote the photon source
+	   ymin = 0.0 "um";  // in 2D either xmin==xmax or ymin==ymax
+			     // denotes the source. The others denote
+			     // the window.
+	   zmin = 0.0 "um";  // in 3D ...
+
+	   xmax = 0.0 "um";
+	   ymax = 0.0 "um";
+	   zmax = 0.0 "um";
+
+	   J0    = 0.0 "um^-2 s^-1"; // beam intensity
+	   alpha = 0.0 "um^-1";      // absorption coefficient
+	   sigma = 0.0 "um";         // standard deviation of the
+				     // Gaussian distribution outside
+				     // the window
+	}
+     }
+  }
+  
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              Si
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <Si> : Semiconductor
+  {
+     materials = "Si,Silicon";
+
+     Doping : ~SpecialModels.Doping
+     {
+        Phosphorus : Donor    { materials = "P,Phosphorus"; Dopant { IncompleteIonization { energyLevel = 0.045 eV; } } }
+        Arsenic    : Donor    { materials = "As,Arsenic";   Dopant { IncompleteIonization { energyLevel = 0.054 eV; } } }
+        Antimony   : Donor    { materials = "Sb,Antimony";  Dopant { IncompleteIonization { energyLevel = 0.039 eV; } } }
+        Donors     : Donor    { materials = "Fe"; }                                         
+        Boron      : Acceptor { materials = "B,Boron";      Dopant { IncompleteIonization { energyLevel = 0.045 eV; } } }
+        Indium     : Acceptor { materials = "In,Indium";    Dopant { IncompleteIonization { energyLevel = 0.16  eV; } } }
+        Acceptors  : Acceptor { materials = "Ga,Gallium,O,Oxygen"; }
+        Neutrals   : Neutral  { materials = "C,Carbon,Si,Silicon,Ge,Germanium,Sn"; }
+        Multilevel : Multi    
+	{  // PRIVATE
+	   materials = "Au"; 
+	}
+     }
+
+     Electron
+     {
+	mobilityDD = "MM6";
+	MobilityDD
+	{
+	   Const { u = 800 "cm^2/V*s"; }
+	   MM6 : ~SpecialModels.Minimos6Electrons;
+
+           MCTable : ~SpecialModels.MCTableMobilityElectrons;
+
+	   Table : ~SpecialModels.Minimos6Electrons
+	   {
+	      +file = ""; // file containing table data
+	      +par  = ""; // name of the parameter
+	      +res  = ""; // name of the response
+	   }
+	   
+	   Min
+	   {
+	      u0    = 26265  "cm^2/V*s";
+	      c1    = 2.6e14 "cm^-3";
+	      c2    = 4.8e20 "cm^-3";
+	      g     = 57     "cm^2/V*s";
+	      h     = 8      "cm^2/V*s";
+	      alpha = 0.72;
+	      beta  = 1.5;
+	      up    = -2;
+	      gp    = -2;
+	      hp    = -2;
+	      c1p   = -2;
+	      c2p   = -2;
+	      ap    = -2;
+	      bp    = -2;
+	   }
+           LombardiDD : ~SpecialModels.Minimos6Electrons
+           {
+              +B300   = 4.75e7 "cm/s";
+              +C300   = 5.8e2 "cm^1.6666667/s*V^0.6666667";
+              +D300   = 5.82e14 "V/s";
+              +L300   = 0.1250;
+           }
+	   MasettiDD : ~SpecialModels.Minimos6Electrons
+	   {
+              +uLImin1300   = 52.2 "cm^2/V*s";
+              +uLImin2300   = 52.2 "cm^2/V*s"; 
+              +uLI1300      = 43.4 "cm^2/V*s"; 
+              +Cr300        = 9.68e16 "cm^-3";
+              +Cs300        = 3.42e20 "cm^-3";
+              alpha300      = 0.68;            
+              +beta300      = 2.0;             
+              +pc300        = 0.0;             
+              +ecrt         = 8.00e3 "V/cm";
+	   }
+	}
+
+	mobilityHD = "Si_Haensch";
+	MobilityHD
+	{
+	   Const { u = 800 "cm^2/V*s"; }
+	   Si_Haensch   : ~SpecialModels.Minimos6Electrons;
+	   Si_Baccarani : ~SpecialModels.Minimos6Electrons;
+	   Si_Kurtosis  : ~SpecialModels.Minimos6Electrons;
+           LombardiHD   : ~SpecialModels.Minimos6Electrons
+           {
+              +B300   = 4.75e7 "cm/s";
+              +C300   = 5.8e2 "cm^1.6666667/s*V^0.6666667";
+              +D300   = 5.82e14 "V/s";
+              +L300   = 0.1250;
+           }
+	   MasettiHD : ~SpecialModels.Minimos6Electrons
+           {
+              +uLImin1300   = 52.2 "cm^2/V*s";
+              +uLImin2300   = 52.2 "cm^2/V*s";
+              +uLI1300      = 43.4 "cm^2/V*s";
+              +Cr300        = 9.68e16 "cm^-3";
+              +Cs300        = 3.42e20 "cm^-3";
+              alpha300      = 0.68;
+              +beta300      = 2.0;
+              +pc300        = 0.0;
+              +ecrt         = 8.00e3 "V/cm";
+           }
+
+           MCTable : ~SpecialModels.MCTableMobilityElectrons;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "MM6";
+	MobilityDD
+	{
+	   Const { u = 300 "cm^2/V*s"; }
+	   MM6 : ~SpecialModels.Minimos6Holes;
+
+           MCTable : ~SpecialModels.MCTableMobilityHoles;
+
+	   Table : ~SpecialModels.Minimos6Electrons
+	   {
+	      +file = ""; // file containing table data
+	      +par  = ""; // name of the parameter
+	      +res  = ""; // name of the response
+	   }
+
+           LombardiDD : ~SpecialModels.Minimos6Holes
+           {
+            +B300   = 9.925e6 "cm/s";
+            +C300   = 2.947e2 "cm^1.6666667/s*V^0.6666667";
+            +D300   = 2.05e14 "V/s";
+            +L300   = 0.0317;
+           }
+	   MasettiDD : ~SpecialModels.Minimos6Holes
+	   {
+            +uLImin1300   = 44.9 "cm^2/V*s"; 
+            +uLImin2300   = 0.0 "cm^2/V*s";  
+            +uLI1300      = 29.0 "cm^2/V*s";  
+            +Cr300        = 2.23e17 "cm^-3"; 
+            +Cs300        = 6.10e20 "cm^-3"; 
+            alpha300      = 0.719;           
+            +beta300      = 2.0;             
+            +pc300        = 9.23e16 "cm^-3"; 
+            beta          = 1;
+            +ecrt         = 1.95e4 "V/cm";
+           }
+	}
+
+	mobilityHD = "Si_Haensch";
+	MobilityHD
+	{
+	   Const { u = 300 "cm^2/V*s"; }
+           MCTable : ~SpecialModels.MCTableMobilityHoles;
+
+	   Si_Haensch  : ~SpecialModels.Minimos6Holes;
+	   Si_Baccarani : ~SpecialModels.Minimos6Electrons;
+	   Si_Kurtosis  : ~SpecialModels.Minimos6Holes;
+           LombardiHD   : ~SpecialModels.Minimos6Holes
+           {
+            +B300   = 9.925e6 "cm/s";
+            +C300   = 2.947e2 "cm^1.6666667/s*V^0.6666667";
+            +D300   = 2.05e14 "V/s";
+            +L300   = 0.0317;
+           }
+	   MasettiHD : ~SpecialModels.Minimos6Holes
+           {
+            +uLImin1300   = 44.9 "cm^2/V*s";
+            +uLImin2300   = 0.0 "cm^2/V*s";
+            +uLI1300      = 29.0 "cm^2/V*s";
+            +Cr300        = 2.23e17 "cm^-3";
+            +Cs300        = 6.10e20 "cm^-3";
+            alpha300      = 0.719;
+            +beta300      = 2.0;
+            +pc300        = 9.23e16 "cm^-3";
+            beta          = 1;
+            +ecrt         = 1.95e4 "V/cm";
+           } 
+	}
+
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 1.0e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300eC = 0.26;          // T bow 
+	   vsat300h  = 7.04e6 "cm/s"; // Saturation velocity at 300 K
+	   vsat300hC = 0.63;          // T bow
+	}
+     }
+
+     energyRelaxTime = "CLtm_Pure";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 0.35 ps;
+	   twh = 0.4  ps;
+	}
+
+        MCTable
+        {
+           // dirMaj = "";
+           // dirMin = "";
+           dir        = "";
+           nameField  = "field_x";
+           nameDoping = "doping";
+           nameW      = "M2E";
+           nameW2     = "M4EE";
+           nameTau1   = "tau_e";
+           nameTau2   = "tau_s";
+           useThot    = no;
+        }
+
+        GHDM
+        {
+           dir        = "";
+           nameDoping = "doping";
+           nameDynT   = "dynT";
+           nameTauws  = "tauws";
+        }
+
+        Haensch   {} // no parameters needed
+        Baccarani {} // no parameters needed
+
+	Ctm
+	{
+	   twe0 = 0.16852 ps; // at 300K twe = 0.275 ?
+	   twe1 = 0.10299 ps;
+	   twe2 = -5.1845e-3 ps; 
+	   twh  = 0.35    ps; 
+	}
+	CLtm_Pure
+	{
+	   twe0  =  1.0 ps; 
+	   twe1  = -0.538 ps;
+	   ctwe0 =  0.0; 
+	   ctwe1 =  1.5e-3; 
+	   ctwe2 = -0.09; 
+	   ctwe3 =  0.17; 
+	   twh   =  0.35 ps;
+	}
+     }
+
+     streamingTermCorrection = "Parabolic";
+     StreamingTermCorrection
+     {
+	Parabolic
+	{
+	   H1_Const = 1;
+	   H2_Const = 1;
+	   H3_Const = 1;
+	}
+
+	Bordelon
+	{
+	   alpha = 0.5 "eV^-1";
+	}
+
+        MCTable
+        {
+           // dirMaj = "";
+           // dirMin = "";
+           dir       = "";
+           nameW     = "M2E";
+           nameW2    = "M4EE";
+           nameW3    = "M6EEE";
+           nameU1xx  = "M2pxvx";
+           nameU1yy  = "M2pyvy";
+           nameU2xx  = "M4pxvxE";
+           nameU2yy  = "M4pyvyE";
+           nameU3xx  = "M6pxvxEE";
+           nameU3yy  = "M6pyvyEE";
+        }
+
+        GHDM
+        {
+           dir        = "";
+           nameDynT   = "dynT";
+           nameTiOTis = "ti_tis";
+           nameTsOTis = "tss_tis";
+        }
+     }
+
+     closureCorrection = "Const";
+     ClosureCorrection
+     {
+	Const
+	{
+	   w2Corr_Const = 1;
+	   w3Corr_Const = 1;
+	}
+
+        MCTable
+        {
+           dir        = "";
+           nameDoping = "doping";
+           nameW      = "M2E";
+           nameW2     = "M4EE";
+           nameW3     = "M6EEE";
+        }
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   // [MW] use second values for comparisons to VSP simulations - derived from mt=0.19, ml=0.92
+	   me0 =  0.321; // 0.317139670651;    //PRIVC MM6: 0.476816    
+	   me1 =  0.009; // 0.00889176646685;   
+	   mh0 =  0.55;              // PRIVC MM6: 0.6008682
+	   mh1 =  0.6; 
+	   mh2 = -0.1; 
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 6;
+	}
+
+	Ltm_Si_Green : _Common_
+	{
+	   Nc0 = -0.14e19 "cm^-3";
+	   Nc1 =  1.56e19 "cm^-3";
+	   Nc2 =  1.44e19 "cm^-3";
+	   Nv0 = -0.17e19 "cm^-3";
+	   Nv1 =  0.93e19 "cm^-3";
+	   Nv2 =  2.34e19 "cm^-3";
+	}
+     }
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 11.9;
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 2.33 "g/cm^3";  // also: 2.329
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux
+     {
+	Ltm
+	{
+	   A =  142               "W/K m";
+	   B = -0.6512 * 300      "W/K m";
+	   C =  0.0007867 * 90000 "W/K m";
+	   C0 = A - B + C;
+	   C1 = 0.5 * (B/300 - 2*C/300);
+	   C2 = C/3/90000;
+	}
+	Ltm_Pure
+	{
+	   kappa = 148 "W/K m";
+	   alpha = -1.3;
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm
+	{
+	   C0 =  690 "J K^-1 kg^-1";
+	   C1 =  460 "J K^-1 kg^-1";
+	   C2 = -260 "J K^-1 kg^-1";
+	}
+	Ltm_Pure
+	{
+	   heat  = 711 "J K^-1 kg^-1"; // taken from S. Tiwari 'Compound Semiconductor Device Physics'
+	   dheat = 255 "J K^-1 kg^-1";
+	   alpha = 1.85;
+	}
+     }
+  
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	Universal
+	{
+	   dEcdEg = 0.0;
+	   dEvdEg = 0.0;
+	}
+	Si_Slotboom
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.009 eV;
+	   dEcdEg = 0.5;
+	}
+	Si_P : Si_Slotboom
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.4 eV;
+	   dEcdEg = 0.9;
+	}
+	Si_B : Si_P
+	{
+	   dEcdEg = 0.1;
+	}
+	Stress : Si_Slotboom
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.4 eV;
+	   dEcdEg = 0.9;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Si_MM6";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  1.16948 eV;     // Ec/2 = 0.561999615 eV
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	   Eoffs = -0.562 eV;       // offset energy    
+	}
+	Ltm_Si_MM6
+	{  //!!! K300 Ec/2 = 0.58925 - 1.35375e-2 - 1.3725e-2 = 0.5619875 eV
+	   E0    =  1.1785    eV;    
+	   E1    = -2.7075e-2 eV; // C1 = 2*4.5125e-5;*300K
+	   E2    = -2.745e-2  eV; // C2 = 2*1.525e-7;*300K*300K
+	   Eoffs = -0.5619875 eV; // offset energy 
+	}
+	Ltm_Si_Green
+	{  //!!! K300 Ec/2 = 0.585 + 2.86035e-3 - 3.474e-2 + 8.983224e-3 = 0.5621 eV 
+	   E0    =  1.17       eV;
+	   E1    =  5.7207e-3  eV; // C1 = 9.5345e-6;*300K
+	   E2    = -6.948e-2   eV; // C2 = 3.86e-7;*300K*300K
+	   E3    =  1.79665e-2 eV; // C3 = 3.32712e-10;*300K*300K*300K
+	   Eoffs = -0.5621     eV; // offset energy    
+	}
+     }
+
+     impactIonizationDD = "Ltm";
+     ImpactIonizationDD 
+     {
+	Ltm
+	{
+	   // PRIVATE   MINIMOS: alpha00e = 9.20e7;   m^-1         Electrons 
+	   // PRIVATE   MINIMOS: Ecrit_e  = 2.02e8;   Si value V/m Electrons 
+	   // PRIVATE   MINIMOS: beta_e   = 1.0;                   Electrons 
+	   // PRIVATE   MEDICI:  alpha00e = 7.03e7;   m^-1         Electrons 
+	   // PRIVATE   MEDICI:  Ecrit_e  = 1.231e8;  Si value V/m Electrons 
+	   // PRIVATE   	  
+	   // PRIVATE   MINIMOS: alpha00h = 1.70e8;   m^-1         Holes 
+	   // PRIVATE   MINIMOS: Ecrit_h  = 3.20e8;   Si value V/m Holes 
+	   // PRIVATE   MINIMOS: beta_h   = 1.0;                   Holes 
+	   // PRIVATE   MEDICI:  alpha00h = 1.528e8;  m^-1         Holes 
+	   // PRIVATE   MEDICI:  Ecrit_h  = 2.036e8;  Si value V/m Holes 
+
+	   Cbn1 = 7.03e7 "m^-1";
+	   Cbn2 = 0.0 "m^-1";
+	   Cbn3 = 0.0 "m^-1";
+	   Cbh1 = 1.528e8 "m^-1";
+	   Cbh2 = 0.0 "m^-1";
+	   Cbh3 = 0.0 "m^-1";
+	   Csn1 = 1.03e7 "m^-1";
+	   Csh1 = 4.0e8 "m^-1";
+		    
+	   Ecbn = 1.231e8 "V/m";
+	   Ecbh = 2.036e8 "V/m";
+	   Ecsn = 1.50e8 "V/m";
+	   Ecsh = 3.0e8 "V/m";
+	   expn = 1.0;
+	   exph = 1.0;
+		    
+	   lcrit = 1.0e-8 "m";
+	}
+
+	Simple
+	{
+           hw   = 0.063 eV;
+	   Cn1  = 7.03e7 "m^-1";
+	   Ch1  = 6.71e7 "m^-1";
+	   Ecbn = 1.231e8 "V/m";
+	   Ecbh = 1.693e8 "V/m";
+	}
+     }
+  
+     impactIonizationHD = "Simple";
+     ImpactIonizationHD 
+     {
+	Ltm
+	{
+	   Cn1 = 9.531e-9 "s";
+	   Cn2 = 3.823;
+	   Ch1 = 9.531e-9 "s";
+	   Ch2 = 3.823;
+		    
+	   Dn1 = 0.346333;
+	   Dn2 = 0.0922;
+	   Dh1 = 0.346333;
+	   Dh2 = 0.0922;
+	}
+
+	Simple
+	{
+	   Cn1 = 3e12 "s^-1";
+	   Cn2 = 1.2;
+	   Ch1 = 3e12 "s^-1";
+	   Ch2 = 1.2;
+	}
+
+	DMW
+	{
+	   Cn1 = 3e12 "s^-1" / (16.637 * 467.604132385093 / 5);
+	   Cn2 = 1.1;
+	   Ch1 = 3e12 "s^-1" / (16.637 * 467.604132385093 / 5);
+	   Ch2 = 1.1;
+	}
+
+	ADF
+	{
+           dftype    = "Maxwell";
+           gtype     = "Lambda";
+           Eth       = 1.12 eV;
+           lambdaM   = 0.845;
+           lambdaG   = 1.28;
+           alphaKane = 0.5 "1/eV";
+           betaMin   = 0.8;
+           betaMax   = 5;
+           betaFMin  = 1;
+           betaFMid  = 1;
+           betaFMax  = 1;
+           P0        = 6.25e10 "s^-1";
+        }
+	Sonoda
+	{
+	   g0     = 1.39e14 "s^-1"; 
+	   Ec     = 8.78 eV;
+	   gamma1 = 4.2;
+	   gamma2 = 1.6;
+	   xsih   = 0.88;
+
+	   // PRIVC g0     = 1.39e14 "s^-1"; 
+	   // PRIVC Ec     = 8.78 eV;
+	   // PRIVC gamma1 = 4.2;
+	   // PRIVC gamma2 = 1.6;
+	   // PRIVC xsih   = 0.88;
+	}
+     }
+  
+     bbTunneling = "Ltm_Hurkx"; // PRIVC "Ltm_Schenk";
+     BbTunneling
+     {
+	Ltm_Hurkx
+	{
+	   // PRIVATE reverse = yes;                // junction in reverse direction
+	   revEBB   = 2.25e9 "V/m";        // Si default 2.25e9 "V/m"
+	   revB     = 3.5e27 "s^-1 cm^-3"; // Si default 3.5e27 "s^-1 m^-3"
+	   revSigma = 2.0;                 // Si default 2.0
+	
+	   reverse  = no;                  // junction in forward direction
+	   fwdEBB   = 1.9e9 "V/m";         // Si default 1.9e9 "V/m"
+	   fwdB     = 4.4e20 "s^-1 m^-3";  // Si default 4.4e20 "s^-1 m^-3"
+	   fwdSigma = 2.5;                 // Si default 2.5
+	}
+	Ltm_Schenk
+	{
+	   reverse   = yes; // junction in reverse/forward direction
+           A         = 8.977e20;
+           B         = 2.14667e7;
+           hw        = 0.0186;
+
+	}
+     }
+
+     directGR = "None";
+     auger = "Const";
+     Auger
+     {
+	Const
+	{
+	   Ce = 2.8e-31 "cm^6 / s";
+	   Ch = 9.9e-32 "cm^6 / s";
+	}
+     }
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 1e13 "cm^-3";
+	   Et   = 0.0  eV;
+	   type = "Acceptor";
+
+	   ste  = 1.0e-19 "m^2";
+	   sth  = 1.0e-19 "m^2";
+	}
+	TbbCorrection_Hurkx  : Ltm;
+	TbbCorrection_Schenk : Ltm;
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              Ge
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  Ge : Si
+  {
+     materials = "Ge,Germanium";
+
+     Doping : ~SpecialModels.DopingIV;
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 0.7e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300eC = 0.55;          // T bow 
+	   vsat300h  = 0.63e7 "cm/s"; // Saturation velocity at 300 K
+	   vsat300hC = 0.61;           // T bow
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 = 0.2158;  
+	   me1 = 0.0068;  
+	   mh0 = 0.2915;  
+	   mh1 = 0.1;     
+	   mh2 = 0.0;     
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 4;
+	}
+     }
+
+     permittivity = "Pure";
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 16;  // epsGe also: 16.2
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 5.3267 "g/cm^3"; // also: 5.3234
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	  Ltm_Pure
+	  {
+	     kappa = 60 "W/K m";
+	     alpha = -1.25;
+	  }
+     }
+     
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 360 "J K^-1 kg^-1"; // taken from S. Tiwari 'Compound Semiconductor Device Physics'
+	   dheat = 130 "J K^-1 kg^-1";
+	   alpha = 1.3;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   = 0.7437 eV;        // PRIVC Eg0Ge   also: 0.74
+	   alpha = 4.774e-4 "eV/K";  // PRIVC alphaGe also:
+	   beta  = 235 K;            // PRIVC betaGe  also:  
+	   Eoffs = -0.15666 eV;      // offset energy    
+	}
+     }
+
+  }
+  
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              4H-SiC
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  
+  SiC4H : Si
+  {
+     materials = "SiC4H,4H-SiC";
+     
+     Doping : ~SpecialModels.Doping
+     {
+        +Phosphorus : Donor 
+        { 
+           materials = "P,Phosphorus";
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = 1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = 1;
+                 energyLevel = 0.10 eV;  
+                 degeneracy  = 2;       
+              }
+           }
+        }
+        +Nitrogen   : Donor    
+        { 
+           materials = "N, Nitrogen"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = 1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = 1;
+                 energyLevel = 0.10 eV;  
+                 degeneracy  = 2;       
+              }
+           }
+        }
+        +Boron      : Acceptor 
+        { 
+           materials = "B,Boron";      
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = -1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = -1;
+                 energyLevel = 0.20 eV;  
+                 degeneracy  = 4;       
+              }
+           }
+        }
+        +Aluminium  : Acceptor 
+        { 
+           materials = "Al, Aluminium"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = -1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = -1;
+                 energyLevel = 0.20 eV;  
+                 degeneracy  = 4;       
+              }
+           }
+        }
+        +Neutrals   : Neutral  
+        { 
+           materials = "C,Carbon,Si,Silicon,Ge,Germanium,Sn"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              IncompleteIonization
+              {
+                 chargeState = 0;
+                 energyLevel = 0.0 eV;  
+                 degeneracy  = 0;       
+              }
+           }
+        }
+     }     
+
+     Electron 
+     {
+        mobilityDD = "MM6";
+        MobilityDD
+        {
+           MM6 
+           {
+              uL300        =  950 "cm^2/V*s";
+              
+              // NEWTABLE Impurity scattering parameters	
+              uLImin300    = 40 "cm^2/V*s";           // Impurity minimum mobility at 300 K.
+              uLIexpTabove = 0;                       // Temperature exponent above Tswitch.
+              uLIexpTbelow = 0;                       // Temperature exponent below Tswitch.
+              Tswitch      = 300 K;	              // Temperature where to switch exponents
+              Cref300      = 1.94e17 "cm^-3";         // Reference doping concentration at 300 K
+              CrefexpT     = 0;	                      // Temperature exponent       
+              alpha300     = 0.61;                    // Concentration exponent	       
+              alphaexpT    = 0.;                      // Temperature exponent
+              
+              // NEWTABLE Surface scattering parameters	   
+              uLISref300   = 18 "cm^2/V*s";           // Surface reference mobility at 300 K
+              uLISexpT     = -1.2;                    // Temperature exponent
+              dref         = 50 nm;	              // yref = Surface reference distance
+              ESref        = 3.0e8 "V/m";	      // Surface reference field
+           }
+        }
+     }
+
+     Hole 
+     {
+        mobilityDD = "MM6";
+        MobilityDD 
+        {
+           MM6 
+           {
+              uL300        =  125 "cm^2/V*s";
+
+              // NEWTABLE Impurity scattering parameters	   
+              uLImin300    = 16 "cm^2/V*s";           // Impurity minimum mobility at 300 K.
+              uLIexpTabove = 0;                       // Temperature exponent above Tswitch.
+              uLIexpTbelow = 0;                       // Temperature exponent below Tswitch.
+              Tswitch      = 200 K;	              // Temperature where to switch exponents
+              Cref300      = 1.76e19 "cm^-3";         // Reference doping concentration at 300 K
+              CrefexpT     = 0;	                      // Temperature exponent       
+              alpha300     = 0.34;                    // Concentration exponent	       
+              alphaexpT    = 0.;                      // Temperature exponent
+                
+              // NEWTABLE Surface scattering parameters
+              uLISref300   = 11 "cm^2/V*s";           // Surface reference mobility at 300 K
+              uLISexpT     = -1.1;                    // Temperature exponent
+              eta          = 0.0;                     // Surface reference distance correction
+              dref         = 50 nm;	              // Surface reference distance
+              ESref        = 3.0e8 "V/m";	      // Surface reference field
+           }
+        }
+     }
+         
+     permittivity  = "Pure"; 
+     Permittivity 
+     {
+        Pure 
+        { 
+           epsr = 10; 
+        } 
+     }   
+         
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+        Ltm_Pure
+        {
+           Eg0   =  3.265 eV;       
+           alpha =  3.3e-2 "eV/K";    // can be replaced by 3.3e-4 for T above 300K.
+           beta  =  1.0e5 K;          
+           Eoffs = -1.1325 eV;;       // shifting by 40 meV for both polytypes.  
+        }
+     }
+         
+     velocitySaturation = "SiC"; 
+     VelocitySaturation
+     {
+        Ltm_Pure
+        {
+           vsat300e  = 1.0e7 "cm/s";  // Saturation velocity at 300 K
+           vsat300eC = 0.26;          // T bow 
+           vsat300h  = 7.04e6 "cm/s"; // Saturation velocity at 300 K
+           vsat300hC = 0.63;          // T bow
+        }
+
+        +SiC
+        {
+           vsat300 = 2.2e7 "cm/s";  // Saturation velocity at 300 K
+           delta   = -0.44;
+        }            
+     }
+         
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+        Ltm_Pure
+        {
+           me0 =  0.39; //effective density of mass artion electron
+           me1 =  0; 
+           mh0 =  0.82; //effective density of mass artion hole     
+           mh1 =  0; 
+           mh2 =  0; 
+        }
+     }
+         
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+        Ltm_Pure
+        {
+           Mc = 3;
+        }
+     }
+         
+     massDensity = "Pure";
+     MassDensity
+     {
+        Pure
+        {
+           rho = 3.21 "g/cm^3";  // range: 3.21 - 3.248;
+        }
+     }
+         
+     thermalHeatFlux = "Ltm_SiC";
+     ThermalHeatFlux
+     {
+        Ltm
+        {
+           A =  142               "W/K m";
+           B = -0.6512 * 300      "W/K m";
+           C =  0.0007867 * 90000 "W/K m";
+           C0 = A - B + C;
+           C2 = C/3/90000;
+        }
+            
+        Ltm_Pure
+        {
+           kappa = 490 "W/K m";
+           alpha = -1.5;
+        }
+            
+        +Ltm_SiC
+        {
+           A =  2.5e-3  ;
+           B =  2.75e-4 ;
+           C =  1.3e-6  ;
+        }
+     }
+         
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+        Ltm
+        {
+           C0 =  690 "J K^-1 kg^-1";
+           C1 =  460 "J K^-1 kg^-1";
+           C2 = -260 "J K^-1 kg^-1";
+        }
+            
+        Ltm_Pure
+        {
+           heat  = 711 "J K^-1 kg^-1"; // [A0307]
+           dheat = 255 "J K^-1 kg^-1";
+           alpha = 1.85;
+        }
+            
+        +Ltm_SiC
+        {
+           A =  1026 ;
+           B =  0.201 ;
+           C =  0 ;
+           D = -3.66e7;
+        }
+     }
+         
+     bandGapNarrowing = "Si_Slotboom"; // Switch the model b/n n-type or p-type semi 
+     BandGapNarrowing                 // depend on the type of doping 
+     {
+        // PRIVC          Si_Slotboom  //+SiC_ntype : 
+        // PRIVC          {
+        // PRIVC             Nref   = 1e17 "cm^-3"; 
+        // PRIVC             Eref   = 2.0e-2 eV;
+        // PRIVC             dEcdEg = 0.9;
+        // PRIVC          }
+            
+        Si_Slotboom // +SiC_ptype
+        {
+           Nref   = 1e17 "cm^-3"; 
+           Eref   = 9.0e-3 eV;
+           dEcdEg = 0.9;
+        }
+     }    
+         
+         
+     impactIonizationDD = "Simple";
+     ImpactIonizationDD 
+     {
+        Ltm
+        {
+               
+           lcrit = 1.0e-8 "m";
+               
+           expn = 1.0;
+           exph = 1.0;
+               
+           Ecbn = 2.58e6 "V/m";
+           Ecbh = 1.9e7 "V/m";
+           Ecsn = 2.50e6 "V/m";
+           Ecsh = 2.0e7 "V/m";
+               
+           Cbn1 = 3.44e6 "m^-1";
+           Cbn2 = 0.0 "m^-1";
+           Cbn3 = 0.0 "m^-1";
+           Cbh1 = 3.24e7 "m^-1";
+           Cbh2 = 0.0 "m^-1";
+           Cbh3 = 0.0 "m^-1";
+           Csn1 = 3.03e6 "m^-1";
+           Csh1 = 4.0e7 "m^-1";	   
+        }
+            
+        Simple
+        {
+           hw   = 0.107 eV;
+           Ecbn = 1.273e9 "V/m";  // bn
+           Ecbh = 1.4e9   "V/m";  // bp
+           Cn1  = 1.66e8  "m^-1"; // an
+           Ch1  = 5.18e8  "m^-1"; //ap
+        }  
+     }
+         
+     bbTunneling = "Ltm_Hurkx"; //"Ltm_Schenk";
+     BbTunneling
+     {
+        Ltm_Hurkx
+        {
+           //reverse = yes;                // junction in reverse direction
+           revEBB   = 2.25e9 "V/m";        // Si default 2.25e9 "V/m"
+           revB     = 3.5e27 "s^-1 cm^-3"; // Si default 3.5e27 "s^-1 m^-3"
+           revSigma = 2.0;                 // Si default 2.0
+               
+           reverse  = no;                  // junction in forward direction
+           fwdEBB   = 1.9e9 "V/m";         // Si default 1.9e9 "V/m"
+           fwdB     = 4.4e20 "s^-1 m^-3";  // Si default 4.4e20 "s^-1 m^-3"
+           fwdSigma = 2.5;                 // Si default 2.5
+        }
+        Ltm_Schenk
+        {
+           reverse   = yes; // junction in reverse/forward direction
+           A         = 8.977e20;
+           B         = 2.14667e7;
+           hw        = 0.0186;
+               
+        }
+     }
+
+     directGR = "None";
+         
+     auger = "Const";
+     Auger
+     {
+        Const
+        {
+           Ce = 3.0e-29 "cm^6 / s";
+           Ch = 3.0e-29 "cm^6 / s";
+        }
+     }
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+        // Capture cross section relation is used by default
+        Ltm
+        {
+           Et   = 0.0  eV; 
+           ste  = 0;  // set ste == 0 if you want to use the Scharfetter relation.
+           sth  = 0;  // set sth == 0 if you want to use the Scharfetter relation.
+           tmine  = 0.0 s;
+           tmaxe  = 1e-7 s;
+           Nrefe  = 6.0e+17 "cm^-3";
+           gammae = 0.3;
+               
+           tminh  = 0.0 s;
+           tmaxh  = 2.e-8 s;
+           Nrefh  = 3.0e+17 "cm^-3";
+           gammah = 0.3;
+               
+           // PRIVC	 srve = 1.0e3 "cm/s"; // typical values: 1e1 - 1e5
+           // PRIVC	 srvh = 1.0e3 "cm/s"; // typical values: 1e1 - 1e5
+               
+        }
+     } 
+  }
+  
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              6H-SiC
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  
+  SiC6H : Si
+  {
+     materials = "SiC6H,6H-SiC";
+     
+     Doping : ~SpecialModels.Doping
+     {
+        +Phosphorus : Donor 
+        { 
+           materials = "P,Phosphorus"; // this is the name of the impurity given in the PIF file
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = 1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = 1;
+                 energyLevel = 0.10 eV;  
+                 degeneracy  = 2;       
+              }
+           }
+        }
+        +Nitrogen   : Donor    
+        { 
+           materials = "N, Nitrogen"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = 1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = 1;
+                 energyLevel = 0.10 eV;  
+                 degeneracy  = 2;       
+              }
+           }
+        }
+        +Boron      : Acceptor 
+        { 
+           materials = "B,Boron";      
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = -1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = -1;
+                 energyLevel = 0.20 eV;  
+                 degeneracy  = 4;       
+              }
+           }
+        }
+        +Aluminium  : Acceptor 
+        { 
+           materials = "Al, Aluminium"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = -1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = -1;
+                 energyLevel = 0.20 eV;  
+                 degeneracy  = 4;       
+              }
+           }
+        }
+        +Neutrals   : Neutral  
+        { 
+           materials = "C,Carbon,Si,Silicon,Ge,Germanium,Sn"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              IncompleteIonization
+              {
+                 chargeState = 0;
+                 energyLevel = 0.0 eV;  
+                 degeneracy  = 0;       
+              }
+           }
+        }
+     }     
+     
+     Electron 
+     {
+        mobilityDD = "MM6";
+	MobilityDD
+	{
+           MM6
+	   {
+              uL300        =  415 "cm^2/V*s";
+              uLexpT       = -1.8;                    // Temperature exponent
+              // NEWTABLE Impurity scattering parameters	   
+              uLImin300    = 30 "cm^2/V*s";         // Impurity minimum mobility at 300 K.
+              Cref300      = 1.11e18 "cm^-3";       // Reference doping concentration at 300 K
+              CrefexpT     = 0;	                    // Temperature exponent       
+              alpha300     = 0.59;                  // Concentration exponent	       
+              alphaexpT    = 0.;                    // Temperature exponent
+
+              // NEWTABLE Surface scattering parameters	   
+              uLISref300   = 48 "cm^2/V*s";        // Surface reference mobility at 300 K
+              uLISexpT     = -1.2;                 // Temperature exponent
+              dref         = 50 nm;	               // Surface reference distance
+              ESref        = 3.0e8 "V/m";	       // Surface reference field
+              
+           }
+        }
+     }
+     
+     Hole 
+     {
+        mobilityDD = "MM6";
+        
+        MobilityDD 
+        {
+           MM6 
+           {
+              uL300        =  99 "cm^2/V*s";
+              uLexpT       = -1.8;                    // Temperature exponen
+              // NEWTABLE Impurity scattering parameters	   
+              uLImin300    = 6.8 "cm^2/V*s";         // Impurity minimum mobility at 300 K.
+              uLIexpTabove = 0;                 // Temperature exponent above Tswitch.
+              uLIexpTbelow = 0;                 // Temperature exponent below Tswitch.
+              Tswitch      = 200 K;	           // Temperature where to switch exponents
+              Cref300      = 2.10e19 "cm^-3";       // Reference doping concentration at 300 K
+              CrefexpT     = 0;	           // Temperature exponent       
+              alpha300     = 0.31;                  // Concentration exponent	       
+              alphaexpT    = 0.;                 // Temperature exponent
+
+              // NEWTABLE Surface scattering parameters
+              uLISref300   = 21 "cm^2/V*s";        // Surface reference mobility at 300 K
+              uLISexpT     = -1.1;                 // Temperature exponent
+              eta          = 0.0;                   // Surface reference distance correction
+              dref         = 50 nm;	              // Surface reference distance
+              ESref        = 3.0e8 "V/m";	      // Surface reference field
+              
+           }
+        }
+     }
+     
+     permittivity  = "Pure"; 
+     Permittivity 
+     {
+        Pure 
+        { 
+           epsr = 9.7; 
+        } 
+     }   
+     
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+     	Ltm_Pure
+     	{
+     	   Eg0   =  3.023 eV;       // Ec/2 = 0.561999615 eV
+     	   alpha =  3.3e-2 "eV/K";  // can be replaced by 3.3e-4 for T above 300K.
+     	   beta  =  1.0e5  K;          
+     	   Eoffs =  -1.5125 eV;;              // -1.912 eV; for silicon, offset energy    
+     	}
+     }
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	+SiC
+	{
+           vsat300 = 1.9e7 "cm/s";  // Saturation velocity at 300 K
+	   delta   = -1;
+	}
+        
+	Ltm_Pure
+	{
+	   vsat300e  = 1.0e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300eC = 0.26;          // T bow 
+	   vsat300h  = 7.04e6 "cm/s"; // Saturation velocity at 300 K
+	   vsat300hC = 0.63;          // T bow
+	}
+     }
+     
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+           me0 =  0.71;  //effective electron mass
+           me1 =  0;     // temperatture dependence factor 
+           mh0 =  0.80;  //effective hole mass 
+           mh1 =  0; 
+           mh2 =  0;  
+	}
+     }
+     
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 6;   
+	}
+     }
+     
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.21 "g/cm^3";  // range: 3.21 - 3.248;
+	}
+     }
+   
+
+     thermalHeatFlux = "Ltm_SiC";
+     ThermalHeatFlux
+     {
+        Ltm
+        {
+           A  =  142               "W/K m";
+           B  = -0.6512 * 300      "W/K m";
+           C  =  0.0007867 * 90000 "W/K m";
+           C0 = A - B + C;
+           C2 = C/3/90000;
+        }
+            
+        Ltm_Pure
+        {
+           kappa = 490 "W/K m";
+           alpha = -1.5;
+        }
+            
+        +Ltm_SiC
+        {
+           A = 2.5e-3  ;
+           B = 2.75e-4 ;
+           C = 1.3e-6  ;
+        }
+     }
+         
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+        Ltm
+        {
+           C0 =  690 "J K^-1 kg^-1";
+           C1 =  460 "J K^-1 kg^-1";
+           C2 = -260 "J K^-1 kg^-1";
+        }
+            
+        Ltm_Pure
+        {
+           heat  = 711 "J K^-1 kg^-1"; // [A0307]
+           dheat = 255 "J K^-1 kg^-1";
+           alpha = 1.85;
+        }
+            
+        +Ltm_SiC
+        {
+           A =  1026  ;
+           B =  0.201 ;
+           C =  0.0   ;
+           D = -3.66e7;
+        }
+     }
+     
+     bandGapNarrowing = "Si_Slotboom"; // Switch the model b/n donor an
+     BandGapNarrowing            // depend on the type of doping
+     {                         
+	Si_Slotboom    // Donor
+	{                       
+	   Nref   = 1e17 "cm^-3";
+	   Eref   = 9.0e-3 eV;
+	   dEcdEg = 0.9;        
+	}
+        
+//        Si_Slotboom   // Acceptor
+//        {
+//           Nref   = 1e17 "cm^-3"; 
+//           Eref   = 9.0e-3 eV;
+//           dEcdEg = 0.9;
+//        }
+     }
+     
+     
+     impactIonizationDD = "Simple";
+     ImpactIonizationDD 
+     {
+	Ltm
+	{
+           
+           lcrit = 1.0e-8 "m";
+           
+           expn = 1.0;
+	   exph = 1.0;
+           
+	   Ecbn = 1.27e7 "V/m";
+	   Ecbh = 1.4e7 "V/m";
+	   Ecsn = 1.50e7 "V/m";
+	   Ecsh = 3.0e7 "V/m";
+           
+	   Cbn1 = 1.66e6 "m^-1";
+	   Cbn2 = 0.0 "m^-1";
+	   Cbn3 = 0.0 "m^-1";
+	   Cbh1 = 5.18e6 "m^-1";
+	   Cbh2 = 0.0 "m^-1";
+	   Cbh3 = 0.0 "m^-1";
+	   Csn1 = 3.03e6 "m^-1";
+	   Csh1 = 4.0e7 "m^-1";	   
+	   
+	}
+
+        Simple
+        {
+           hw   = 0.107 eV;
+           Ecbn = 1.27e9 "V/m";  // bn
+           Ecbh = 1.4e9  "V/m";  // bp
+           Cn1  = 1.66e8 "m^-1"; // an
+           Ch1  = 5.18e8 "m^-1"; // ap
+        }  
+     }
+         
+     bbTunneling = "Ltm_Hurkx"; 
+     BbTunneling
+     {
+        Ltm_Hurkx
+        {
+           //reverse = yes;                // junction in reverse direction
+           revEBB   = 2.25e9 "V/m";        // Si default 2.25e9 "V/m"
+           revB     = 3.5e27 "s^-1 cm^-3"; // Si default 3.5e27 "s^-1 m^-3"
+           revSigma = 2.0;                 // Si default 2.0
+               
+           reverse  = no;                  // junction in forward direction
+           fwdEBB   = 1.9e9 "V/m";         // Si default 1.9e9 "V/m"
+           fwdB     = 4.4e20 "s^-1 m^-3";  // Si default 4.4e20 "s^-1 m^-3"
+           fwdSigma = 2.5;                 // Si default 2.5
+        }
+        Ltm_Schenk
+        {
+           reverse   = yes; // junction in reverse/forward direction
+           A         = 8.977e20;
+           B         = 2.14667e7;
+           hw        = 0.0186;
+               
+        }
+     }
+     
+     directGR = "None";
+     auger    = "Const";
+
+     Auger
+     {
+	Const
+	{
+	   Ce = 3.0e-29 "cm^6 / s";
+	   Ch = 3.0e-29 "cm^6 / s";
+	}
+     }
+
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+        // Capture cross section relation is used by default
+        Ltm
+        {
+           Et     = 0.0  eV; 
+           ste    = 0;  // set ste == 0 if you want to use the Scharfetter relation.
+           sth    = 0;  // set sth == 0 if you want to use the Scharfetter relation.
+           tmine  = 0.0 s;
+           tmaxe  = 1e-7 s;
+           Nrefe  = 6.0e+17 "cm^-3";
+           gammae = 0.3;
+               
+           tminh  = 0.0 s;
+           tmaxh  = 2.e-8 s;
+           Nrefh  = 3.0e+17 "cm^-3";
+           gammah = 0.3;
+               
+           // PRIVC  srve = 1.0e3 "cm/s"; // typical values: 1e1 - 1e5
+           // PRIVC  srvh = 1.0e3 "cm/s"; // typical values: 1e1 - 1e5
+               
+        }
+     } 
+  }
+     
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              3C-SiC
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  
+  SiC3C : Si
+  {
+     materials = "SiC3C, 3C-SiC";
+     
+     Doping : ~SpecialModels.Doping
+     {
+        +Phosphorus : Donor 
+        { 
+           materials = "P,Phosphorus"; // this is the name of the impurity given in the PIF file
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = 1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = 1;
+                 energyLevel = 0.050 eV;  
+                 degeneracy  = 2;       
+              }
+           }
+        }
+        +Nitrogen   : Donor    
+        { 
+           materials = "N, Nitrogen"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = 1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = 1;
+                 energyLevel = 0.050 eV;  
+                 degeneracy  = 2;       
+              }
+           }
+        }
+        +Boron      : Acceptor 
+        { 
+           materials = "B,Boron";      
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = -1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = -1;
+                 energyLevel = 0.20 eV;  
+                 degeneracy  = 4;       
+              }
+           }
+        }
+        +Aluminium  : Acceptor 
+        { 
+           materials = "Al, Aluminium"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              Const
+              {
+                 chargeState = -1;
+              }
+              IncompleteIonization
+              {
+                 chargeState = -1;
+                 energyLevel = 0.20 eV;  
+                 degeneracy  = 4;       
+              }
+           }
+        }
+        +Neutrals   : Neutral  
+        { 
+           materials = "C,Carbon,Si,Silicon,Ge,Germanium,Sn"; 
+           dopant    = "IncompleteIonization";
+           Dopant
+           {
+              IncompleteIonization
+              {
+                 chargeState = 0;
+                 energyLevel = 0.0 eV;  
+                 degeneracy  = 0;       
+              }
+           }
+        }
+     }     
+     
+     Electron 
+     {
+        mobilityDD = "MM6";
+	MobilityDD
+	{
+           MM6
+	   {
+              uL300        =  750 "cm^2/V*s";
+              // NEWTABLE Impurity scattering parameters	   
+              uLImin300    = 30 "cm^2/V*s";         // Impurity minimum mobility at 300 K.
+              Cref300      = 1.11e18 "cm^-3";       // Reference doping concentration at 300 K
+              CrefexpT     = 0;	           // Temperature exponent       
+              alpha300     = 0.59;                  // Concentration exponent	       
+              alphaexpT    = 0.;                 // Temperature exponent
+
+              // NEWTABLE Surface scattering parameters	   
+              uLISref300   = 48 "cm^2/V*s";        // Surface reference mobility at 300 K
+              uLISexpT     = -1.2;                 // Temperature exponent
+              dref         = 50 nm;	               // Surface reference distance
+              ESref        = 3.0e8 "V/m";	       // Surface reference field
+           }
+        }
+     }
+     
+     Hole 
+     {
+        mobilityDD = "MM6";
+        
+        MobilityDD 
+        {
+           MM6 
+           {
+              uL300        =  40 "cm^2/V*s";
+              uLexpT       = -2;                    // Temperature exponent
+              // NEWTABLE Impurity scattering parameters	   
+              uLImin300    = 6.8 "cm^2/V*s";        // Impurity minimum mobility at 300 K.
+              uLIexpTabove = 0;                     // Temperature exponent above Tswitch.
+              uLIexpTbelow = 0;                     // Temperature exponent below Tswitch.
+              Tswitch      = 200 K;	            // Temperature where to switch exponents
+              Cref300      = 2.10e19 "cm^-3";       // Reference doping concentration at 300 K
+              CrefexpT     = 0;	                    // Temperature exponent       
+              alpha300     = 0.31;                  // Concentration exponent	       
+              alphaexpT    = 0.;                    // Temperature exponent
+
+              // NEWTABLE Surface scattering parameters
+              uLISref300   = 21 "cm^2/V*s";         // Surface reference mobility at 300 K
+              uLISexpT     = -1.1;                  // Temperature exponent
+              eta          = 0.0;                   // Surface reference distance correction
+              dref         = 50 nm;	            // Surface reference distance
+              ESref        = 3.0e8 "V/m";	    // Surface reference field
+              
+           }
+        }
+     }
+     
+     permittivity  = "Pure"; 
+     Permittivity 
+     {
+        Pure 
+        { 
+           epsr = 9.6; 
+        } 
+     }   
+     
+     bandGapEnergy = "Ltm_SiC";
+     BandGapEnergy
+     {
+     	Ltm_Pure
+     	{
+     	   Eg0   =  2.3 eV;       // Ec/2 = 0.561999615 eV
+     	   alpha =  3.3e-2 "eV/K";  // can be replaced by 3.3e-4 for T above 300K.
+     	   beta  =  1.0e5  K;          
+     	   Eoffs =  -1.15 eV;            // -1.912 eV; for silicon, offset energy    
+     	}
+     }
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	+SiC
+	{
+           vsat300 =  2.5e7 "cm/s";  // Saturation velocity at 300 K
+	   delta   = -1;
+	}
+        
+	Ltm_Pure
+	{
+	   vsat300e  = 2.5e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300eC = 0.26;          // T bow 
+	   vsat300h  = 7.04e6 "cm/s"; // Saturation velocity at 300 K
+	   vsat300hC = 0.63;          // T bow
+	}
+     }
+     
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+           me0 =  0.71;  //effective electron mass
+           me1 =  0;     // temperatture dependence factor 
+           mh0 =  0.80;  //effective hole mass 
+           mh1 =  0; 
+           mh2 =  0;  
+	}
+     }
+     
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 6;   
+	}
+     }
+     
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.21 "g/cm^3";  // range: 3.21 - 3.248;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux
+     {
+        Ltm
+        {
+           A =  142               "W/K m";
+           B = -0.6512 * 300      "W/K m";
+           C =  0.0007867 * 90000 "W/K m";
+           C0 = A - B + C;
+           C2 = C/3/90000;
+        }
+            
+        Ltm_Pure
+        {
+           kappa = 320 "W/K m";
+           alpha = -1.5;
+        }
+            
+        +Ltm_SiC
+        {
+           A =  2.5e-3  ;
+           B =  2.75e-4 ;
+           C =  1.3e-6  ;
+        }
+     }
+         
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+        Ltm
+        {
+           C0 =  690 "J K^-1 kg^-1";
+           C1 =  460 "J K^-1 kg^-1";
+           C2 = -260 "J K^-1 kg^-1";
+        }
+            
+        Ltm_Pure
+        {
+           heat  = 711 "J K^-1 kg^-1"; // [A0307]
+           dheat = 255 "J K^-1 kg^-1";
+           alpha = 1.85;
+        }
+            
+        +Ltm_SiC
+        {
+           A =  1026 ;
+           B =  0.201 ;
+           C =  0 ;
+           D = -3.66e7;
+        }
+     }
+          
+     bandGapNarrowing = "Si_Slotboom"; // Switch the model b/n donor an
+     BandGapNarrowing            // depend on the type of doping
+     {                         
+	Si_Slotboom    // Donor
+	{                       
+	   Nref   = 1e17 "cm^-3";
+	   Eref   = 9.0e-3 eV;
+	   dEcdEg = 0.9;        
+	}
+        
+        /* Si_Slotboom   // Acceptor
+           {
+           Nref   = 1e17 "cm^-3"; 
+           Eref   = 9.0e-3 eV;
+           dEcdEg = 0.9;
+           }*/
+     }
+     
+     
+     impactIonizationDD = "Simple";
+     ImpactIonizationDD 
+     {
+	Ltm
+	{
+           
+           lcrit = 1.0e-8 "m";
+           
+           expn = 1.0;
+	   exph = 1.0;
+           
+	   Ecbn = 1.27e7 "V/m";
+	   Ecbh = 1.4e7 "V/m";
+	   Ecsn = 1.50e7 "V/m";
+	   Ecsh = 3.0e7 "V/m";
+           
+	   Cbn1 = 1.66e6 "m^-1";
+	   Cbn2 = 0.0 "m^-1";
+	   Cbn3 = 0.0 "m^-1";
+	   Cbh1 = 5.18e6 "m^-1";
+	   Cbh2 = 0.0 "m^-1";
+	   Cbh3 = 0.0 "m^-1";
+	   Csn1 = 3.03e6 "m^-1";
+	   Csh1 = 4.0e7 "m^-1";	   
+	   
+	}
+
+        Simple
+        {
+           hw   = 0.107 eV;
+           Ecbn = 1.27e9 "V/m";  // bn
+           Ecbh = 1.4e9  "V/m";  // bp
+           Cn1  = 1.66e8 "m^-1"; // an
+           Ch1  = 5.18e8 "m^-1"; // ap
+        }  
+     }
+         
+     bbTunneling = "Ltm_Hurkx"; //"Ltm_Schenk";
+     BbTunneling
+     {
+        Ltm_Hurkx
+        {
+           //reverse = yes;                // junction in reverse direction
+           revEBB   = 2.25e9 "V/m";        // Si default 2.25e9 "V/m"
+           revB     = 3.5e27 "s^-1 cm^-3"; // Si default 3.5e27 "s^-1 m^-3"
+           revSigma = 2.0;                 // Si default 2.0
+               
+           reverse  = no;                  // junction in forward direction
+           fwdEBB   = 1.9e9 "V/m";         // Si default 1.9e9 "V/m"
+           fwdB     = 4.4e20 "s^-1 m^-3";  // Si default 4.4e20 "s^-1 m^-3"
+           fwdSigma = 2.5;                 // Si default 2.5
+        }
+        Ltm_Schenk
+        {
+           reverse   = yes; // junction in reverse/forward direction
+           A         = 8.977e20;
+           B         = 2.14667e7;
+           hw        = 0.0186;
+               
+        }
+     }
+     
+     directGR = "None";
+     auger = "Const";
+
+     Auger
+     {
+	Const
+	{
+	   Ce = 3.0e-29 "cm^6 / s";
+	   Ch = 3.0e-29 "cm^6 / s";
+	}
+     }
+
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+        // Capture cross section relation is used by default
+        Ltm
+        {
+           Et   = 0.0  eV; 
+           ste    = 0;  // set ste == 0 if you want to use the Scharfetter relation.
+           sth    = 0;  // set sth == 0 if you want to use the Scharfetter relation.
+           tmine  = 0.0 s;
+           tmaxe  = 1e-7 s;
+           Nrefe  = 6.0e+17 "cm^-3";
+           gammae = 0.3;
+               
+           tminh  = 0.0 s;
+           tmaxh  = 2.e-8 s;
+           Nrefh  = 3.0e+17 "cm^-3";
+           gammah = 0.3;
+               
+           // PRIVC  srve = 1.0e3 "cm/s"; // typical values: 1e1 - 1e5
+           // PRIVC  srvh = 1.0e3 "cm/s"; // typical values: 1e1 - 1e5
+               
+        }
+     } 
+  }
+     
+  PolySi : Si
+  {
+     materials = "PolySi";
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              SiGe
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  SiGe : Si
+  {
+     materials = "SiGe,SiliconGermanium";
+
+     Doping : ~SpecialModels.DopingIV;
+
+     Electron
+     {
+	mobilityDD = "SiGe";
+	MobilityDD
+	{
+	   +SiGe : ~SpecialModels.SiGeElectrons
+	   {	   
+	      C0 = -1.0;
+	   }
+	}
+	mobilityHD = "SiGe_Haensch";
+	MobilityHD
+	{
+	   +SiGe_Haensch : ~SpecialModels.SiGeElectrons
+	   {	   
+	      C0 = -1.0;
+	   }
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "SiGe";
+	MobilityDD
+	{
+	   +SiGe : ~SpecialModels.SiGeHoles
+	   {	   
+	      C0 = -1.0;
+	   }
+	}
+	mobilityHD = "SiGe_Haensch";
+	MobilityHD
+	{
+	   +SiGe_Haensch : ~SpecialModels.SiGeHoles
+	   {	   
+	      C0 = -1.0;
+	   }
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^Si.VelocitySaturation.Ltm_Pure;
+	   M2 : ^^^Ge.VelocitySaturation.Ltm_Pure;
+	   vsateC = -2.28e7 "cm/s";
+	   vsathC = 0.0; // strongly strain dependent
+	}
+     }     
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 0.35 ps;
+	   twh = 0.4  ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^Si.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^Ge.RelativeCarrierMass.Ltm_Pure;
+	   meC = -0.183; //  PRIVC nonlinearity
+	   mhC = -0.096; //  PRIVC nonlinearity
+	}
+	+Oldlin
+	{  // PRIVATE
+	   me0 =  0.19;    // mteSi  Sze
+	   me1 =  0.08;    // mteGe  Sze 0.082 also: 0.29; 0.08
+	   me2 =  0.9163;  // mleSi  Green Sze: 0.98
+	   me3 =  1.57;    // mleGe  Sze 1.64  also: 1.35
+	   me4 =  0.0;     // Lattice temperature dependence Ge 
+			      		     
+	   mh0 =  0.49;    // mhhSi  Sze  also: 0.53
+	   mh1 =  0.28;    // mhhGe  Sze  also: 0.346
+	   mh2 =  0.16;    // mlhSi  Sze  also: 0.155
+	   mh3 =  0.044;   // mlhGe  Sze  also: 0.042
+	   mh4 =  0.0;     // Lattice temperature dependence Ge 
+	}
+     }
+
+     densityOfStates = "Ltm_Alloy";
+     DensityOfStates 
+     {
+	+Ltm_Alloy : Ltm_Pure
+	{
+	   Mc1 = 6; // Si
+	   Mc2 = 4; // Ge
+	}
+     }
+
+     permittivity = "Alloy"; 
+     Permittivity
+     {
+	+Alloy
+	{
+	   M1 : ^^^Si.Permittivity.Pure;
+	   M2 : ^^^Ge.Permittivity.Pure;
+	   eps12 = 0.0; 
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	+Alloy
+	{
+	   M1 : ^^^Si.MassDensity.Pure; //0.56e+7;
+	   M2 : ^^^Ge.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^Si.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^Ge.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 2.8 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^Si.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^Ge.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+  
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	Si_Slotboom
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.009 eV;
+	   dEcdEg = 0.5;
+	}
+	Si_P : Si_Slotboom
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.4 eV;
+	   dEcdEg = 0.9;
+	}
+	Si_B : Si_P
+	{
+	   dEcdEg = 0.1;
+	}
+	+Schubert
+	{
+	   dEcdEg = 1.0;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Alloy";
+     BandGapEnergy
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^Si.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^Ge.BandGapEnergy.Ltm_Pure;
+	   E12 = -0.4 eV;  
+	   //E12 = -0.5 eV; // nonlinearity
+	   //ratio dEcdEg = 0.12;
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Models for pure (binary) materials GaAs, AlAs, InAs, InP, GaP. 
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              GaAs
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <GaAs> : Semiconductor
+  {
+     materials = "GaAs";
+
+     Doping : ~SpecialModels.DopingIIIV;
+     
+     Electron
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVElectrons
+	   {
+	      uL300     = 8500 "cm^2/V*s";
+	      uLexpT    = -2.2;           
+	      uLImin300 = 800 "cm^2/V*s"; 
+	      uLIexpT   = -0.9;           
+	      Cref300   = 1.0e17 "cm^-3"; 
+	      CrefexpT  = 6.2;	      	        
+	   }
+	   OverIIIV : ~SpecialModels.OverIIIVElectrons;
+	}
+     
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	   TwoValley    : ~SpecialModels.IIIV_TwoValleyElectrons;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVHoles
+	   {
+	      uL300     = 420 "cm^2/V*s";
+	      uLexpT    = -2.3;           
+	      uLImin300 = 40 "cm^2/V*s"; 
+	      uLIexpT   = 0.0;
+	      Cref300   = 1.0e17 "cm^-3"; 
+	      CrefexpT  = 0.0;
+	   }
+	   Const { u = 120 "cm^2/V*s"; }
+	}
+
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	   Const        : ^MobilityDD.Const;
+	}
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 0.72e7 "cm/s"; // Saturation velocity at 300 K
+	   vsat300eC = 0.56;          // T bow
+	   vsat300h  = 0.9e7 "cm/s";  // 1e7 is the correct saturation velocity at 300 K
+	   vsat300hC = 0.41;           // T bow
+	}
+     }         
+
+     energyRelaxTime = "CLtm_Pure";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	CLtm_Pure
+	{
+	   twe0  =  0.48 ps; 
+	   twe1  =  0.025 ps;
+	   ctwe0 =  0.0; 
+	   ctwe1 = -0.053; 
+	   ctwe2 =  0.853; 
+	   ctwe3 =  0.5; 
+	   twh   = 1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 = 0.067;   
+	   me1 = -0.0036; 
+	   mh0 = 0.49;
+	   mh1 = -0.04;
+	   mh2 = 0.0;
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+
+     permittivity = "Pure";
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 13.1; // epsGaAs  also: 13.18; 12.91
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 5.32 "g/cm^3"; // also: 5.3176;5.36
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 46 "W/K m"; // PRIVC kappaGaAs[A0653] also:44;45.5[A0307];
+	   alpha = -1.25;      // PRIVC alphaGaAs
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 322 "J K^-1 kg^-1"; // PRIVC also:350[A0307]
+	   dheat =  50 "J K^-1 kg^-1";
+	   alpha = 1.6;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0    = 1.521 eV;        // Eg0GaAs   also: 1.519
+	   alpha  = 5.58e-4 "eV/K";  // alphaGaAs also: 5.405e-4 "eV/K"
+	   beta   = 220 K;           // betaGaAs  also: 204
+	   Eoffs  = 0.0 eV;          // offset energy
+	}
+     }
+
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+
+     impactIonizationDD = "Simple";
+     ImpactIonizationDD 
+     {
+	Simple
+	{
+           hw   = 0.107 eV;
+	   Cn1  = 7.03e7 "m^-1";
+	   Ch1  = 6.71e7 "m^-1";
+	   Ecbn = 1.231e8 "V/m";
+	   Ecbh = 1.693e8 "V/m";
+	}
+     }
+  
+     auger = "Const";
+     Auger
+     {
+	Const
+	{
+	   Ce = 2.8e-31 "cm^6 / s";
+	   Ch = 9.9e-32 "cm^6 / s";
+	}
+     }
+
+     directGR = "Const";
+     DirectGR
+     {
+	Const
+	{
+	   Cdir = 1e20 "cm^3 / s";
+	}
+     }
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2.0e16  "cm^-3";
+	   Et   = 1.2 eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	}
+     }
+  } 
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              AlAs
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+
+  <AlAs> : Semiconductor
+  {
+     materials = "AlAs";
+
+     Doping : ~SpecialModels.DopingIIIV;
+     
+     Electron
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVElectrons
+	   {
+	      uL300     = 410 "cm^2/V*s";
+	      uLexpT    = 0.0;           
+	      uLImin300 = 2 "cm^2/V*s"; 
+	      uLIexpT   = 0.0;           
+	      Cref300   = 1.0e17 "cm^-3"; 
+	      CrefexpT  = 0.0;	         
+	   }
+	}
+     
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVHoles
+	   {
+	      uL300     = 130 "cm^2/V*s";
+	      uLexpT    = 0.0;           
+	      uLImin300 = 13 "cm^2/V*s"; 
+	      uLIexpT   = 0.0;
+	      Cref300   = 2.9e17 "cm^-3"; 
+	      CrefexpT  = 0.0;   
+	   }
+	}
+
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 0.85e7 "cm/s"; // Saturation velocity at 300 K
+	   vsat300eC = 0.55;           // T bow
+	   vsat300h  = 0.8e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300hC = 0.3;           // T bow
+	}
+     }         
+
+     energyRelaxTime = "CLtm_Pure";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	CLtm_Pure
+	{
+	   twe0  =  0.17 ps; 
+	   twe1  =  0.025 ps;
+	   ctwe0 =  61; 
+	   ctwe1 = -0.053; 
+	   ctwe2 =  0.853; 
+	   ctwe3 =  0.5; 
+	   twh   =  1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 =  0.15;   
+	   me1 = -0.0036; 
+	   mh0 =  0.8;
+	   mh1 = -0.04;
+	   mh2 =  0.0;
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 3; 
+	}
+     }
+     
+     permittivity = "Pure";
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 10.1; // epsAlAs  also: 10.06
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 80 "W/K m"; // PRIVC kappaAlAs[A0653] 
+	   alpha = -1.37;      // PRIVC alphaAlAs[xPaper]
+	}
+     }
+
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure 
+	{
+	   heat  = 441 "J K^-1 kg^-1"; // PRIVC also:490[A0307]
+	   dheat =  50 "J K^-1 kg^-1";
+	   alpha = 2.2;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  2.239 eV;    // PRIVC [A0653]
+	   alpha =  6e-4 "eV/K"; // PRIVC [A0653] 
+	   beta  =  408 K;       // PRIVC [A0653] 
+	   Eoffs = -0.2953 eV;   // offset energy
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.76 "g/cm^3";
+	}
+     }
+
+     impactIonizationDD     = "None";
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+     auger                  = "None";
+     directGR               = "None";
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2e16  "cm^-3";
+	   Et   = 0.0 eV;
+	   type = "Donor";
+	   ste  = 1e-14 "cm^2";
+	   sth  = 2e-13 "cm^2";
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              InAs
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <InAs> : Semiconductor
+  {
+     materials = "InAs";
+
+     Doping : ~SpecialModels.DopingIIIV;
+     
+     Electron
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVElectrons
+	   {
+	      uL300      = 32500 "cm^2/V*s";
+	      uLexpT     = -1.7;           
+	      uLImin300  = 11700 "cm^2/V*s"; 
+	      uLIexpT    = -0.33;           
+	      Cref300    = 4.4e16 "cm^-3"; 
+	      CrefexpT   = 3.6;	        
+	   }
+	   OverIIIV : ~SpecialModels.OverIIIVElectrons;
+	}
+     
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVHoles
+	   {
+	      uL300      = 510 "cm^2/V*s";
+	      uLexpT     = 0.0;           
+	      uLImin300  = 48 "cm^2/V*s"; 
+	      uLIexpT    = 0.0;
+	      Cref300    = 2.55e17 "cm^-3"; 
+	      CrefexpT   = 0.0;   
+	   }
+	}
+
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 0.9e7 "cm/s";   // Saturation velocity at 300 K
+	   vsat300eC = 0.57;           // T bow
+	   vsat300h  = 0.5e7 "cm/s";   // Saturation velocity at 300 K
+	   vsat300hC = 0.3;            // T bow
+	}
+     }         
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	CLtm_Pure
+	{
+	   twe0  =  0.08 ps; 
+	   twe1  =  0.025 ps;
+	   ctwe0 =  3; 
+	   ctwe1 = -0.053; 
+	   ctwe2 =  0.853; 
+	   ctwe3 =  0.5; 
+	   twh   = 1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 =  0.0237; 
+	   me1 = -0.0027; 
+	   mh0 =  0.4;
+	   mh1 =  0.0;
+	   mh2 =  0.0;
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+     
+     permittivity = "Pure";
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 14.6; // PRIVC epsInAs  also: 15.15
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 27.3 "W/K m"; // PRIVC kappaInAs[A0653] also:48[A0307]
+	   alpha = -1.1;         // PRIVC alphaInAs also:-1.39[A0307]
+	}
+     }
+
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure 
+	{
+	   heat  = 394 "J K^-1 kg^-1"; // PRIVC [A0307]
+	   dheat =  50 "J K^-1 kg^-1";
+	   alpha = 1.95;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   = 0.42 eV;       // A. Katz: 'Indium Phosphide and Related Materials'
+	   alpha = 2.5e-4 "eV/K"; // also: 2.76e-4
+	   beta  = 75 K;          // also: 83
+	   Eoffs = 0.4258 eV;     // offset energy
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 5.667 "g/cm^3"; // also: 5.7
+	}
+     }
+
+     impactIonizationDD     = "None";
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+     auger                  = "None";
+     directGR               = "None";
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2.0e16  "cm^-3";
+	   Et   = 0.0 eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              InP
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <InP> : Semiconductor
+  {
+     materials = "InP";
+
+     Doping : ~SpecialModels.DopingIIIV;
+     
+     Electron
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVElectrons
+	   {
+	      uL300     = 5300 "cm^2/V*s";
+	      uLexpT    = -1.9;           
+	      uLImin300 = 1520 "cm^2/V*s"; 
+	      uLIexpT   = 2.0;           
+	      Cref300   = 6.4e16 "cm^-3"; 
+	      CrefexpT  = 3.7;	         
+	   }
+	   OverIIIV : ~SpecialModels.OverIIIVElectrons;
+	}
+     
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVHoles
+	   {
+	      uL300     = 200 "cm^2/V*s";
+	      uLexpT    = -1.2;           
+	      uLImin300 = 24 "cm^2/V*s"; 
+	      uLIexpT   = 1.2;
+	      Cref300   = 2.5e17 "cm^-3"; 
+	      CrefexpT  = 0.47;   
+	   }
+	}
+
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 0.67e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300eC = 0.68;           // T bow
+	   vsat300h  = 0.5e7 "cm/s";   // Saturation velocity at 300 K
+	   vsat300hC = 0.3;            // T bow
+	}
+     }         
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	CLtm_Pure
+	{
+	   twe0  =  0.5 ps; 
+	   twe1  =  0.21 ps;
+	   ctwe0 = -18; 
+	   ctwe1 = -0.04; 
+	   ctwe2 =  0.0; 
+	   ctwe3 =  0.0; 
+	   twh   =  1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 =  0.073; 
+	   me1 =  0.0; 
+	   mh0 =  0.64;
+	   mh1 =  0.0;
+	   mh2 =  0.0;
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+
+     permittivity = "Pure";
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 12.4; // epsInP  also: 12.56; 12.61
+	}
+     }
+     
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 68 "W/K m"; // PRIVC kappaInP[A0653,A0307]
+	   alpha = -1.4;       // PRIVC alphaInP also:-1.51[A0307]
+	}
+     }
+
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure 
+	{
+	   heat  = 410 "J K^-1 kg^-1"; // PRIVC [A0307]
+	   dheat =  50 "J K^-1 kg^-1";
+	   alpha = 2.05;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   = 1.421 eV;        
+	   alpha = 3.63e-4 "eV/K";  
+	   beta  = 162 K;           
+	   Eoffs = 0.003 eV;       // offset energy
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 4.81 "g/cm^3";
+	}
+     }
+
+     impactIonizationDD = "Simple";
+     ImpactIonizationDD 
+     {
+	Simple
+	{
+           hw   = 0.107 eV;
+	   Cn1  = 3.5e7 "m^-1";
+	   Ch1  = 3.5e7 "m^-1";
+	   Ecbn = 9.85e7 "V/m";
+	   Ecbh = 9.85e7 "V/m";
+	}
+     }
+
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2.0e16  "cm^-3";
+	   Et   = 0.0 eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	   srve = 0.0 "cm/s"; // PRIVC  typical values: 1e1 - 1e5
+	   srvh = 0.0 "cm/s"; // PRIVC  typical values: 1e1 - 1e5
+	}
+     }
+     auger = "Const";
+     Auger
+     {
+	Const
+	{
+	   Ce = 2.8e-31 "cm^6 / s";
+	   Ch = 9.9e-32 "cm^6 / s";
+	}
+     }
+
+     directGR = "Const";
+     DirectGR
+     {
+	Const
+	{
+	   Cdir = 1e20 "cm^3 / s";
+	}
+     }
+
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              GaP
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <GaP> : Semiconductor
+  {
+     materials = "GaP";
+
+     Doping : ~SpecialModels.DopingIIIV;
+     
+     Electron
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVElectrons
+	   {
+	      uL300     = 210 "cm^2/V*s";
+	      uLexpT    = -1.94;           
+	      uLImin300 = 76 "cm^2/V*s"; 
+	      uLIexpT   = -1.07;           
+	      Cref300   = 2.85e17 "cm^-3"; 
+	      CrefexpT  = 1.8;	         
+	   }
+	}
+     
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "IIIV";
+	MobilityDD
+	{
+	   IIIV : ~SpecialModels.IIIVHoles
+	   {
+	      uL300     = 160 "cm^2/V*s";
+	      uLexpT    = 0.0;           
+	      uLImin300 = 27 "cm^2/V*s"; 
+	      uLIexpT   = 0.0;
+	      Cref300   = 2.33e17 "cm^-3"; 
+	      CrefexpT  = 0.0;   
+	   }
+	}
+
+	mobilityHD = "IIIV_Haensch";
+	MobilityHD
+	{
+	   IIIV_Haensch : ^MobilityDD.IIIV;
+	}
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 0.88e7 "cm/s"; // Saturation velocity at 300 K
+	   vsat300eC = 0.3;           // T bow
+	   vsat300h  = 0.5e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300hC = 0.3;           // T bow
+	}
+     }         
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	CLtm_Pure
+	{
+	   twe0  =  0.04 ps; 
+	   twe1  =  0.21 ps;
+	   ctwe0 =  10; 
+	   ctwe1 = -0.04; 
+	   ctwe2 =  0.0; 
+	   ctwe3 =  0.0; 
+	   twh   =  1 ps;
+	}
+     }
+     
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 =  0.82; // look up 0.15
+	   me1 =  0.0; 
+	   mh0 =  0.6;
+	   mh1 =  0.0;
+	   mh2 =  0.0;
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+ 
+     permittivity = "Pure";
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 11.1; // epsGaP  also: 11.11
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 77 "W/K * m"; // PRIVC kappaGaP[A0307]
+	   alpha = -0.028;       // PRIVC alphaGaP[A0307]
+	}
+     }
+
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure 
+	{
+	   heat  = 519 "J K^-1 kg^-1"; // PRIVC [A0307]
+	   dheat =  50 "J K^-1 kg^-1";
+	   alpha = 2.6;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  2.338 eV;        // also: +-0.002
+	   alpha =  5.771e-4 "eV/K"; // also: +-0.55e-4
+	   beta  =  372 K;           // also: +-95
+	   Eoffs = -0.35 eV;         //-0.5854 eV
+	} 
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 4.138 "g/cm^3";
+	}
+     }
+
+     impactIonizationDD     = "None";
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+     auger                  = "None";
+     directGR               = "None";
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2.0e16  "cm^-3";
+	   Et   = 0.0 eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Models for ternary III-V alloys AlGaAs, InGaAs, AlInAs, InPAs, InGaP, GaAsP.
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              AlGaAs
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  AlGaAs : GaAs
+  {
+     materials = "AlGaAs";
+
+     Electron
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^GaAs.Electron.MobilityDD.IIIV;
+	      M2 : ^^^^AlAs.Electron.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s"; 
+	      
+	   }
+	}
+     
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^GaAs.Hole.MobilityDD.IIIV;
+	      M2 : ^^^^AlAs.Hole.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s";  
+	   }
+	   Const { u = 120 "cm^2/V*s"; }
+	}
+
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	   Const          : ^MobilityDD.Const;
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.VelocitySaturation.Ltm_Pure;
+	   M2 : ^^^AlAs.VelocitySaturation.Ltm_Pure;
+	   vsateC = -5.12e5 "cm/s";   // PRIVC max = -5e5 !!!
+	   vsathC =  0.0   "cm/s";
+        }
+     }    
+
+     energyRelaxTime = "CLtm_Alloy";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	+CLtm_Alloy
+	{
+	   M1 : ^^^GaAs.EnergyRelaxTime.CLtm_Pure;
+	   M2 : ^^^AlAs.EnergyRelaxTime.CLtm_Pure;
+	   twe0C  = -0.35 ps;
+	   ctwe0C = -61;
+	   twe1   =  0.025 ps;
+	   ctwe1  = -0.053; 
+	   ctwe2  =  0.853; 
+	   ctwe3  =  0.5; 
+	   twh    =  1.0 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^AlAs.RelativeCarrierMass.Ltm_Pure;
+	   meC = 0.0;     
+	   mhC = 0.0;    
+	}
+	+Oldlin
+	{  // PRIVATE
+	   me0 = 0.067;   // mteGaAs
+	   me1 = 0.15;    // mteAlAs also: 0.124
+	   me2 = 0.067;   // mleGaAs check: 0.56 [from TS not used]
+	   me3 = 0.78;    // mleAlAs
+	   me4 = -0.0036; // Lattice temperature dependence;
+	   mh0 = 0.4685;  // mhhGaAs 
+	   mh1 = 0.76;    // mhhAlAs
+	   mh2 = 0.08;    // mlhGaAs
+	   mh3 = 0.15;    // mlhAlAs
+	   mh4 = 0.0;//-0.0264; // Lattice temperature dependence;
+	}
+     }
+  
+     densityOfStates = "Ltm_Alloy";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+	+Ltm_Alloy : Ltm_Pure
+	{
+	   Mc1 = 1; 
+	   Mc2 = 3; 
+	}
+     }
+
+     permittivity = "Alloy";
+     Permittivity
+     {
+	+Alloy
+	{
+	   M1 : ^^^GaAs.Permittivity.Pure;
+	   M2 : ^^^AlAs.Permittivity.Pure;
+	   eps12 =  0.0; 
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	+Alloy
+	{
+	   M1 : ^^^GaAs.MassDensity.Pure;
+	   M2 : ^^^AlAs.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^AlAs.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 3.3 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^AlAs.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Alloy";
+     BandGapEnergy
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^AlAs.BandGapEnergy.Ltm_Pure;
+	   E12 = 0.7 eV; 
+	}
+     }
+     
+     impactIonizationDD     = "None";
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+
+     auger = "Const";
+     Auger
+     {
+	Const
+	{
+	   Ce = 2.8e-31 "cm^6 / s";
+	   Ch = 9.9e-32 "cm^6 / s";
+	}
+     }
+
+     directGR = "Const";
+     DirectGR
+     {
+	Const
+	{
+	   Cdir = 1e20 "cm^3 s^-1";
+	}
+     }
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2e16 "cm^-3";
+	   Et   = 1.2 eV;
+	   type = "Donor";
+	   ste  = 1e-14 "cm^2";
+	   sth  = 2e-13 "cm^2";
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              InGaAs
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  InGaAs : GaAs
+  {
+     materials = "InGaAs";
+
+     Electron
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^GaAs.Electron.MobilityDD.IIIV;
+	      M2 : ^^^^InAs.Electron.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s"; 
+	   }
+	   IIIV : ~SpecialModels.IIIVElectrons
+	   {
+	      uL300           = 13000 "cm^2/V*s"; 
+	      uLexpT          = -2;          
+	      uLImin300       = 200 "cm^2/V*s";
+	      Cref300         = 1.5e17 "cm^-3";
+	      alpha300        = 0.5; 
+	      beta            = 2;           
+	   }
+	   OverIIIV : ~SpecialModels.OverIIIVElectrons;
+	}
+     
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	   IIIV_Haensch   : ^MobilityDD.IIIV;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^GaAs.Hole.MobilityDD.IIIV;
+	      M2 : ^^^^InAs.Hole.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s";  
+	   }
+	   Const { u = 120 "cm^2/V*s"; }
+	}
+
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	   Const          : ^MobilityDD.Const;
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+        +Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.VelocitySaturation.Ltm_Pure;
+	   M2 : ^^^InAs.VelocitySaturation.Ltm_Pure;
+	   vsateC = -1.96e6 "cm/s";
+	   vsathC =  0.0   "cm/s";
+        }
+     }     
+
+     energyRelaxTime = "CLtm_Alloy";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	+CLtm_Alloy
+	{
+	   M1 : ^^^GaAs.EnergyRelaxTime.CLtm_Pure;
+	   M2 : ^^^InAs.EnergyRelaxTime.CLtm_Pure;
+	   twe0C  =  1.8 ps;
+	   ctwe0C = -34;
+	   twe1   =  0.025 ps;
+	   ctwe1  = -0.053; 
+	   ctwe2  =  0.853; 
+	   ctwe3  =  0.5; 
+	   twh    =  1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^InAs.RelativeCarrierMass.Ltm_Pure;
+	   meC = -0.012; 
+	   mhC = -0.03;  
+	}
+	+Oldlin
+	{  // PRIVATE
+	   me0 =  0.067;
+	   me1 =  0.027;
+	   me2 =  0.067;
+	   me3 =  0.027;
+	   me4 = -0.0036;
+	   mh0 =  0.46; // InAs mhh0.4;
+	   mh1 =  0.0;
+	   mh2 =  0.08; // InAs mlh0.026;
+	   mh3 =  0.0;
+	   mh4 =  0.0;
+	}
+     }
+     
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+
+     permittivity = "Alloy";
+     Permittivity
+     {
+	+Alloy
+	{
+	   M1 : ^^^GaAs.Permittivity.Pure;
+	   M2 : ^^^InAs.Permittivity.Pure;
+	   eps12= -1.0;
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	+Alloy
+	{
+	   M1 : ^^^GaAs.MassDensity.Pure;
+	   M2 : ^^^InAs.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^InAs.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 1.4 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^InAs.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+
+     bandGapNarrowing = "None";
+     BandGapNarrowing
+     {
+	IIIV
+	{
+	   Nref   = 1e17 "cm^-3"; 
+	   Eref   = 0.114 eV;
+	   dEcdEg = 0.5;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Alloy";
+     BandGapEnergy
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^InAs.BandGapEnergy.Ltm_Pure;
+	   E12 = -0.475 eV; 
+	}
+     }
+
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+
+     impactIonizationDD = "Simple";
+     ImpactIonizationDD 
+     {
+	Simple
+	{
+           hw   = 0.107 eV;
+	   Cn1  = 3.5e7 "m^-1";
+	   Ch1  = 3.5e7 "m^-1";
+	   Ecbn = 9.85e7 "V/m";
+	   Ecbh = 9.85e7 "V/m";
+	}
+     }
+     auger = "Const";
+     Auger
+     {
+	Const
+	{
+	   Ce = 2.8e-31 "cm^6 / s";
+	   Ch = 9.9e-32 "cm^6 / s";
+	}
+     }
+
+     directGR = "Const";
+     DirectGR
+     {
+	Const
+	{
+	   Cdir = 1e20 "cm^3 / s";
+	}
+     }
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 1.0e19  "m^-3";
+	   Et   = 1.2     eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              InAlAs
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <InAlAs> : Semiconductor
+  {
+     materials = "InAlAs";
+
+     Doping : ~SpecialModels.DopingIIIV;
+
+     Electron
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   Alloy
+	   {
+	      M1 : ^^^^AlAs.Electron.MobilityDD.IIIV;
+	      M2 : ^^^^InAs.Electron.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s";  
+	   }
+	}
+     
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   Const { u = 120 "cm^2/V*s"; }
+	   Alloy
+	   {
+	      M1 : ^^^^AlAs.Hole.MobilityDD.IIIV;
+	      M2 : ^^^^InAs.Hole.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s";  
+	   }
+	}
+
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   Const { u = 120 "cm^2/V*s"; }
+	   Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^AlAs.VelocitySaturation.Ltm_Pure;
+	   M2 : ^^^InAs.VelocitySaturation.Ltm_Pure;
+	   vsateC = -2.13e+7 "cm/s";
+	   vsathC = 0.0 "m/s";
+        }
+     }    
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	Ltm_Alloy
+	{
+	   M1 : ^^^AlAs.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^InAs.RelativeCarrierMass.Ltm_Pure;
+	   meC = 0.0; 
+	   mhC = 0.0; 
+	}
+	Oldrev
+	{
+	   me0 = 0.15;  // AlAs
+	   me1 = 0.027; // InAs
+	   mh0 = 0.81;  // AlAs
+	   mh1 = 0.4;   // InAs
+	}
+     }
+     
+     densityOfStates = "Ltm_Alloy";
+     DensityOfStates
+     {
+        +Ltm_Alloy : Ltm_Pure
+        {
+           Mc1 = 3; // AlAs
+	   Mc2 = 1; // InAs
+        }
+     }
+ 
+     permittivity = "Alloy";
+     Permittivity
+     {
+	Alloy
+	{
+	   M1 : ^^^AlAs.Permittivity.Pure;
+	   M2 : ^^^InAs.Permittivity.Pure;
+	   eps12= -1.0; 
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	Alloy
+	{
+	   M1 : ^^^AlAs.MassDensity.Pure;
+	   M2 : ^^^InAs.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	Ltm_Alloy
+	{
+	   M1 : ^^^AlAs.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^InAs.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 3.3 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	Ltm_Alloy
+	{
+	   M1 : ^^^AlAs.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^InAs.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+
+     bandGapNarrowing = "None";
+
+     bandGapEnergy = "Ltm_Alloy";
+     BandGapEnergy
+     {
+	Ltm_Alloy
+	{
+	   M1 : ^^^AlAs.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^InAs.BandGapEnergy.Ltm_Pure;
+	   E12 = 1.2 eV; // also: -0.698; -0.24
+	}
+     }
+     impactIonizationDD     = "None";
+     impactIonizationHD     = "None";
+     bbTunneling            = "None";
+     auger                  = "None";
+     directGR               = "None";
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 1.0e19  "m^-3";
+	   Et   = 1.2     eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	}
+     }
+  }
+  
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              InAsP
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  InAsP : InP
+  {
+     materials = "InAsP";
+     
+     Electron
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^InP.Electron.MobilityDD.IIIV;
+	      M2 : ^^^^InAs.Electron.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s"; 
+	   }
+	}
+     
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^InP.Hole.MobilityDD.IIIV;
+	      M2 : ^^^^InAs.Hole.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s";  
+	   }
+	}
+
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+	+Ltm_Alloy
+	{
+	M1 : ^^^InP.VelocitySaturation.Ltm_Pure;
+        M2 : ^^^InAs.VelocitySaturation.Ltm_Pure;
+        vsateC = 0.0 "m/s";
+        vsathC = 0.0 "m/s";
+        }
+     }    
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^InAs.RelativeCarrierMass.Ltm_Pure;
+	   meC = 0.0; 
+	   mhC = 0.0; 
+	}
+	+Oldrev
+	{
+	   me0 = 0.073; //InP
+	   me1 = 0.027; //InAs
+	   mh0 = 0.64;  //InP
+	   mh1 = 0.4;   //InAs
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+    
+     permittivity = "Alloy";
+     Permittivity
+     {
+	+Alloy
+	{
+	   M1 : ^^^InP.Permittivity.Pure;
+	   M2 : ^^^InAs.Permittivity.Pure;
+	   eps12 =  0.0; 
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	+Alloy
+	{
+	   M1 : ^^^InP.MassDensity.Pure;
+	   M2 : ^^^InAs.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^InAs.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 3.3 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^InAs.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Alloy";
+     BandGapEnergy
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^InAs.BandGapEnergy.Ltm_Pure;
+	   E12 = -0.32 eV; // also: -0.101
+	}
+     }
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm
+	{
+	   Nt   = 2.0e16  "cm^-3";
+	   Et   = 0.0 eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	   srve = 0.0 "cm/s"; // PRIVC  typical values: 1e1 - 1e5
+	   srvh = 0.0 "cm/s"; // PRIVC  typical values: 1e1 - 1e5
+	}
+     }
+     auger = "Const";
+     Auger
+     {
+	Const
+	{
+	   Ce = 2.8e-31 "cm^6 / s";
+	   Ch = 9.9e-32 "cm^6 / s";
+	}
+     }
+
+     directGR = "Const";
+     DirectGR
+     {
+	Const
+	{
+	   Cdir = 1e20 "cm^3 / s";
+	}
+     }
+     
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              GaAsP
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  GaAsP : GaAs
+  {
+     materials = "GaAsP";
+     
+     Electron
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^GaAs.Electron.MobilityDD.IIIV;
+	      M2 : ^^^^GaP.Electron.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s";  
+	   }
+	}
+     
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^GaAs.Hole.MobilityDD.IIIV;
+	      M2 : ^^^^GaP.Hole.MobilityDD.IIIV;
+	      uLIc     = 1e6 "cm^2/V*s"; 
+	   }
+	}
+
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.VelocitySaturation.Ltm_Pure;
+	   M2 : ^^^GaP.VelocitySaturation.Ltm_Pure;
+	   vsateC = 0.0 "m/s";
+	   vsathC = 0.0 "m/s";
+        }
+     }
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^GaP.RelativeCarrierMass.Ltm_Pure;
+	   meC = 0.0; //  PRIVC nonlinearity
+	   mhC = 0.0; //  PRIVC nonlinearity
+	}
+	+Oldrev
+	{
+	   me0 = 0.067; //GaAs
+	   me1 = 0.82;  //GaP
+	   mh0 = 0.55;  //GaAs
+	   mh1 = 0.6;   //GaP
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+
+     permittivity = "Alloy";
+     Permittivity
+     {
+	+Alloy
+	{
+	   M1 : ^^^GaAs.Permittivity.Pure;
+	   M2 : ^^^GaP.Permittivity.Pure;
+	   eps12 =  0.0; 
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	+Alloy
+	{
+	   M1 : ^^^GaAs.MassDensity.Pure;
+	   M2 : ^^^GaP.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^GaP.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 1.4 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^GaP.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Alloy";
+     BandGapEnergy
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^GaAs.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^GaP.BandGapEnergy.Ltm_Pure;
+	   E12    = -0.176 eV; //  PRIVC nonlinearity
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              InGaP
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  InGaP : InP
+  {
+     materials = "InGaP";
+     
+     Electron
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^InP.Electron.MobilityDD.IIIV;
+	      M2 : ^^^^GaP.Electron.MobilityDD.IIIV;
+	      uLIc     = 1e10 "cm^2/V*s"; 
+	   }
+	}
+     
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     Hole
+     {
+	mobilityDD = "Alloy";
+	MobilityDD
+	{
+	   +Alloy
+	   {
+	      M1 : ^^^^InP.Hole.MobilityDD.IIIV;
+	      M2 : ^^^^GaP.Hole.MobilityDD.IIIV;
+	      uLIc     = 1e10 "cm^2/V*s";  
+	   }
+	}
+
+	mobilityHD = "Alloy_Haensch";
+	MobilityHD
+	{
+	   +Alloy_Haensch : ^MobilityDD.Alloy;
+	}
+     }
+
+     velocitySaturation = "Ltm_Alloy"; 
+     VelocitySaturation
+     {
+	+Ltm_Alloy
+	{
+	M1 : ^^^InP.VelocitySaturation.Ltm_Pure;
+        M2 : ^^^GaP.VelocitySaturation.Ltm_Pure;
+        vsateC = -3.0e6 "cm/s"; 
+        vsathC = 0.0 "m/s";
+        }
+     }
+
+     energyRelaxTime = "Const";
+     EnergyRelaxTime
+     {
+	Const
+	{
+	   twe = 1 ps;
+	   twh = 1 ps;
+	}
+	+CLtm_Alloy
+	{
+	   M1 : ^^^InP.EnergyRelaxTime.CLtm_Pure;
+	   M2 : ^^^GaP.EnergyRelaxTime.CLtm_Pure;
+	   twe0C  = -0.4 ps;
+	   ctwe0C = -5.2;
+	   twe1   =  0.21 ps;
+	   ctwe1  = -0.04; 
+	   ctwe2  =  0.0; 
+	   ctwe3  =  0.0; 
+	   twh    =  1 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Alloy";
+     RelativeCarrierMass
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.RelativeCarrierMass.Ltm_Pure;
+	   M2 : ^^^GaP.RelativeCarrierMass.Ltm_Pure;
+	   meC = 0.0; //  PRIVC nonlinearity
+	   mhC = 0.0; //  PRIVC nonlinearity
+	}
+	+Oldrev
+	{
+	   me0 = 0.073; //InP
+	   me1 = 0.82;  //GaP
+	   mh0 = 0.64;  //InP
+	   mh1 = 0.6;   //GaP
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 1; 
+	}
+     }
+
+     permittivity = "Alloy";
+     Permittivity
+     {
+	+Alloy
+	{
+	   M1 : ^^^InP.Permittivity.Pure;
+	   M2 : ^^^GaP.Permittivity.Pure;
+	   eps12 =  0.0; 
+	}
+     }
+
+     massDensity = "Alloy";
+     MassDensity
+     {
+	+Alloy
+	{
+	   M1 : ^^^InP.MassDensity.Pure;
+	   M2 : ^^^GaP.MassDensity.Pure;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Alloy";
+     ThermalHeatFlux 
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.ThermalHeatFlux.Ltm_Pure;
+	   M2 : ^^^GaP.ThermalHeatFlux.Ltm_Pure;
+	   kappaC = 1.4 "W/K m";
+	}
+     }
+     
+     latticeHeatCapacity = "Ltm_Alloy";
+     LatticeHeatCapacity
+     {
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.LatticeHeatCapacity.Ltm_Pure;
+	   M2 : ^^^GaP.LatticeHeatCapacity.Ltm_Pure;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy // valid in unstrained case 0.49-0.55
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  1.775 eV;        // min 1.968 - max 2.065
+	   alpha =  9.8e-4 "eV/K";
+	   beta  =  460 K;        
+	   Eoffs =  -0.125 eV; // -0.34 eV 
+	} 
+// ENDC	  Ltm_Pure
+//	  {
+//	     Eg0   =  2.02 eV;        // min 1.968 - max 2.065
+//	     alpha =  9.8e-4 "eV/K";
+//	     beta  =  460 K;        
+//	     Eoffs =  -0.44 eV; // -0.34 eV 
+//	  } 
+	+Ltm_Alloy
+	{
+	   M1 : ^^^InP.BandGapEnergy.Ltm_Pure;
+	   M2 : ^^^GaP.BandGapEnergy.Ltm_Pure;
+	   E12 = -0.6043 eV; // also: -0.786
+	   // ratio dEcdEg = 0.32; 
+	}
+     }
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 2.0e16  "cm^-3";
+	   Et   = 0.0 eV;
+	   type = "Donor";
+	   ste  = 1.0e-14 "cm^2";
+	   sth  = 2.0e-13 "cm^2";
+	}
+     }
+  }
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  //
+  //              SiN
+  //
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  <SiN> : Semiconductor
+  {
+     materials = "SiN";
+
+     Doping : ~SpecialModels.DopingIV;
+
+     Electron
+     {
+	mobilityDD = "Const";
+	MobilityDD
+	{
+	   Const { u = 600 "cm^2/V*s"; }
+	}
+
+	mobilityHD = "Const";
+	MobilityHD : MobilityDD;
+     }
+
+     Hole
+     {
+	mobilityDD = "Const";
+	MobilityDD
+	{
+	   Const { u = 600 "cm^2/V*s"; }
+	}
+
+	mobilityHD = "Const";
+	MobilityHD : MobilityDD;
+     }
+
+     velocitySaturation = "Ltm_Pure"; 
+     VelocitySaturation
+     {
+	Ltm_Pure
+	{
+	   vsat300e  = 1.0e7 "cm/s";  // Saturation velocity at 300 K
+	   vsat300eC = 0.3;           // T bow 
+	   vsat300h  = 7.04e6 "cm/s"; // Saturation velocity at 300 K
+	   vsat300hC = 0.3;           // T bow
+	}
+     }
+
+     energyRelaxTime = "CLtm_Pure";
+     EnergyRelaxTime
+     {
+	CLtm_Pure
+	{
+	   twe0  =  1.0 ps; 
+	   twe1  = -0.538 ps;
+	   ctwe0 =  0.0; 
+	   ctwe1 =  1.5e-3; 
+	   ctwe2 = -0.09; 
+	   ctwe3 =  0.17; 
+	   twh   =  0.35 ps;
+	}
+     }
+
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass
+     {
+	Ltm_Pure
+	{
+	   me0 =  0.321; //MM6: 0.4768162
+	   me1 =  0.009; 
+	   mh0 =  0.55;  //MM6: 0.6008682
+	   mh1 =  0.6; 
+	   mh2 = -0.1; 
+	}
+     }
+
+     densityOfStates = "Ltm_Pure";
+     DensityOfStates
+     {
+	Ltm_Pure
+	{
+	   Mc = 6;
+	}
+     }
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 7.0;
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.1 "g/cm^3";
+	}
+     }
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 18.5 "W/K m";
+	   alpha = 0.33;
+	}
+     }
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure // AlN
+	{
+	   heat  = 709 "J/K kg";
+	   dheat = 820 "J/K kg";
+	   alpha = 1.5;
+	}
+     }
+  
+     bandGapNarrowing = "None";
+
+     bandGapEnergy = "Ltm_Si_MM6";
+     BandGapEnergy
+     {
+	Ltm_Si_MM6
+	{
+	   E0    = 5.0 eV;    
+	   E1    = 0.0 eV;
+	   E2    = 0.0 eV; 
+	   Eoffs = -3.4 eV; // offset energy ENDC -3.7 ??? 
+	}
+     }
+
+     impactIonizationDD = "None";
+     impactIonizationHD = "None";
+     bbTunneling        = "None";
+     directGR           = "None";
+     auger              = "None";
+
+     srhLifetimes = "Ltm";
+     SrhLifetimes
+     {
+	Ltm : ~SpecialModels.SrhLifetimes
+	{
+	   Nt   = 1e8 "cm^-3";
+	   Et   = 0.8  eV;
+	   type = "Donor";
+	   ste  = 1.0e-15 "cm^2";
+	   sth  = 1.0e-15 "cm^2";
+	}
+     }
+  }
+
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // 
+  //             Insulators 
+  //
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+
+  <Insulator> : BaseMaterial
+  {
+     class      = "Insulator";
+     materials  = class;
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 1.0;
+	}
+     }
+
+     oxideTrap = "None";
+     OxideTrap
+     {
+        Pure
+        {
+           Nt        = 2e15 "cm^-3";  // trap concentration
+           type      = "neutral";     // charge state
+           occupancy = 0.1;           // trap occupancy
+           energy    = 2 "eV";        // trap energy level below conduction band
+        }
+        Charge : Pure
+        {
+           +C     = 0.0;   // Conductance after breakdown
+           +alpha = 0.0;   // Voltage exponent after breakdown
+        }
+     }
+
+     interfaceCharge = "None";
+     InterfaceCharge
+     {
+        Pure
+        {
+           Di = 1e12 "cm^-2";   // interface charge density
+        }
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 1.38 "W/K m";  // SiO2 value
+	   alpha = 0.33;          // SiO2 value
+	}
+     }
+
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 709 "J/K kg";   // SiO2 value
+	   dheat = 696 "J/K kg";   // SiO2 value
+	   alpha = 1.5;            // SiO2 value
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 2.203 "g/cm^3";  // SiO2 value
+	}
+     }
+
+     contact = "None";           // Use "Ohmic" for thermal contacts
+     Contact
+     {
+	Ohmic : ^^IdealConductor.Contact.Ohmic
+        {
+	  type = "Thermal";
+        }
+     }
+     Electron
+     {
+        tunnel = "None";
+        Tunnel
+        {
+           _Common_
+           {
+              consistent = yes;
+           }
+           FNPure : _Common_
+           { 
+              +a          = 994.6316e-9 "A/V^2";  // value for m=0.5m_ox, Phi_b = 3.1eV
+              +b          = 2.635706e10 "V/m";    // value for m=0.5m_ox, Phi_b = 3.1eV
+           }
+           FrenkelPoole : _Common_
+           {  
+              +a          = 994.6316;    // value for m=0.5m_ox, Phi_b = 3.1eV
+              +b          = 2e-24;       // value for m=0.5m_ox, Phi_b = 3.1eV
+              +trapNrg    = 1.5 "eV";
+           }
+           FNLenzlingerSnow : _Common_
+           {
+              +mOx        = 0.5;       
+              +phiB       = 0 "eV";
+           }
+           DTSchuegraf : _Common_
+           {
+              +mOx        = 0.5;       
+              +phiB       = 0 "eV";
+           }
+           TsuEsaki : _Common_
+           {
+              +ccb        = yes;             // consider conduction band tunneling                      
+              +cvb        = no;              // consider valence band tunneling                      
+              +tat        = no;              // consider trap-assisted tunneling
+	      +mtat       = no;              // consider multi-trap-assisted tunneling
+              +mOx        = 0.5;             // carrier mass in the dielectric
+              +tcType     = "numericalWKB";  // "analyticalWKB,qtbm"
+              +dfType     = "fermi";         // "heated"
+              +trapRadius = 0.25 nm;         // trap radius
+              +dNrg       = 10 "meV";        // energy step width for numerical integration
+              +huangRhys  = 65;              // Huang-Rhys factor for trap-assisted tunneling
+              +phononNrg  = 0.030 eV;        // Phonon energy for trap-assisted tunneling 
+              +imageForce = no;              // image force correction
+              +conc       = no;              // calculate concentration
+              +deltaX     = 0.1 "nm";       // spacing for qtbm method
+              +checkBd    = no;              // check for breakdown
+              +J0         = 1 "A*cm^-2";     // breakdown current prefactor
+              +beta       = 2.0;             // breakdown current exponent                     
+              +connL      = 5 "nm";          // connection length for qtb method
+              +singlePoint = no;
+           }
+        }
+     }
+     Hole
+     {
+        tunnel = "None";
+        Tunnel   
+        {
+           _Common_
+           {
+              consistent = yes;
+           }
+           FNPure : _Common_
+           {
+              +a          = 4.013e-7  "A/V^2";   // value for m=0.8m_ox, Phi_b = 4.8eV
+              +b          = 6.4216e10 "V/m";     // value for m=0.8m_ox, Phi_b = 4.8eV
+           }
+           FrenkelPoole : _Common_
+           {  
+              +a          = 0.0;     // FrenkelPoole model used for electrons only
+              +b          = 0.0;
+              +trapNrg    = 0.0 "eV";
+           }
+           FNLenzlingerSnow : _Common_
+           {
+              +mOx        = 0.8;       
+              +phiB       = 0 "eV";
+           }
+           DTSchuegraf : _Common_
+           {
+              +mOx        = 0.8;       
+              +phiB       = 0 "eV";
+           }
+           TsuEsaki : _Common_
+           {
+              +ccb        = yes;             // consider conduction band tunneling                      
+              +cvb        = no;              // consider valence band tunneling                      
+              +tat        = no;              // consider trap-assisted tunneling              
+	      +mtat       = no;              // consider multi-trap-assisted tunneling
+              +mOx        = 0.8;             // carrier mass in the dielectric                
+              +tcType     = "numericalWKB";  // "analyticalWKB,qtbm"                          
+              +dfType     = "fermi";         // "heated"                                      
+              +trapRadius = 0.25 nm;         // trap radius                                   
+              +dNrg       = 20 "meV";        // energy step width for numerical integration   
+              +huangRhys  = 65;              // Huang-Rhys factor for trap-assisted tunneling 
+              +phononNrg  = 0.030 eV;        // Phonon energy for trap-assisted tunneling     
+              +imageForce = no;              // image force correction                        
+              +conc       = no;              // calculate concentration                       
+              +deltaX     = 0.1 "nm";       // spacing for qtbm method                       
+              +checkBd    = no;              // check for breakdown                           
+              +J0         = 1 "A*cm^-2";     // breakdown current prefactor                   
+              +beta       = 2.0;             // breakdown current exponent                    
+              +connL      = 5 "nm";          // connection length for qtb method
+              +singlePoint = no;
+           }
+        }
+     }
+
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  9.0 eV;
+	   Eoffs = -5.21 eV;  // offset energy    
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+
+
+  }
+
+  SiO2 : Insulator
+  {
+     materials = "SiO2,Oxide";
+     
+     +Doping : ~SpecialModels.DopingIV;
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 3.9;
+	}
+     }
+
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 1.38 "W/K m";
+	   alpha = 0.33;
+	}
+	+Ltm
+	{
+	   A = 1.38  "W/K m";
+	   B = 0.0008371 * 300 "W/K m";
+	   C = 1.687477e-6 * 90000  "W/K m";
+	   // PRIVC ipd-bug
+	   C0 = A - B + C;
+	   C1 = 0.5 * (B/300 - 2.0 * C/300);
+	   C2 = C/3.0/90000;
+	}
+     }
+
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 709 "J/K kg";
+	   dheat = 696 "J/K kg";
+	   alpha = 1.5;
+	}
+	+Ltm
+	{
+	   C0 =  709 "J/K kg";
+	   C1 =  530 "J/K kg";
+	   C2 = -200 "J/K kg";
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 2.203 "g/cm^3";
+	}
+     }
+  }
+
+  <SiO2Cond> : Semiconductor, SiO2
+  {
+     //  PRIVC    class     = "Semiconductor";
+     materials = "SiO2Cond";
+
+     Electron
+     {
+	mobilityDD = "SiO2";
+	MobilityDD
+	{
+	   SiO2
+	   {
+	      uLlowref = 80  "cm^2/V*s";
+	      uLmedref = 5.1 "cm^2/V*s";
+	      vexp     = 1.55;
+	      E2       = -2.05e+8 "V/m";
+	      E3       = 2.1e+8 "V/m";
+	      En       = 2.06e+8 "V/m";
+	      vsat2    = 5.63e+5 "m/s";
+	   }
+	}
+	mobilityHD = "None";
+     }
+     Hole : Electron;
+     energyRelaxTime = "None";
+     relativeCarrierMass = "Ltm_Pure";
+     RelativeCarrierMass : ^Si.RelativeCarrierMass;
+  }
+  
+  Nitride : SiO2
+  {
+     materials = "Nitride,Si3N4";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 7.4;
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.1 "g/cm^3";
+	}
+     }
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 709 "J/K kg";
+	   dheat = 820 "J/K kg";
+	   alpha = 1.5;
+	}
+     }
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  5 eV;
+	   Eoffs = -2.438 eV;  // offset energy    
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  Ta2O5 : SiO2
+  {
+     materials = "Ta2O5";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 25.0;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  4.4 eV;
+	   Eoffs = -2.392 eV;  
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  TiO2 : SiO2
+  {
+     materials = "TiO2";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 40;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  3.5 eV;
+	   Eoffs = -1.792 eV;  
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  ZrO2 : SiO2
+  {
+     materials = "ZrO2";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 18;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  5.7 eV; 
+	   Eoffs = -3.592 eV;
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  ZrSiO2 : SiO2
+  {
+     materials = "ZrSiO2";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 5.5;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  4.5 eV;
+	   Eoffs = -3.2 eV;  
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  HfO2 : SiO2
+  {
+     materials = "HfO2";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 25;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  5.8 eV;
+	   Eoffs = -4.062 eV;  
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  Y2O3 : SiO2
+  {
+     materials = "Y2O3";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 18;
+	}
+     }
+
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  5.5 eV;
+	   Eoffs = -4.162 eV;  
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  } 
+
+  AlN : SiO2 // PRIVC typical packaging material
+  {
+     materials = "AlN";
+
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr= 8.9;
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.3 "g/cm^3";
+	}
+     }
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure // AlN
+	{
+	   heat  = 709 "J/K kg";
+	   dheat = 820 "J/K kg";
+	   alpha = 1.5;
+	}
+     }
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 145.89 "W/K m"; //typical value for various substrate materials
+	   alpha = -0.84;
+	}
+     }
+  }
+
+  GaAsSemi : SiO2 // PRIVC typical substrate material 
+  {
+     materials = "GaAsSemi";
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 13.1;
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 5.32 "g/cm^3";
+	}
+     }
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 322 "J/K kg";
+	   dheat =  50 "J/K kg";
+	   alpha = 1.6;
+	}
+     }
+  }
+
+  Al2O3 : SiO2 // PRIVC typical packaging material Alumina
+  {
+     materials = "Al2O3";
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 9.8; 
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 3.89  "g/cm^3";        
+	}
+     }
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	   heat  = 709 "J/K kg";
+	   dheat = 820 "J/K kg";
+	   alpha = 1.5;
+	}
+     }
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 23.17 "W/K m";// ceramtech
+	   alpha = -0.88;
+	}
+	
+     }
+     bandGapEnergy = "Ltm_Pure";
+     BandGapEnergy
+     {
+	Ltm_Pure
+	{
+	   Eg0   =  5.6 eV;
+	   Eoffs = -1.492 eV;  
+	   alpha =  4.73e-4 "eV/K"; 
+	   beta  =  636 K;          
+	}
+     }
+  }
+  BeO : SiO2 // PRIVC typical packaging material
+  {
+     materials = "Be0";
+     permittivity = "Pure"; 
+     Permittivity
+     {
+	Pure
+	{
+	   epsr = 8.5 ; 
+	}
+     }
+
+     massDensity = "Pure";
+     MassDensity
+     {
+	Pure
+	{
+	   rho = 2.85 ; 
+	}
+     }
+     latticeHeatCapacity = "Ltm_Pure";
+     LatticeHeatCapacity
+     {
+	Ltm_Pure
+	{
+	}
+     }
+     thermalHeatFlux = "Ltm_Pure";
+     ThermalHeatFlux 
+     {
+	Ltm_Pure
+	{
+	   kappa = 264.16 "W/K m";// ceramtech
+	   alpha = -1.13; 
+	}
+     }
+  }
+
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+  // 
+  //             Interface Models
+  //
+  //             
+  //
+  // ==========================================================================
+  // ==========================================================================
+  // ==========================================================================
+
+  // Conductor_Semiconductor
+  // {
+  //    class      = "Conductor_Semiconductor";
+  //    materials  = "Conductor";
+  //    materials2 = "Semiconductor";
+  // }
+  // 
+  // Conductor_Insulator
+  // {
+  //    class      = "Conductor_Insulator";
+  //    materials  = "Conductor";
+  //    materials2 = "Insulator";
+  // }
+
+  Semiconductor_Insulator
+  {
+     class      = "Semiconductor_Insulator";
+     materials  = "Semiconductor";
+     materials2 = "Insulator";
+
+     interfaceTrapDOS = "Box";
+     InterfaceTrapDOS
+     {
+        _Common_
+        {
+           Emax  =  0 eV;  // the mobility edge
+           Emin  = -1 eV;
+           Nt    =  1e10 "cm^-2";  // srh active contribution
+           Nf    =  0 "cm^-2";     // fixed charge
+           //Mt    = ~Num.EnergyDiscretization.intervals;
+           useEc = no;
+           useEv = no;
+        }
+        <Single> : _Common_
+        {
+           Et  = - 0.3 eV;
+           tch = + 1;
+           Mt  =   1;
+        }
+        <Box> : _Common_
+        {
+           useEc = yes;
+           useEv = yes;
+           tch   = + 1; // + 1 gives donor-like traps, while -1 results in acceptor-like traps
+        }
+        <Exponential> : _Common_
+        {
+           E0  =   0.3 eV;  // reference energy
+           tch = + 1;
+        }
+        <Gaussian> : _Common_
+        {
+           useEc  = yes;
+           useEv  = yes;
+           E0    =   0.3 eV;      // reference energy for exponential tail states
+           Em    = - 0.3 eV;      // average energy
+           sigma =   0.3 "eV^2";  // variance
+           r     =   1;           // ratio between Gaussian and exponential distribution
+           tch   = + 1;
+        }
+        <DoubleFermiDer> : _Common_
+        {
+           useEc  = yes;
+           useEv  = yes;
+           Em1    = -0.235 eV;    // average energy
+           Em2    = -0.85  eV;    // average energy
+           sigma1 = 0.08 "eV^2";  // variance
+           sigma2 = 0.08 "eV^2";  // variance
+           tch    = + 1;
+        }
+     }
+
+     interfaceTrap = "None";
+     InterfaceTrap
+     {
+	Simple
+	{
+           onlyCharge     = yes;  // just add to Poisson
+           dynamic        = no;   // if no, use equilibrium dynamics
+           // fixedNitCharge = no;   // add a charge corresponding to nit/2
+
+           ste = 1.0e-19 "m^2";   // actually only needed for SRH
+           sth = 1.0e-19 "m^2";
+           //Mt  = ~Num.EnergyDiscretization.intervals; // remove that
+	}
+	<SRH> : Simple
+	{
+	}
+     }
+
+     interfaceTrapGeneration = "None";
+     InterfaceTrapGeneration
+     {
+	_Common_
+	{
+	   freeze = no;             // if set to yes generation of traps is stopped
+	   Nit0   = 0.0 "cm^-2";    // initial number of broken bonds
+	}
+	<General> : _Common_
+	{
+	   N0    = 1.24e14 "cm^-2";     // passivated interface bonds
+
+	   kF11  = 0 "s^-1";            // forward reaction rate (degradation)
+	   EaF11 = 0 "eV";              // Arrhenius activation energy
+	   kR11  = 0 "cm^3 s^-1";       // reverse reaction rate (annealing)
+	   EaR11 = 0 "eV";              // Arrhenius activation energy
+	   kF12  = 0 "s^-1";            // forward reaction rate (degradation)
+	   EaF12 = 0 "eV";              // Arrhenius activation energy
+	   kR12  = 0 "cm^3 s^-1";       // reverse reaction rate (annealing)
+	   EaR12 = 0 "eV";              // Arrhenius activation energy
+
+	   kF21  = 0 "s^-1";            // forward reaction rate (degradation)
+	   EaF21 = 0 "eV";              // Arrhenius activation energy
+	   kR21  = 0 "cm^3 s^-1";       // reverse reaction rate (annealing)
+	   EaR21 = 0 "eV";              // Arrhenius activation energy
+	   kF22  = 0 "s^-1";            // forward reaction rate (degradation)
+	   EaF22 = 0 "eV";              // Arrhenius activation energy
+	   kR22  = 0 "cm^3 s^-1";       // reverse reaction rate (annealing)
+	   EaR22 = 0 "eV";              // Arrhenius activation energy
+
+	   kF31  = 0 "s^-1";            // forward reaction rate (degradation)
+	   EaF31 = 0 "eV";              // Arrhenius activation energy
+	   kR31  = 0 "cm^3 s^-1";       // reverse reaction rate (annealing)
+	   EaR31 = 0 "eV";              // Arrhenius activation energy
+	   kF32  = 0 "s^-1";            // forward reaction rate (degradation)
+	   EaF32 = 0 "eV";              // Arrhenius activation energy
+	   kR32  = 0 "cm^3 s^-1";       // reverse reaction rate (annealing)
+	   EaR32 = 0 "eV";              // Arrhenius activation energy
+
+	   kF512  = 0 "s^-1";           // forward reaction rate (degradation)
+	   EaF512 = 0 "eV";             // Arrhenius activation energy
+	   kR512  = 0 "cm^3 s^-1";      // reverse reaction rate (annealing)
+	   EaR512 = 0 "eV";             // Arrhenius activation energy
+
+	   kF521  = 0 "s^-1";           // forward reaction rate (degradation)
+	   EaF521 = 0 "eV";             // Arrhenius activation energy
+	   kR521  = 0 "cm^3 s^-1";      // reverse reaction rate (annealing)
+	   EaR521 = 0 "eV";             // Arrhenius activation energy
+
+	   E0    = 3 "MV/cm";           // reference electric field for generation
+	   p0    = 1e20  "cm^-3";       // reference hole concentration for generation
+
+           rf    = 1;                   // ratio at which fixed charges are generated
+                                        // Nf = rf * Nit
+
+           biasdep11 = no;
+           biasdep12 = no;
+           biasdep21 = no;
+           biasdep22 = no;
+           biasdep31 = no;
+           biasdep32 = no;
+
+           I0 = 1 A; // very clever guess, sorry
+           an = 0;
+           ap = 0;
+           bn = 1;
+           bp = 1;
+	}
+     }
+
+     hydrogen0Interface = "None";
+     Hydrogen0Interface
+     {
+	Const
+	{
+           Hc1 = 1e-9 "cm^-3";   // constant hydrogen concentration in semiconductor, don't set to zero
+           Hc2 = 1e-9 "cm^-3";   // constant hydrogen concentration in insulator, don't set to zero
+	}
+	Couple {} // no parameters, couples two segments
+	Flux
+        {
+           s1 = 0 "cm/s";  // surface recombination velocity semiconductor
+           s2 = 0 "cm/s";  // surface recombination velocity insulator
+        }
+     }
+
+     hydrogen2Interface = "None";
+     Hydrogen2Interface : Hydrogen0Interface;
+
+     hydrogenPInterface = "None";
+     HydrogenPInterface : Hydrogen0Interface;
+  }
+
+  Si_SiO2 : Semiconductor_Insulator
+  {
+     class      = "Si_SiO2";
+     materials  = "Si,Silicon";
+     materials2 = "SiO2,Oxide";
+
+     interfaceTrapDOS = "Box";
+     InterfaceTrapDOS
+     {
+        _Common_
+        {
+           Emax  =  0 eV;  // the mobility edge
+           Emin  = -1 eV;
+           Nt    =  1e10 "cm^-2";  // srh active contribution
+           Nf    =  0 "cm^-2";     // fixed charge
+           //Mt    = ~Num.EnergyDiscretization.intervals;
+           useEc = no;
+           useEv = no;
+        }
+        <Single> : _Common_
+        {
+           Et  = - 0.3 eV;
+           tch = + 1;
+           Mt  =   1;
+        }
+	<Box> : _Common_
+        {
+           useEc = yes;
+           useEv = yes;
+           tch   = + 1; // + 1 gives donor-like traps, while -1 results in acceptor-like traps
+        }
+        <Exponential> : _Common_
+        {
+           E0  =   0.3 eV;  // reference energy
+           tch = + 1;
+        }
+        <Gaussian> : _Common_
+        {
+           useEc = yes;
+           useEv = yes;
+           E0    =   0.3 eV;      // reference energy for exponential tail states
+           Em    = - 0.3 eV;      // average energy
+           sigma =   0.3 "eV^2";  // variance
+           r     =   1;           // ratio between Gaussian and exponential distribution
+           tch   = + 1;
+        }
+        <DoubleFermiDer> : _Common_
+        {
+           useEc  = yes;
+           useEv  = yes;
+           Em1    = -0.235 eV;    // average energy
+           Em2    = -0.85  eV;    // average energy
+           sigma1 = 0.08 "eV^2";  // variance
+           sigma2 = 0.08 "eV^2";  // variance
+           tch    = + 1;
+        }
+     }
+
+     interfaceTrap = "None";
+     InterfaceTrap
+     {
+	Simple
+	{
+           onlyCharge     = yes;  // just add to Poisson
+           dynamic        = no;   // if no, use equilibrium dynamics
+           //  fixedNitCharge = no;   // add a charge corresponding to nit/2
+
+           ste = 1.0e-19 "m^2";   // actually only needed for SRH
+           sth = 1.0e-19 "m^2";
+           //Mt  = ~Num.EnergyDiscretization.intervals; // remove that
+	}
+	<SRH> : Simple
+	{
+	}
+     }
+  }
+}
+
+SegmentDefaults : MaterialDefaults;
+
+EvalModelDefaults
+{  // PRIVATE
+  model      = "";                // The name of the model to evaluate
+  device     = "Device";          // The device it is defined on
+  segment    = "Semiconductor";   // The segment it is defined on
+  type       = "General";         // The type of the model. One of
+                                  //    "General"  (General model),
+                                  //    "Electron" (Electron model),
+                                  //    "Hole"     (Hole model),
+                                  //    "Doping"   (Doping model)
+
+  showParameters = no;            // Show the available interface parameters
+  
+  mcfile  = ""; 
+  mcpar   = "";
+  mcparsc = 1;
+  mcnum   = 1;
+  mcparmin = 0;
+  mcparmax = 1;
+
+  Parameters  
+  {
+  }
+}
+
+
+
+

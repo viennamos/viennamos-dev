@@ -1,0 +1,38 @@
+
+SpecialModels 
+{
+  Minimos6Electrons
+  {
+     // Lattice scattering parameters
+     uL300        = 1430 "cm^2/V*s";       // Zero field mobility at 300 K.
+     uLexpT       = -2;                    // Temperature exponent  
+ 					   
+     // NEWTABLE Impurity scattering parameters	   
+     uLImin300    = 80 "cm^2/V*s";         // Impurity minimum mobility at 300 K.
+     uLIexpTabove = -0.45;                 // Temperature exponent above Tswitch.
+     uLIexpTbelow = -0.15;                 // Temperature exponent below Tswitch.
+     Tswitch      = 200 K;	           // Temperature where to switch exponents
+     Cref300      = 1.12e17 "cm^-3";       // Reference doping concentration at 300 K
+     CrefexpT     = 3.2;	           // Temperature exponent       
+     alpha300     = 0.72;                  // Concentration exponent	       
+     alphaexpT    = 0.065;                 // Temperature exponent
+ 					   
+     // NEWTABLE Surface scattering parameters	   
+     uLISref300   = 638 "cm^2/V*s";        // Surface reference mobility at 300 K
+     uLISexpT     = -1.19;                 // Temperature exponent
+     dref         = 10 nm;	           // Surface reference distance
+     eta          = 0.0;                   // Surface reference distance correction
+     ESref        = 7e7 "V/m";	           // Surface reference field
+     ESref2       = 0 "V/m";	           // Surface reference field, quadratic term
+ 					   // additiv to std term
+     gammaS       = 1.69;                  // Field exponent
+ 					   
+     // NEWTABLE Field reduction parameters	   
+     beta         = 2;                     // Velocity exponent
+
+     // ENDC ---------------------------------------
+     //      Experimental Parameters for FullHaensch
+     //      ---------------------------------------
+     full = no; // PRIVATE
+   }
+}
