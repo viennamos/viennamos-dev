@@ -1,12 +1,12 @@
-#ViennaMOS 
-==========================================
+ViennaMOS 
+--------------------------
 
-This is the developer repository of [ViennaMOS](http://viennamos.sourceforge.net/). 
-Git snapshot packages and releases are available at [sourceforge](https://sourceforge.net/projects/viennamos/).
+*This is the developer repository of [ViennaMOS](http://viennamos.sourceforge.net/). 
+*Git snapshot packages and releases are available at [sourceforge](https://sourceforge.net/projects/viennamos/).
 
 
-#System requirements
-==========================================
+System requirements
+--------------------------
 
 * [Qt](http://qt-project.org/) 4.8
 * [VTK](http://www.vtk.org/) 5.10.1 (with [Qt support](http://www.vtk.org/Wiki/VTK/Tutorials/QtSetup)!)
@@ -14,8 +14,8 @@ Git snapshot packages and releases are available at [sourceforge](https://source
 
 
 
-#Building instructions 
-==========================================
+Building instructions 
+--------------------------
 
 To build the developer version of ViennaMOS, simply clone the repository and issue the following commands (the following steps are for Unix-based systems):
 
