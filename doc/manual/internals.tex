@@ -1,0 +1,89 @@
+\chapter{Library Internals} \label{chap:internals}
+
+\NOTE{This documentation hasn't been updated to the interface of the upcoming ViennaData 1.1.0 release yet}
+
+
+In order to configure {\ViennaData} in the best way for the respective project and to avoid common pitfalls,
+it is of advantage to understand some of the library-internals.
+The focus is on explaining the \emph{big picture} rather than in going through all the details.
+These details can either be found in the Doxygen-generated documentation, or directly in the source code.
+
+\section{Main Classes}
+All data resides in the instances of the template class
+\begin{lstlisting}
+ template <typename KeyType,
+           typename DataType,
+           typename ObjectType>
+ class data_container;
+\end{lstlisting}
+located in \lstinline|data_container.hpp|.
+As can be seen from the list of template parameters, each triple of \lstinline|KeyType|, \lstinline|DataType|, and \lstinline|ObjectType| lets
+the compiler create another instance of \lstinline|data_container|. Thus, compilation times will increase with the number of different types involved.
+
+\lstinline|data_container| uses a singleton pattern and is directly interfaced by the interface functions
+\begin{lstlisting}
+ viennadata::access<KeyType, DataType>()()
+ viennadata::copy<KeyType,   DataType>()()
+ viennadata::move<KeyType,   DataType>()()
+ viennadata::erase<KeyType,  DataType>()()
+ viennadata::find<KeyType,   DataType>()()
+\end{lstlisting}
+The two parentheses arguments are due to the following:
+\begin{enumerate}
+ \item The inner parentheses belong to a function returning a proxy class
+ \item The outer parentheses denote the parenthesis operator \lstinline|operator()| of the proxy class
+\end{enumerate}
+Within the parenthesis operator, the appropriate functions of \lstinline|data_container| are called.
+
+The storage type in \lstinline|data_container| is obtained from a traits class \lstinline|container| in \lstinline|traits/data_container.hpp|, which provides the correct storage scheme.
+By default, the storage is equivalent to
+\begin{lstlisting}
+ std::map<ObjectType *, std::map<KeyType, DataType> >
+\end{lstlisting}
+Thus, the first call
+\begin{lstlisting}
+ viennadata::access<KeyType, DataType>(key)(obj) = data;
+\end{lstlisting}
+for \lstinline|obj| of type \lstinline|Object| is equivalent to
+\begin{lstlisting}
+ std::map<ObjectType *, std::map<KeyType, DataType> >  storage;
+ storage[&obj][key] = data;
+\end{lstlisting}
+and subsequent calls reuse the \lstinline|storage| object. If a dense storage scheme is used (cf.~Section \ref{sec:dense-data} and \lstinline|config/storage.hpp|), the storage type is equivalent to
+\begin{lstlisting}
+ std::vector< std::map<KeyType, DataType> >
+\end{lstlisting}
+and the first call to \lstinline|viennadata::access| can be seen as
+\begin{lstlisting}
+ std::vector< std::map<KeyType, DataType> >  storage;
+ storage.resize(some_size);
+ storage[obj.id()][key] = data;
+\end{lstlisting}
+The configuration of the ID retrieval (here: \lstinline|obj.id()|) is discussed in Section \ref{sec:id-retrieval} and implemented in \lstinline|object_identifier.hpp|, while the need to call \lstinline|viennadata::reserve| in order to provide a value for \lstinline|some_size| is discussed in Section \ref{sec:dense-data}.
+
+Finally, a compile time key dispatch (cf.~Section \ref{sec:compiletime-keys}) eliminates the inner map of the storage scheme, hence the data is organized as
+\begin{lstlisting}
+ std::vector< DataType >            dense_storage;
+\end{lstlisting}
+for dense storage, and as
+\begin{lstlisting}
+ std::map<ObjectType *, DataType >  sparse_storage;
+\end{lstlisting}
+for sparse storage. The traits classes in \lstinline|traits/data_container.hpp| ensure that the correct access mechanism is used for the various operations.
+
+\section{viennadata::all} \label{sec:viennadata-all}
+In order to make the following code lines
+\begin{lstlisting}
+ viennadata::access<std::string, long>("foo")(obj1) = 42;
+ viennadata::access<long,        double>(360)(obj1) = 3.1415;
+ viennadata::copy<viennadata::all, viennadata::all>()(obj1, obj2);
+\end{lstlisting}
+work as expected, smart coding has to be applied. As outlined in the previous section, the first two lines create two storage objects
+\begin{lstlisting}
+ std::map<ObjectType *, std::map<std::string, long> >
+ std::map<ObjectType *, std::map<long, double> >
+\end{lstlisting}
+for which the data must be transferred. However, there is no means to iterate over compiler generated types, therefore the generated types have to be tracked at runtime.
+
+A technique called \emph{type erasure} \cite{Alexandrescu:ModernCpp} is used to store pairs of different (!) \lstinline|KeyType|s and \lstinline|DataType|s in an array, see \lstinline|key_value_pair.hpp| for details on the type erasure and the file \lstinline|key_value_registration.hpp| for the array. When using the \lstinline|viennadata::all| type for copy, move, or erase operations, the type-erased \lstinline|KeyType|s and \lstinline|DataType|s are iterated and compared. If the types match, a virtual function call unwraps the types and calls the appropriate \lstinline|data_container|-member. This virtual function call is the reason, why the source and the destination object have to be of the same type.
+

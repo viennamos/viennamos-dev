@@ -1,0 +1,64 @@
+
+\chapter*{Introduction}   \addcontentsline{toc}{chapter}{Introduction} \label{intro}
+
+\NOTE{This documentation hasn't been updated to the interface of the upcoming ViennaData 1.1.0 release yet}
+
+
+When designing classes in object-oriented programming languages,
+one has to distinguish between intrinsic properties which are inherent to the modelled entity,
+and data which is associated with the entity. For example, a triangle is intrinsically defined
+by three disjoint points, while associated data can be color or texture information in graphical applications, or material properties for two-dimensional scientific simulations.
+
+While associated data depends on the respective application, intrinsic properties do not.
+Therefore, when designing reusable classes, associated data must not be part of the class itself.
+Reconsidering the example of a triangle, a class member for color information would immediately result in
+a potentially significant overhead for scientific simulations and thus reduce the reuseability of the class.
+However, the color information for the triangle still has to be accessible for graphical applications. This is where
+{\ViennaData} comes into play, because it provides a convenient means to store and access associated data
+for small, reusable classes with intrinsic data members only.
+
+As an example, suppose there exists a minimalistic class for triangles called \lstinline|Triangle|,
+which provides access to its vertices. For objects of this triangle class, color information modelled by a class \lstinline|RGBColor| should be stored within some application.
+The following lines accomplish that for a triangle object \lstinline|tri| using {\ViennaData}:
+\begin{lstlisting}
+ //store RGB color information:
+ viennadata::access<string, RGBColor>("color")(tri) = RGBColor(255,42,0);
+
+ //get color information at some other point in the application:
+ RGBColor col = viennadata::access<string, RGBColor>("color")(tri);
+\end{lstlisting}
+Data is associated with objects by keys of user-defined type in {\ViennaData}. In the example above,
+the color information is stored using a key \lstinline|"color"| of type \lstinline|std::string|.
+However, the user is free to use any key of any type\footnote{Some technical restrictions apply, see Sec.~\ref{sec:access}.}.
+Thus, any associated data object \lstinline|data| of a generic type \lstinline|DataType| can be stored and accessed for an object of any type using a key \lstinline|key| of type \lstinline|KeyType|
+by (cf.~Chapter \ref{chap:basic-usage})
+\begin{lstlisting}
+ //store 'data' for obj
+ viennadata::access<KeyType, DataType>(key)(obj) = data;
+
+ //retrieve the stored data:
+ DataType data2 = viennadata::access<KeyType, DataType>(key)(obj);
+\end{lstlisting}
+Therefore, {\ViennaData} allows to design and work with classes which focus on their intrinsic properties only, and
+ensures uniformity of associated data access over an arbitrarily large set of objects of different type.
+This is in particular important, if several different libraries with different coding styles are used within a project.
+
+With little additional configuration (cf.~Chapter \ref{chap:advanced-usage}) the code for color information access using {\ViennaData} can be reduced to
+\begin{lstlisting}
+ //store RGB color information
+ viennadata::access<color_info>()(tri) = RGBColor(255, 42, 0);
+
+ //get color information at some other point in the application:
+ RGBColor col = viennadata::access<color_info>()(tri);
+\end{lstlisting}
+This enables uniform, type-safe data access throughout the whole application.
+As shown in Chapter \ref{chap:benchmarks}, there is virtually no abstraction penalty for this gain in flexibility and uniformity. Explicit use cases are given in Chapter \ref{chap:use-cases}.
+
+Internally, {\ViennaData} stores data in tree-like structures, for which the object address is used as key for storing the data.
+However, if objects provide a means to identify themselves by numbers in the range $0, \ldots, N$ for some $N$, the internal datastructure of {\ViennaData} can be
+conveniently customized to a more appropriate storage scheme. Similarly, if it is a-priori known that for a particular key type only one key object per key type is used, the
+internal datastructure of {\ViennaData} can be adapted approporiately. Chapter \ref{chap:internals} explains the internals.
+
+Finally, a few words are to be spent on the pitfalls and design decisions. Since data is associated with objects, object lifetimes have to be kept in mind.
+If an object, for which associated data is stored, reaches the end of its lifetime, the user has to care for the associated data separately.
+This can be very simple and fully transparent for the user in some cases, and rather tough in other cases. Moreover, {\ViennaData} may lead to unexpected results when used with polymorphism. More details are given in Chapter \ref{chap:pitfalls}, and some key design decisions are discussed in Chapter \ref{chap:design}.

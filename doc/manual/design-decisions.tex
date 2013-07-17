@@ -1,0 +1,102 @@
+\chapter{Design Decisions} \label{chap:design}
+
+\NOTE{This documentation hasn't been updated to the interface of the upcoming ViennaData 1.1.0 release yet}
+
+
+Every now and then a programmer is faced with the question ``Why have you implemented it that way?''.
+This is then the chance to outline the various pros and cons of different approaches and assign appropriate weights such that the approach taken turns out to be the best.
+
+The first question is sometimes followed or replaced by ``Why haven't you done it like this: ....?''.
+In this case, the various pros and cons of different approaches should be outlined again and the taken weights have to be justified - even if it often tends be become a rather emotional debate instead.
+
+In this chapter the various design considerations are presented and the reasons why the library is the way it is are given.
+Remaining questions or inputs for further improvements should be sent to the mailing list at
+\begin{center}
+\texttt{viennadata-support$@$lists.sourceforge.net}
+\end{center}
+
+\section{Two Pairs of Parentheses}
+Probably the most immediate question relates to the two pairs of parentheses as in
+\begin{lstlisting}
+ viennadata::access<long, double>(42)(obj) = 360.0;
+\end{lstlisting}
+One could have just used a single pair as follows:
+\begin{lstlisting}
+ viennadata::access<long, double>(42, obj) = 360.0;
+\end{lstlisting}
+However, consider the alternatives for other functions of {\ViennaData}:
+\begin{lstlisting}
+ //reserve space for 100 objects, keys of type long:
+ viennadata::reserve<long, DataType>(100, obj);
+
+ //copy data stored at key '42' for obj1 to obj2:
+ viennadata::copy<long, DataType>(42, obj1, obj2);
+
+ //copy all data with keys of type long:
+ viennadata::copy<long, DataType>(obj1, obj2);
+
+ //erase all data with keys of type long for obj:
+ viennadata::erase<long, DataType>(obj);
+\end{lstlisting}
+Even though only three different functions were used, there are four different meanings of the first parameters:
+First, the parameter denotes the number of objects, then it denotes the data, after that the source object, and finally the object for which data is to be erased.
+In particular the last line is not intuitive - it suggests that \lstinline|obj| is erased.
+
+Compare the previous snippet with the actual code:
+\begin{lstlisting}
+ viennadata::reserve<long, DataType>(100)(obj);
+ viennadata::copy<long,  DataType>(42)(obj1, obj2);
+ viennadata::copy<long,  DataType>()(obj1, obj2);
+ viennadata::erase<long, DataType>()(obj);
+\end{lstlisting}
+Here, the first pair of parentheses always refers to the set of data manipulated, while the parameters in the second pair always refer to the objects the data refers to.
+In the library author's point of view, the second version is more intuitive and has thus been selected.
+
+\TIP{The first pair of parentheses always refers to the data being manipulated (either key or number of objects to be reserved), while the second pair of parentheses always refers to the objects the data is associated with.}
+
+\section{KeyType and DataType Template Parameters}
+Considering the code
+\begin{lstlisting}
+ //store '360.0' for 'obj' using key 42
+ viennadata::access<long, double>(42)(obj) = 360.0;
+\end{lstlisting}
+one is tempted to ask, whether the template parameters are redundant.
+In this example, this is certainly the case. However, a slight variation of the code above looks like this:
+\begin{lstlisting}
+ //store '360.0' for 'obj' using key 42
+ viennadata::access<std::string, double>("42")(obj) = 360.0;
+\end{lstlisting}
+Clearly, as soon as character strings are used as key, type deduction fails. Moreover, when using compile time key dispatch, one has to supply the
+key type anyway.
+
+As for the data type, which could be automatically deduced to be of type \lstinline|double|, there are two problems involved:
+The one is that for accessing data with possibly implicit conversion, there is no other option but to supply the data type:
+\begin{lstlisting}
+ //store '360.0' for 'obj' using key 42
+ int value = viennadata::access<long, double>(42)(obj);
+\end{lstlisting}
+The other problem is due to unwanted side-effects, when changing data types while refactoring code. If the \lstinline|DataType| were optional, the code
+\begin{lstlisting}
+ long data = 42;
+ /* maybe some other code here */
+
+ //store data for obj:
+ viennadata::access<std::string>("data")(obj) = data;
+
+ //at some other place, maybe even a different source file:
+ long data2 = viennadata::access<std::string, long>("data")(obj);
+\end{lstlisting}
+were legal. However, when changing the type of \lstinline|data| from \lstinline|long| to, say, \lstinline|int|, the data retrieval would be broken.
+Thus, to unify the interface for access, copy, move, erase, and find, the key type and the data type always have to be supplied.
+The only possible exception has to be explicitly enabled by the user, cf.~Section \ref{sec:default-valuetype}.
+
+\TIP{The key type and the data type always has to be specified, when calling functions from {\ViennaData}. The only exception has to be explicitly enabled by the user.}
+
+
+% \section{Memory Management for Dense Data Storage}
+%
+% The main reason for using a dense data storage scheme is presumably performance, cf.~Chap.~\ref{chap:benchmarks}. As a side effect, total memory consumption is reduced
+% considerably if all objects carry associated data.
+%
+% Explain multi-stage performance: First switch to dense storage, check if code works. Then disable auto-registration, ensure code works. Then disable size-checks, ensure that code works... ;-)
+

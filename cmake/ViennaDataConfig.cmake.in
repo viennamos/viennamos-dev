@@ -1,0 +1,19 @@
+#- CMake configuration file for ViennaData
+# Sets the following variables if ViennaData was found:
+#  VIENNADATA_FOUND         : TRUE if found
+#  VIENNADATA_INCLUDE_DIRS  : Include-directories to be used
+
+# Compute paths
+get_filename_component(VIENNADATA_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+if(EXISTS "${VIENNADATA_CMAKE_DIR}/CMakeCache.txt")
+   # in build tree
+   get_filename_component(VIENNADATA_INSTALL_PREFIX "${VIENNADATA_CMAKE_DIR}" PATH)
+   set(VIENNADATA_INCLUDE_DIR "${_VIENNADATA_PREFIX}")
+else()
+   set(VIENNADATA_INSTALL_PREFIX "${VIENNADATA_CMAKE_DIR}/@CONF_REL_INSTALL_PREFIX@")
+   set(VIENNADATA_INCLUDE_DIR    "${VIENNADATA_CMAKE_DIR}/@CONF_REL_INCLUDE_DIR@")
+endif()
+
+# Set up variables
+set(VIENNADATA_INCLUDE_DIRS ${VIENNADATA_INCLUDE_DIR})
+
