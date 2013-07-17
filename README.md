@@ -1,8 +1,8 @@
 ViennaMOS 
 --------------------------
 
-*This is the developer repository of [ViennaMOS](http://viennamos.sourceforge.net/). 
-*Git snapshot packages and releases are available at [sourceforge](https://sourceforge.net/projects/viennamos/).
+This is the developer repository of [ViennaMOS](http://viennamos.sourceforge.net/). 
+Git snapshot packages and releases are available at [sourceforge](https://sourceforge.net/projects/viennamos/).
 
 
 System requirements
