@@ -207,6 +207,8 @@ void MainWindow::setup_signals()
     QObject::connect(dockModules,                 SIGNAL(visibilityChanged(bool)),             this, SLOT(update_dockModules_view_action()));
     QObject::connect(dockModuleConfig,            SIGNAL(visibilityChanged(bool)),             this, SLOT(update_dockModuleConfig_view_action()));
     QObject::connect(multi_view,                  SIGNAL(currentViewChanged()),                this, SLOT(current_view_changed()));
+    QObject::connect(multi_view,                  SIGNAL(added3DRenderView()),                 this, SLOT(initializeCurrent3DRenderView()));
+    QObject::connect(multi_view,                  SIGNAL(added2DChartView()),                  this, SLOT(initializeCurrent2DChartView()));
     QObject::connect(comboBoxFieldViz,            SIGNAL(currentIndexChanged(int)),            this, SLOT(change_quantity_visualization(int)));
 }
 
@@ -340,7 +342,7 @@ void MainWindow::apply_module_end(QString const& module)
     else // there is no quantity, so do a plain 'solid' render
     {
       comboBoxFieldViz->setCurrentIndex(0);
-      change_quantity_visualization_to_solid();
+      multi_view->show_current_grid();
     }
 
     // record the current quantity for later restore of the quantity selection in the combobox due to view-switching
@@ -533,8 +535,6 @@ void MainWindow::update_dockModuleConfig_view_action()
 
 void MainWindow::change_quantity_visualization(int idx)
 {
-//  qDebug() << "change quan viz " << idx;
-
   if(idx < 0) return;
 
   if(comboBoxFieldViz->count() < 1) return;
@@ -545,15 +545,16 @@ void MainWindow::change_quantity_visualization(int idx)
   // quantity is displayed ..
   //
   quan_views[ multi_view->getCurrentViewIndex() ] = idx;
+  //qDebug() << "view " << multi_view->getCurrentViewIndex() << " idx " << idx;
 
   if(idx == 0)
   {
-      change_quantity_visualization_to_solid();
+      multi_view->show_current_grid();
   }
   else
   if(idx == 1)
   {
-    this->change_quantity_visualization_to_segment_id();
+    multi_view->show_current_grid_segments();
   }
   else
   {
@@ -607,37 +608,6 @@ void MainWindow::change_quantity_visualization(int idx)
 //        // set the current index of the current module's quantity to 0
 //        module_quan_index[module][id] = 0;
 //    }
-}
-
-void MainWindow::change_quantity_visualization_to_solid()
-{
-//  qDebug() << "quantity viz: solid" ;
-
-    // get the currently selected active module ..
-    QListWidgetItem* item = active_modules->currentItem();
-
-    // make sure that there is actually one .. otherwise there is a segfault
-    if(!item) return;
-
-    QString module = item->text();
-
-    // pass an empty string to the module's renderer
-    // this will trigger a 'solid coloring'
-    avail_modules[module]->render();
-}
-
-void MainWindow::change_quantity_visualization_to_segment_id()
-{
-//  qDebug() << "quantity viz: segment index" ;
-
-    // no need to forward it to the module, as this is straightforward (at least for the time being ..)
-    Render3D* render = multi_view->getCurrentRender3D();
-    if(render)
-    {
-        render->update_render_domain();
-        render->color_segments();
-        render->update();
-    }
 }
 
 void MainWindow::toggle_color_legend()
@@ -925,7 +895,6 @@ void MainWindow::on_actionSplit_Current_View_Horizontal_triggered()
     QDockWidget* dock = this->createNewViewDock();
     this->splitDockWidget(multi_view->getCurrentDock(), dock, Qt::Horizontal);
     multi_view->addNewView(dock);
-    //multi_view->addRender3D(dock);
 }
 
 void MainWindow::on_actionSplit_Current_View_Vertical_triggered()
@@ -933,7 +902,6 @@ void MainWindow::on_actionSplit_Current_View_Vertical_triggered()
     QDockWidget* dock = this->createNewViewDock();
     this->splitDockWidget(multi_view->getCurrentDock(), dock, Qt::Vertical);
     multi_view->addNewView(dock);
-    //multi_view->addRender3D(dock);
 }
 
 QDockWidget* MainWindow::createNewViewDock()
@@ -966,4 +934,15 @@ void MainWindow::on_actionOutput_triggered()
 void MainWindow::on_actionTake_Screenshot_triggered()
 {
     screenshot->show();
+}
+
+void MainWindow::initializeCurrent3DRenderView()
+{
+  change_quantity_visualization(0);
+  multi_view->resetCurrentView();
+}
+
+void MainWindow::initializeCurrent2DChartView()
+{
+
 }

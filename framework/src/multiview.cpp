@@ -159,6 +159,7 @@ void MultiView::addRender3D()
 
     QWidget*     widget = new QWidget;
     Render3D*    view   = new Render3D(multigrid, dock);
+    view->update_render_domain();
     QHBoxLayout* layout = new QHBoxLayout;
     layout->setContentsMargins(3, 3, 3, 3); // leave room for the border!
     layout->addWidget(view);
@@ -181,6 +182,8 @@ void MultiView::addRender3D()
     current_index = dock_index_map[dock];
 
     this->makeCurrentViewActive();
+
+    emit added3DRenderView();
 }
 
 void MultiView::addChart2D()
@@ -219,6 +222,8 @@ void MultiView::addChart2D()
     current_index = dock_index_map[dock];
 
     this->makeCurrentViewActive();
+
+    emit added2DChartView();
 }
 
 bool MultiView::currentIsRender3D()
@@ -374,6 +379,22 @@ void MultiView::resetCurrentView()
     else return;
 }
 
+void MultiView::resetAllViews()
+{
+  for(Render3DMap::iterator iter = render_map.begin();
+      iter != render_map.end(); iter++)
+  {
+      iter->second->reset_view();
+      iter->second->update();
+  }
+
+  for(Chart2DMap::iterator iter = chart_map.begin();
+      iter != chart_map.end(); iter++)
+  {
+      iter->second->reset_view();
+  }
+}
+
 std::size_t MultiView::addTable(QString const& name, Table table)
 {
 //    qDebug() << "inserting table with index: " << table_index;
@@ -418,4 +439,35 @@ void MultiView::takeScreenshotOfActiveView(QString const& filename)
     writer->Write();
 
     renderwindow->OffScreenRenderingOff(); // and now for normal rendering, turn it off again!
+}
+
+void MultiView::show_current_grid()
+{
+  Render3D* render = this->getCurrentRender3D();
+  if(render)
+  {
+      //render->update_render_domain();
+      render->color_solid();
+      render->update();
+  }
+}
+
+void MultiView::show_current_grid_segments()
+{
+  Render3D* render = this->getCurrentRender3D();
+  if(render)
+  {
+      //render->update_render_domain();
+      render->color_segments();
+      render->update();
+  }
+}
+
+void MultiView::multigridModified()
+{
+  for(Render3DMap::iterator iter = render_map.begin();
+      iter != render_map.end(); iter++)
+    {
+      iter->second->update_render_domain();
+    }
 }

@@ -84,8 +84,6 @@ private slots:
     void update_dockModules_view_action();
     void update_dockModuleConfig_view_action();
     void change_quantity_visualization(int idx);
-    void change_quantity_visualization_to_solid();
-    void change_quantity_visualization_to_segment_id();
     void toggle_color_legend();
     void toggle_axes();
     void toggle_coordinates();
@@ -103,6 +101,8 @@ private slots:
     void on_actionSplit_Current_View_Vertical_triggered();
     void on_actionLicense_triggered();
     void on_actionMaterial_Manager_triggered();
+    void initializeCurrent3DRenderView();
+    void initializeCurrent2DChartView();
 
 
     void on_actionOutput_triggered();

@@ -105,19 +105,6 @@ void ViennaMiniModule::preprocess()
     emit materialsAvailable(material_manager->getLibrary());
 }
 
-void ViennaMiniModule::render()
-{
-    Render3D* render = multiview->getCurrentRender3D();
-
-    // if current is actually a render view, and not a, for instance, chart view
-    if(render)
-    {
-        render->update_render_domain();
-        render->color_solid();
-        render->update();
-    }
-}
-
 void ViennaMiniModule::render(Quantity& quan, int step)
 {
     Render3D* render = multiview->getCurrentRender3D();
@@ -291,9 +278,9 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
     widget->setupDevice(device_segments);
 
     // show the loaded device in the current render window
-    render();
+    multiview->show_current_grid();
 
-    multiview->resetCurrentView();
+    multiview->resetAllViews();
 }
 
 

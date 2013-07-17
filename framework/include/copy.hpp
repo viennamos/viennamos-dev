@@ -335,6 +335,8 @@ inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, 
       usg->Delete();
     }
   }
+
+  multiview->multigridModified();
 }
 
 inline void copy(Device2u& device, MultiView* multiview)

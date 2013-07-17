@@ -46,7 +46,6 @@ public:
     virtual QString         name                ();
     virtual QString         description         ();
     virtual QString         version             ();
-    virtual void            render              ();
     virtual void            render              (Quantity& quan, int step);
     virtual bool            is_ready            ();
     virtual void            update              ();

@@ -50,7 +50,6 @@ public:
     virtual QString         description             ()                                                  = 0;
     virtual QString         version                 ()                                                  = 0;
     virtual void            render                  (Quantity& quan, int step)                     = 0;
-    virtual void            render                  ()                                                  = 0;
     virtual bool            is_ready                ()                                                  = 0;
     virtual void            update                  ()                                                  = 0;
     virtual void            reset                   ()                                                  = 0;

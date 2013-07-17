@@ -48,11 +48,12 @@
 #include <vector>
 #include <map>
 
+class MainWindow;
 
 class MultiView : public QObject
 {
     Q_OBJECT
-    
+
     // allow the following classes to use private functions
     friend class Chart2D;
 
@@ -71,49 +72,56 @@ public:
 
     explicit MultiView(QWidget *parent = 0);
     ~MultiView();
-    QDockWidget* removeCurrentView();
-    QDockWidget* removeView(int id);
-    void addNewView(QDockWidget* dock);
-    bool currentIsRender3D();
-    bool currentIsChart2D();
-    bool hasCharts2D();
-    bool hasRenders3D();
-    void resetTables();
-    void resetGrid();
-    Render3D* getCurrentRender3D();
-    Chart2D*  getCurrentChart2D();
-    Table getTable(std::size_t index);
-    QString getTableName(std::size_t index);
-    Tables getTables();
-    MultiGrid  getGrid();
-    RenderEditor* getCurrentRenderEditor();
-    ChartEditor* getCurrentChartEditor();
-    int getCurrentViewIndex();
-    QDockWidget* getDock(int id);
-    QDockWidget* getCurrentDock();
-    int getNumberOfViews();
-    void setCurrentLogScale(bool state);
-    void makeCurrentViewActive();
-    void update();
-    std::size_t addTable(QString const& name, Table table);
-    void takeScreenshotOfActiveView(QString const& filename);
+
+    QDockWidget*    removeCurrentView();
+    QDockWidget*    removeView(int id);
+    void            addNewView(QDockWidget* dock);
+    bool            currentIsRender3D();
+    bool            currentIsChart2D();
+    bool            hasCharts2D();
+    bool            hasRenders3D();
+    void            resetTables();
+    void            resetGrid();
+    Render3D*       getCurrentRender3D();
+    Chart2D*        getCurrentChart2D();
+    Table           getTable(std::size_t index);
+    QString         getTableName(std::size_t index);
+    Tables          getTables();
+    MultiGrid       getGrid();
+    RenderEditor*   getCurrentRenderEditor();
+    ChartEditor*    getCurrentChartEditor();
+    int             getCurrentViewIndex();
+    QDockWidget*    getDock(int id);
+    QDockWidget*    getCurrentDock();
+    int             getNumberOfViews();
+    void            setCurrentLogScale(bool state);
+    void            makeCurrentViewActive();
+    void            update();
+    std::size_t     addTable(QString const& name, Table table);
+    void            takeScreenshotOfActiveView(QString const& filename);
+    void            show_current_grid();
+    void            show_current_grid_segments();
+    void            multigridModified();
 
 public slots:
-    void resetCurrentView();
+    void            resetCurrentView();
+    void            resetAllViews();
 
 private slots:
-    void viewClicked(vtkObject*, unsigned long, void*, void*);
-    void addRender3D();
-    void addChart2D();
-    void newViewClicked();
+    void            viewClicked(vtkObject*, unsigned long, void*, void*);
+    void            addRender3D();
+    void            addChart2D();
+    void            newViewClicked();
 
 signals:
-    void currentViewChanged();
-    void chartUpdated();
-    void tableRemoved(std::size_t id);
+    void            currentViewChanged();
+    void            chartUpdated();
+    void            tableRemoved(std::size_t id);
+    void            added3DRenderView();
+    void            added2DChartView();
 
 private:
-    void removeTable(std::size_t id);
+    void            removeTable(std::size_t id);
 
     static const int INVALID = -1;
 
@@ -128,7 +136,7 @@ private:
     DockIndexMap                            dock_index_map;
     Tables                                  tables;
     MultiGrid                               multigrid;
-    std::size_t                             table_index;    
+    std::size_t                             table_index;
     const char* dock_key;
 };
 

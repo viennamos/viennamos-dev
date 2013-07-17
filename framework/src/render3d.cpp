@@ -106,7 +106,6 @@ Render3D::Render3D(vtkSmartPointer<vtkMultiBlockDataSet> domain, QWidget *parent
     std::cout << "Render3D::update_render_domain() - needs love for VTK versions >5"
    // mapper->SetInputData(local_domain);
 #endif
-
 }
 
 Render3D::~Render3D()
@@ -686,11 +685,11 @@ void Render3D::set_log(bool state)
 
 void Render3D::update()
 {
-    renderer->Render();
-    renderer->GetRenderWindow()->Render();
     for(Mappers::iterator iter = mappers.begin(); iter != mappers.end(); iter++)
         (*iter)->Update();
-    //    mapper->Update();
+    renderer->Render();
+    renderer->GetRenderWindow()->Render();
+
 }
 
 void Render3D::reset_view()
