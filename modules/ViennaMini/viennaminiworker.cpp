@@ -43,9 +43,9 @@ void ViennaMiniWorker::process()
     // process a 22u domain
     //
     if (vmos_device2u_ != NULL)
-        process_impl(*vmos_device2u_);
+        process_impl(*vmos_device2u_); // in viennaminiworker.h (due to the use of templates ..)
     else if (vmos_device3u_ != NULL)
-        process_impl(*vmos_device3u_);
+        process_impl(*vmos_device3u_); // in viennaminiworker.h (due to the use of templates ..)
     else std::cerr << "ViennaMiniWorker::Error: Device type is not supported!" << std::endl;
     emit finished();
 }
