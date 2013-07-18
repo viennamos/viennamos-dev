@@ -31,19 +31,18 @@
 #include "keys_quantities.hpp"
 #include "keys_units.hpp"
 
-//#include "viennagrid/io/vtk_reader.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/algorithm/scale.hpp"
-//#include "viennagrid/algorithm/quantity_transfer.hpp"
 
-//#include "viennautils/average.hpp"
-
-//#include "scale_algorithm.hpp"
 #include "viennaminimodule.h"
-//#include "utils.hpp"
+
 
 #include <QDebug>
 
+/**
+ * @brief The module's c'tor registers the module's UI widget and registers
+ * output quantities
+ */
 ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 {
     // setup a new UI widget and register it with this module
@@ -100,18 +99,31 @@ QString ViennaMiniModule::version()
 // so in this case we are lettings our UI know, that the
 // material data is available
 //
+
+/**
+ * @brief Function is after the framework forwarded
+ * the base data to the module, e.g., material manager
+ * so in this case we are lettings our UI know, that the
+ * material data is available
+ */
 void ViennaMiniModule::preprocess()
 {
     emit materialsAvailable(material_manager->getLibrary());
 }
 
+/**
+ * @brief Function orders the render3D view to visualize a
+ * quantity distribution on top of a mesh
+ */
 void ViennaMiniModule::render(Quantity& quan, int step)
 {
+    // retrieve the 'current' render object from the framework
     Render3D* render = multiview->getCurrentRender3D();
 
     // if current is actually a render view, and not a, for instance, chart view
     if(render)
     {
+        // make sure that the 'domain' is up-to-date
         render->update_render_domain();
 
         if((quan == pot_quan_vertex) || (quan == pot_quan_cell))
@@ -119,11 +131,17 @@ void ViennaMiniModule::render(Quantity& quan, int step)
         else
           multiview->setCurrentLogScale(true);
 
+        // order the renderer to overlay the mesh with a quantitiy distribution
         render->color_quantity(quan.name, viennamos::generateDisplayName(quan.name, quan.unit), quan.cell_level);
         render->update();
     }
 }
 
+/**
+ * @brief Function returns the size of the sequence of a given quantity
+ * this function is currently out of order, need to revisit the approach of handling
+ * a sequence of quantities .. this is also coupled with the VCR function of ViennaMOS
+ */
 std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
 {
 //    if(device_id == Device22u::ID())
@@ -145,24 +163,32 @@ std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
 //        else return 0;
 }
 
+/**
+ * @brief If there are input-dependenices check them before returning true
+ */
 bool ViennaMiniModule::is_ready()
 {
     return true;
 }
 
+/**
+ * @brief Give the module the opportunity to check whether there is new data available
+ */
 void ViennaMiniModule::update()
 {
 
 }
 
+/**
+ * @brief Reset the module to it's initial state
+ */
 void ViennaMiniModule::reset()
 {
 
 }
 
 /**
- * @brief
- * @param
+ * @brief Function is executed when the 'Apply' button is pressed
  */
 void ViennaMiniModule::execute()
 {
@@ -187,9 +213,11 @@ void ViennaMiniModule::execute()
     }
 }
 
-//
-//
-
+/**
+ * @brief Function is called after the offloaded worker is finished and takes
+ * care of copying the output data to the framework
+ * This function is not part of the Module interface
+ */
 void ViennaMiniModule::transferResult()
 {
   if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
@@ -217,7 +245,10 @@ void ViennaMiniModule::transferResult()
 }
 
 
-
+/**
+ * @brief Function reads an input mesh into the framework's central device database
+ * This function is not part of the Module interface*
+ */
 void ViennaMiniModule::loadMeshFile(QString const& filename)
 {
     meshfile = filename;
