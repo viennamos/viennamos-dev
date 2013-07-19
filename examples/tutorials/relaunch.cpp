@@ -152,9 +152,8 @@ int main()
   // Syntax: viennadata::result_of::accessor< STORAGE_TYPE, KEY_TYPE, VALUE_TYPE, ACCESS_TYPE>::type
   // Syntax: viennadata::accessor<KEY_TYPE, VALUE_TYPE, ACCESS_TYPE>(storage, key);
   viennadata::result_of::accessor<viennadata::storage<my_container_config>, double, double, test_struct2>::type
-      accessor = viennadata::acc(my_storage, 0);
-
-//       viennadata::accessor<double, double, test_struct2>(my_storage, 0);
+      accessor = viennadata::make_accessor(my_storage, 0);
+//       accessor = viennadata::make_accessor<double, double, test_struct2>(my_storage, 0);
 
   // simple accessor access
   accessor(tmp) = 3.14;
