@@ -1,0 +1,12 @@
+
+Provide folders (usually symlinks) to the other projects within the ViennaMini/ tree
+
+viennacl/
+viennadata/
+viennafvm/
+viennagrid/
+viennamath/
+
+(same level as viennamini/ )
+
+
