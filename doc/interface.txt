@@ -1,0 +1,51 @@
+
+/*** unknowns: ***/
+unknown<double, 0>   x;
+unknown<double, 1>   y;
+
+/*** constants: ***/
+constant<double> pi(3.1415);    // run time
+constant<long>   rt_four(4);    // run time 
+constant<long, compile_time_constant<4> > ct_four;         // compile time
+constant<long, compile_time_constant<3> > three;        // compile time
+
+/*** 'points': ***/
+vector v1 = make_vector( pi, rt_four );      // compile time vector with run time values assigned to run time vector (wraps everything into 'expr' type)
+vector v2 = make_vector( four, four  );      // compile time vector with compile time values assigned to run time value (wraps everything into 'expr' type)
+
+/*** create functions: ***/
+expr g = sin(pi * x) + exp(y) - x*y + four;  // compile-time is implicitly converted to run time here
+
+/*** evaluation: ***/
+eval(g, point);                              // evaluation at a point (can be std::vector[] ) at run time
+eval(x*y - four, v1);                        // run time evaluation of compile time expression
+eval(x*y - four, make_vector(four, four) );  // compile time evaluation of compile time expression
+//alternative:
+g(point);
+(x*y - four)(point);
+(x*y - four)(make_vector(ct_four, ct_four));
+
+/*** substitution of values for variables: ***/
+substitute(x, four,  x*y - three * z + three);  // returns 4*y - 3*z + 3 (here: compile time)
+substitute(x, 4,     x*y - 3*z + 3);            // returns 4*y - 3*z + 3 (here: run time, type expr)
+substitute(z, three, x*y - three * z + three);  // returns x*y - 6 (here: compile time)
+substitute(z, 3,     x*y - 3*z + 3);            // returns x*y - 6 (here: run time, type expr)
+
+/*** integration: ***/
+value v1 = integral( make_interval(a, b), integrand, rule);  // allows homogeneous interface for compile- and runtime evaluation.
+value v2 = integral( Omega, integrand, rule);                // for FEM - Omega denotes the integration domain
+expr  h  = integral( make_interval(a, b), integrand, rule);  // integration over a variable for a multi-variate function, result is a function again
+
+/*** differentiation: ***/
+expr h = diff(func, variable);        // returns a function object
+diff(func, variable)( (four, four) ); // can be evaluated at compile- or runtime.
+
+/*** helpers ****/
+is_expr(g);                //returns true if g is an expression. Otherwise (g is a variable or a constant) returns false
+is_expr<g>::result_type;   //same as above, but compile time check
+is_variable(g);
+is_variable<g>::result_type;
+is_constant(g);
+is_constant<g>::result_type;
+is_compile_time<g>::result_type;  //evaluates true if g is a pure compile time expression
+
