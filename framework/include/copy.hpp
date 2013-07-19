@@ -171,7 +171,7 @@ inline void copy(DeviceT& device, Quantity const& quantity, MultiView* multiview
   if((quantity.cell_level == VERTEX) && (quantity.tensor_level == SCALAR))
   {
     typedef typename viennadata::result_of::accessor<QuantityComplexType, Quantity, double, VertexType>::type TargetAccessorType;
-    TargetAccessorType accessor = viennadata::acc(device.getQuantityComplex(), quantity);
+    TargetAccessorType accessor = viennadata::make_accessor(device.getQuantityComplex(), quantity);
 
     std::size_t si = 0;
     for(SegmentationIteratorType sit = segments.begin(); sit != segments.end(); sit++)
@@ -200,7 +200,7 @@ inline void copy(DeviceT& device, Quantity const& quantity, MultiView* multiview
   if((quantity.cell_level == CELL) && (quantity.tensor_level == SCALAR))
   {
     typedef typename viennadata::result_of::accessor<QuantityComplexType, Quantity, double, CellType>::type TargetAccessorType;
-    TargetAccessorType accessor = viennadata::acc(device.getQuantityComplex(), quantity);
+    TargetAccessorType accessor = viennadata::make_accessor(device.getQuantityComplex(), quantity);
 
     std::size_t si = 0;
     for(SegmentationIteratorType sit = segments.begin(); sit != segments.end(); sit++)
