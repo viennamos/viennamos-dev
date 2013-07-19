@@ -245,8 +245,8 @@ inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, 
   typedef typename viennagrid::result_of::default_point_accessor<DomainType>::type                    PointAccessorType;
   typedef typename viennagrid::result_of::element_range<SegmentType, CellTag>::type                   CellRange;
   typedef typename viennagrid::result_of::iterator<CellRange>::type                                   CellIterator;
-  typedef typename viennagrid::result_of::element_range<CellType, VertexType>::type                  VertexOnCellRange;
-  typedef typename viennagrid::result_of::iterator<VertexOnCellRange>::type                          VertexOnCellIterator;
+  typedef typename viennagrid::result_of::element_range<CellType, VertexType>::type                   VertexOnCellRange;
+  typedef typename viennagrid::result_of::iterator<VertexOnCellRange>::type                           VertexOnCellIterator;
 
   static const int DIMG = PointType::dim;
 
@@ -258,6 +258,12 @@ inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, 
   else
   if(VTK_CELL_TYPE == VTK_TETRA)
       cell_size = 4;
+  else
+  if(VTK_CELL_TYPE == VTK_QUAD)
+      cell_size = 4;
+  else
+  if(VTK_CELL_TYPE == VTK_HEXAHEDRON)
+      cell_size = 8;
 
   std::vector<vtkIdType>  temp_array(cell_size);
 
@@ -268,7 +274,6 @@ inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, 
   multiview->resetGrid();
   MultiView::MultiGrid multigrid = multiview->getGrid();
 
-  vtkStructuredGrid*      sg;
   vtkUnstructuredGrid*    usg;
   vtkPoints*              points;
 
@@ -276,64 +281,59 @@ inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, 
   for(SegmentationIteratorType sit = segments.begin();
       sit != segments.end(); sit++)
   {
-    // if we are dealing with a simplex domain, create an unstructured vtk grid
+    // for each segment, we shall setup an unstructured vtk grid
+    // and add it as a new block to the general, central multi-block datastructure
     //
-    if((VTK_CELL_TYPE == VTK_TRIANGLE) || (VTK_CELL_TYPE == VTK_TETRA))
+    usg = vtkUnstructuredGrid::New();
+
+    // transfer the segment's geometry information
+    //
+    points = vtkPoints::New();
+    VertexRange vertices = viennagrid::elements<VertexType>(*sit);
+    std::map<std::size_t,std::size_t>   indexMap;
+    int i = 0;
+    double array[3];
+    array[0] = 0.0;
+    array[1] = 0.0;
+    array[2] = 0.0; // important for 2d case: the z-component has to be 0.0, to be sure ..
+
+    for (VertexIterator vit = vertices.begin(); vit != vertices.end(); ++vit)
     {
-      // for each segment, we shall setup an unstructured vtk grid
-      // and add it as a new block to the general, central multi-block datastructure
-      //
-      usg = vtkUnstructuredGrid::New();
-
-      // transfer the segment's geometry information
-      //
-      points = vtkPoints::New();
-      VertexRange vertices = viennagrid::elements<VertexType>(*sit);
-      std::map<std::size_t,std::size_t>   indexMap;
-      int i = 0;
-      double array[3];
-      array[0] = 0.0;
-      array[1] = 0.0;
-      array[2] = 0.0; // important for 2d case: the z-component has to be 0.0, to be sure ..
-
-      for (VertexIterator vit = vertices.begin(); vit != vertices.end(); ++vit)
-      {
-        for(int dim = 0; dim < DIMG; dim++) // that should be automatically unrolled by the compiler as dimg is static ..
-            array[dim] = pnt_acc(*vit)[dim];
-        points->InsertNextPoint(array);
-        indexMap[vit->id().get()] = i++;
-        //indexMap[i++] = points->InsertNextPoint(array);
-      }
-      usg->SetPoints(points);
-      points->Delete();
-
-      // transfer the segment's topology information
-      //
-      CellRange cells = viennagrid::elements<CellType>(*sit);
-
-      for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
-      {
-        vtkIdType cell_index = 0;
-
-        for (VertexOnCellIterator vocit = viennagrid::elements<VertexType>(*cit).begin(); // TODO make this 'unroll'able' ..
-             vocit != viennagrid::elements<VertexType>(*cit).end();
-             ++vocit)
-        {
-            temp_array[cell_index++] = indexMap.at(vocit->id().get());
-        }
-        usg->InsertNextCell (VTK_CELL_TYPE , cell_size, &temp_array[0] );
-      }
-
-      // now, as the grid representing the segment has been set up,
-      // add it as a new block to the central multi-block datastructure
-      //
-      multigrid->SetBlock(si++, usg);
-
-      // we don't need the usg anymore,
-      // delete everything, we'll start from scratch with the next segment ..
-      //
-      usg->Delete();
+      for(int dim = 0; dim < DIMG; dim++) // that should be automatically unrolled by the compiler as dimg is static ..
+          array[dim] = pnt_acc(*vit)[dim];
+      points->InsertNextPoint(array);
+      indexMap[vit->id().get()] = i++;
+      //indexMap[i++] = points->InsertNextPoint(array);
     }
+    usg->SetPoints(points);
+    points->Delete();
+
+    // transfer the segment's topology information
+    //
+    CellRange cells = viennagrid::elements<CellType>(*sit);
+
+    for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
+    {
+      vtkIdType cell_index = 0;
+
+      for (VertexOnCellIterator vocit = viennagrid::elements<VertexType>(*cit).begin(); // TODO make this 'unroll'able' ..
+           vocit != viennagrid::elements<VertexType>(*cit).end();
+           ++vocit)
+      {
+          temp_array[cell_index++] = indexMap.at(vocit->id().get());
+      }
+      usg->InsertNextCell (VTK_CELL_TYPE , cell_size, &temp_array[0] );
+    }
+
+    // now, as the grid representing the segment has been set up,
+    // add it as a new block to the central multi-block datastructure
+    //
+    multigrid->SetBlock(si++, usg);
+
+    // we don't need the usg anymore,
+    // delete everything, we'll start from scratch with the next segment ..
+    //
+    usg->Delete();
   }
 
   multiview->multigridModified();
@@ -344,9 +344,19 @@ inline void copy(Device2u& device, MultiView* multiview)
     copy(device, multiview, tag::viennagrid_domain(), VTK_TRIANGLE);
 }
 
+inline void copy(Device2s& device, MultiView* multiview)
+{
+    copy(device, multiview, tag::viennagrid_domain(), VTK_QUAD);
+}
+
 inline void copy(Device3u& device, MultiView* multiview)
 {
     copy(device, multiview, tag::viennagrid_domain(), VTK_TETRA);
+}
+
+inline void copy(Device3s& device, MultiView* multiview)
+{
+    copy(device, multiview, tag::viennagrid_domain(), VTK_HEXAHEDRON);
 }
 
 template<typename DeviceT, typename SourceAccessorT, typename TargetAccessorT>

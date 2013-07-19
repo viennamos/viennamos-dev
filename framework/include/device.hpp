@@ -62,7 +62,9 @@ static const QString vdevice3s = "Hexahedral3D";
 
 enum DEVICES_ID {
     DEVICE_2U,
-    DEVICE_3U
+    DEVICE_2S,
+    DEVICE_3U,
+    DEVICE_3S
 };
 
 
@@ -87,6 +89,27 @@ private:
     Segmentation         segmentation_;
 };
 
+struct Device2s
+{
+public:
+    typedef viennamos::QuanComplex        QuantityComplex;
+    typedef viennamos::CellComplex2s      CellComplex;
+    typedef viennamos::Segmentation2s     Segmentation;
+
+    Device2s() : segmentation_(domain_) {};
+    static int         ID()  { return DEVICE_2S; }
+    static std::string KEY() { return key::vdevice2s.toStdString(); }
+
+    QuantityComplex& getQuantityComplex() { return quantities_;}
+    CellComplex&     getCellComplex    () { return domain_;    }
+    Segmentation&    getSegmentation   () { return segmentation_; }
+
+private:
+    QuantityComplex      quantities_;
+    CellComplex          domain_;
+    Segmentation         segmentation_;
+};
+
 struct Device3u
 {
 public:
@@ -97,6 +120,27 @@ public:
     Device3u() : segmentation_(domain_) {};
     static int         ID()  { return DEVICE_3U; }
     static std::string KEY() { return key::vdevice3u.toStdString(); }
+
+    QuantityComplex& getQuantityComplex() { return quantities_;}
+    CellComplex&     getCellComplex    () { return domain_;    }
+    Segmentation&    getSegmentation   () { return segmentation_; }
+
+private:
+    QuantityComplex      quantities_;
+    CellComplex          domain_;
+    Segmentation         segmentation_;
+};
+
+struct Device3s
+{
+public:
+    typedef viennamos::QuanComplex        QuantityComplex;
+    typedef viennamos::CellComplex3s      CellComplex;
+    typedef viennamos::Segmentation3s     Segmentation;
+
+    Device3s() : segmentation_(domain_) {};
+    static int         ID()  { return DEVICE_3S; }
+    static std::string KEY() { return key::vdevice3s.toStdString(); }
 
     QuantityComplex& getQuantityComplex() { return quantities_;}
     CellComplex&     getCellComplex    () { return domain_;    }
