@@ -1,0 +1,203 @@
+\chapter{Expression Manipulation} \label{chap:manipulation}
+
+The basic description of the types in Chap.~\ref{chap:basics} allows for defining expressions and evaluating them.
+However, for most algorithms expressions need to be manipulated in one way or another, which is the topic of this chapter.
+Unless otherwise noted, all manipulations considerered in the following can be used for both compiletime and runtime expressions using the same interface.
+
+\TIP{Manipulation functionality resides in folder \lstinline|viennamath/manipulation/|.
+ The respective header files are not included automatically with \lstinline|viennamath/expression.hpp| and need to be included as required.}
+
+ \section{Evaluation}
+All {\ViennaMath} expressions can be evaluated to a floating point number using the parenthesis operator. 
+A vector of values needs to be passed for the evaluation. In the special case that only the first entry of a vector is required for evaluation, it suffices to
+pass the value directly.
+%Depending on the number of variables in the expression, either a scalar or a vector needs to be passed for evaluation. For conv
+
+Using \lstinline|operator()|, however, is possibly not an option for a generic interface with non-ViennaMath types.
+For this reason, \lstinline|viennamath::eval()| provides a generic evaluation interface. 
+The first argument is the expression to be evaluated, and the second argument is the tuple with the values to be substituted for the variables.
+For example, the expression $x^2$ is defined and evaluated at $x=2$ as follows:
+\begin{lstlisting}
+ ct_constant<2> c2;
+ ct_variable<0> x;
+ eval( x*x, 2.0 ); //     runtime evaluation
+ eval( x*x,  c2 ); // compiletime evaluation
+\end{lstlisting}
+Note that compiletime evaluation is only performed when both arguments are fully compiletime compatible.
+As soon as one part of the expression cannot be handled at compile time, a fallback to runtime evaluation is carried out.
+A hybrid evaluation in such cases is postponed to future releases of {\ViennaMath}.
+
+A vector of values needs to be passed as second argument, if a variable formally refers to any other than the first coordinate in a vector.
+Let us consider several use-cases of \lstinline|eval()| consisting of various combinations of compiletime and runtime expressions:
+\begin{lstlisting}
+ ct_constant<3> c3;
+ ct_variable<1> y;
+ expr f = x*x + y;     // conversion to runtime expression
+ eval( f, 2.0 );       // runtime exception: insufficient values provided
+ eval( x*x + y, c2 );  // compilation error: insufficient values provided
+ eval( x*x + y,
+       make_vector(2.0, 3.0) ); //    runtime evaluation
+ eval( x*x + y,
+       make_vector(c2, c3) );  // compiletime evaluation
+ eval( 2.0, 0.0 );             // possible thanks to overloading
+\end{lstlisting}
+Since the runtime wrapper \lstinline|expr| hides information from the compiler, an exception is thrown at runtime if insufficient values are provided for evaluation.
+For a full compiletime evaluation, insufficient parameters are already detected at an earlier stage.
+The helper function \lstinline|make_vector() | generates a suitable vector type both for the runtime and the compiletime case.
+Instead of using \lstinline|make_vector()|, a STL vector (\lstinline|std::vector<double>|) or any compatible type can also be passed.
+Also note that the last line in the code snippet shows the benefit of using \lstinline|eval()| instead of \lstinline|operator()|:
+Scalars can also be 'evaluated' and are thus reinterpreted as constant functions.
+
+ \section{Substitution} \label{sec:substitute}
+Formally, the evaluation of an expression can be seen as a substitution of the variables with values.
+A generalization is to replace arbitrary expressions with another expression in third expression.
+This is accomplished by the function \lstinline|substitute()| defined in \lstinline|viennamath/manipulation/substitute.hpp|:
+\begin{lstlisting}
+ expr f = (x + y) * (x - y);
+ substitute(x, y, f);         // returns (y + y) * (y - y) = 0
+ substitute(x, 1, f);         // returns (1 + y) * (1 - y)
+ substitute(x + y, x - y, f); // returns (x - y) * (x - y)
+\end{lstlisting}
+As with \lstinline|eval|, substitutions are carried out at compiletime if all parameters are compiletime expressions.
+
+
+ \section{Expansion}
+It is often desired to expand an expression given as a product of other terms. For example, instead of $2(x+y)$ one may want to have $2x - 2y$.
+Such a functionality is provided by the function \lstinline|expand()| defined in \lstinline|viennamath/manipulation/expand.hpp|:
+\begin{lstlisting}
+ expand( c2 * (x+y) );
+\end{lstlisting}
+where \lstinline|c2| is a compiletime constant and \lstinline|x|, \lstinline|y| are compiletime variables.
+Note that {\ViennaMathversion} does not support the expansion of runtime expressions yet.
+
+\NOTE{ {\ViennaMathversion} supports compiletime expansion only. }
+
+
+
+ \section{Simplification}
+In the course of manipulating expressions, simple operations such as $x+0$ or $x/1$ may appear.
+However, such terms constitute unnecessary overhead for later evaluations, thus it is desirable to have these operations dropped.
+Such a simplification of the expression can be achieved with the function \lstinline|simplify()| defined in \lstinline|viennamath/manipulation/simplify.hpp|:
+\begin{lstlisting}
+ simplify( x + 1.0 * y - 0.0 );  // returns x
+ simplify( x * (2.0 + 3.0) + (y * 0) / (x * 1) ); // returns 5x
+\end{lstlisting}
+\lstinline|simplify()| is available both for runtime and compiletime manipulation.
+
+
+ \section{Differentiation}
+The differentiation of an expression with respect to one or several variables is central to many algorithms, among which the Newton scheme is presumably the
+most widely used. Differentiation routines in {\ViennaMath} reside in \lstinline|viennamath/manipulation/diff.hpp| and are used in a canonical way by passing
+the expression to be differentiated as first argument and the differentiation variable as second argument:
+\begin{lstlisting}
+ diff( x + y, x );              // returns 1
+ diff( (2.0 - x)*(3.0 + y), y); // returns 2.0 - x
+\end{lstlisting}
+As usually, compiletime expressions are differentiated at compiletime, while runtime expressions are differentiated at runtime.
+An exemplary Newton-solver demonstrating the use of differentiation routines can be found in \lstinline|examples/newton_solve.cpp|.
+
+
+ \section{Integration}
+The integration of an expression over an interval can be accomplished in two ways: The first option is by analytical integration, provided that an
+antiderivative of the integrand can be found easily. The second option is by numerical quadrature using a suitable quadrature rule.
+
+ %% Compiletime: Analytic
+Analytical integration is in {\ViennaMathversion} available for compiletime types and polynomials as integrands only.
+The file \lstinline|viennamath/manipulation/integrate.hpp| provides the function \lstinline|integrate()|, which takes the integration interval
+as first argument, the integrand as second argument and the integration variable as third argument. For example, the integral
+\begin{align}
+ \int_0^1 x^2 \: \mathrm{d} x
+\end{align}
+is computed analytically at compile time using the lines
+\begin{lstlisting}
+ integrate( make_interval(c0, c1),
+            x * x,
+            x);              //returns the expression 1/3
+\end{lstlisting}
+where \lstinline|c0| and \lstinline|c1| denote the compiletime constants $0$ and $1$ and are passed to the helper function \lstinline|make_interval()|
+to generate a suitable compiletime interval with the provided lower and upper bound. Note that analytic integration can also be nested and use polynomial lower
+and upper bounds. For example, integration of $x^2$ over the unit triangle with vertices $(0,0)$, $(1,0)$ and $(0,1)$ is achieved via
+\begin{lstlisting}
+ integrate( make_interval(c0, c1),
+            integrate( make_interval(c0, c1 - x),
+                       x * x,
+                       y),
+            x);              //returns 1/12
+\end{lstlisting}
+
+
+\NOTE{ Analytic integration in {\ViennaMathversion} is available for polynomial integrands at compiletime only. }
+
+
+
+ %% Runtime: Quadrature
+\begin{table}
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+Name & {\ViennaMath} Type   & Shortcut & Accuracy \\
+\hline
+$1$-point Gauss   & \lstinline|rt_gauss_quad_1| & \lstinline|gauss_quad_1| & $1$ \\
+\hline
+\end{tabular}
+\caption{Overview of numerical quadrature rules in {\ViennaMath}. \label{tab:quadrature}}
+\end{table}
+
+In order to compute an integral numerically using a quadrature rule, the respective rule from Tab.~\ref{tab:quadrature} needs to be instantiated first.
+For a $1$-point Gauss rule, this is accomplished by
+\begin{lstlisting}
+ rt_numerical_quadrature<InterfaceType> 
+    integrator(new rt_gauss_quad_1<InterfaceType>());
+\end{lstlisting}
+for a suitable runtime interface type. If the default interface type is to be used, the shortcut types can be used for convenience:
+\begin{lstlisting}
+ numerical_quadrature integrator(new gauss_quad_1());
+\end{lstlisting}
+To carry out the numerical quadrature, two options exist: The first is to pass the integration interval, the integrand, and
+the integration variable as separate arguments to \lstinline|operator()| of the \lstinline|integrator| object:
+\begin{lstlisting}
+ integrator( make_interval(0.0, 1.0),
+             x * x,
+             x);             // returns the value 0.25
+\end{lstlisting}
+The second option for numerical quadrature is to encode the integral directly in the expression:
+\begin{lstlisting}
+  expr my_integral = integral( make_interval(0, 1), x * x, x );
+\end{lstlisting}
+which encodes $\int_0^1 x^2 \: \mathrm{d} x$ directly in an expression. For numerical quadrature, only the encoded form needs to be passed to the quadrature
+rule then
+\begin{lstlisting}
+ integrator(my_integral);    // returns the value 0.25 (1-point Gauss)
+\end{lstlisting}
+
+
+
+ \section{Extract Coefficient}
+Given a polynomial $p(x,y) = 1 + x + y + 2xy$ it can be of interest to extract individual parts of the polynomial.
+For example, one wishes to extract the coefficient of $x$, which is $(1+2y)$. In such a case, 
+the function \lstinline|coefficient()| defined in \lstinline|viennamath/manipulation/coefficient.hpp| can be used.
+The first parameter is the variable or expression for which the coefficient should be returned, and the second argument is the expression from which the
+coefficient is to be extracted:
+\begin{lstlisting}
+ coefficient(x, c1 + x + y + c2*x*y);  //returns 1+2y
+\end{lstlisting}
+Note that higher-order terms in the variable are also returned. For example, the coeffient of $x$ in $x+x^2$ is obtained as $(1+x)$.
+
+\NOTE{ \lstinline|coefficient()| is in {\ViennaMathversion} available for compiletime types only. }
+
+
+ \section{Drop Dependent Terms}
+In order to drop all terms in an expression which depend on a certain expression type (not necessarily a variable), the convenience function
+\lstinline|drop_dependent_terms()| from \lstinline|viennamath/manipulation/drop_dependent_terms.hpp| can be used. As the name suggests, all terms with a
+dependency on the expression passed as first parameter are dropped in the expression passed as second variable.
+For example, all terms depending on $x$ in $1+x+y+2xy$ are dropped using the line
+\begin{lstlisting}
+ drop_dependent_terms(x, c1 + x + y + c2*x*y);  //returns 1+y
+\end{lstlisting}
+in order to obtain $1+y$.
+
+
+
+\NOTE{ \lstinline|drop_dependent_terms()| is in {\ViennaMathversion} available for compiletime types only. }
+
+
