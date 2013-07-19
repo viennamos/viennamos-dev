@@ -1,0 +1,78 @@
+************************************************
+****          ViennaMath Readme             ****
+************************************************
+
+Table of Contents
+------------------
+1. Requirements
+2. Installation
+3. Project Layout
+4. Authors and Contact
+A. License
+
+
+(for detailed informations, have a look into the doc/ folder containing a PDF manual and doxygen-created reference documentation)
+
+
+
+1. Requirements
+-----------------
+ViennaMath only requires a not too dated C++ compiler (e.g. gcc 4.x.x), the C++ Standard Template Library. For building the examples, CMake can be used.
+
+
+2. Installation
+-----------------
+
+The first step is to extract the file:
+
+Unix-based OS:
+$> gunzip ViennaMath-1.0.0.tar.gz
+$> tar -xf ViennaMath-1.0.0.tar
+$> cd ViennaMath-1.0.0
+
+ViennaMath is a header-only library, therefore it is sufficient to copy the subfolder viennamath/ (holding the header files) into your project directory or your system include directory. For instructions on how to set the include paths correctly, please refer to the documentation of your compiler.
+
+For building and running the examples, proceed as follows:
+
+Unix-based clients:
+ * change to the build directory:
+   $> cd build
+ * call cmake
+   $> cmake ..
+ * Use 'make' to build all examples:
+   $> make
+   (alternatively, you can build them individually via 'make example1', 'make example2', etc.
+ * Execute them via
+   $> ./basic
+   $> ./integration
+   etc.
+
+
+3. Project Layout
+-----------------
+
+---- ViennaMath-1.X.X
+   |
+   |-- build/ - Build folder for the examples
+   | 
+   |-- doc/ - Documentation (LaTeX and doxygen)
+   | 
+   |-- examples/ - Some tutorials explaining the usage of ViennaMath
+   | 
+   |-- tests/ - Automated test suite
+   | 
+   |-- viennamath/ - The library source code
+
+
+4. Authors and Contact
+------------------------
+
+Karl Rupp (rupp@iue.tuwien.ac.at)
+
+ViennaMath was developed under the aegis of the 'Institute for Microelectronics' and the 'Institute for Analysis and Scientific Computing' at the 'Vienna University of Technology'.
+
+
+A. License
+------------
+ViennaMath is distributed under the MIT (X11) License. See file LICENSE.
+

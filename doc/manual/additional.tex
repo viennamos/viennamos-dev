@@ -1,0 +1,121 @@
+
+\chapter{Additional Features}
+Various features of {\ViennaMath}, which are not necessarily standard features of a symbolic math library, are covered in this chapter.
+Additional feature requests should be sent to
+\begin{center}
+\texttt{viennamath-support$@$lists.sourceforge.net} 
+\end{center}
+
+  \section{\LaTeX{} Output}
+Since {\ViennaMath} encourages a high-level description and manipulation of the underlying mathematical problem formulation in source code, it is natural to
+generate \LaTeX{} code from {\ViennaMath} expressions for debugging purposes. The generated code can be copy\&paste'd to LaTeX rendering webpages or used for
+the automatic generation of program log files in the form of a \LaTeX{} document.
+
+All conversion is carried out by a separate converter object of type \lstinline|rt_latex_translator<InterfaceType>| as defined in
+\lstinline|viennamath/manipulation/latex.hpp|. A convenience shortcut \lstinline|latex_translator| is available for the default runtime expression interface.
+Conversion is triggered by providing the expression to be converted to the functor:
+\begin{lstlisting}
+ latex_translator  to_latex;
+
+ expr f = sqrt( x + y );
+ to_latex( f );     //returns the string '\sqrt{x_{0}+x_{1}}'
+\end{lstlisting}
+By default, variables are printed as $x_0$, $x_1$, etc. This and other output routines can be customized by using the \lstinline|customize()| member function
+of the converter. For example, to print 'x' and 'y' instead of 'x\_\{0\}' and 'x\_\{1\}', the code
+\begin{lstlisting}
+ to_latex.customize(x, "x");
+ to_latex.customize(y, "y");
+\end{lstlisting}
+is sufficient. Similar customizations can be applied for the output of types and features described in the remainder of this chapter.
+
+\NOTE{The \LaTeX{} generator works with runtime expression types only. Thus, compiletime expression types need to be converted to runtime expression types
+first.}
+
+  \section{Differential Operators}
+For enabling dimension-independent programming, dimension-independent mathematical differential operations are also provided with {\ViennaMath}.
+In {\ViennaMathversion}, the gradient and the divergence operators are provided by the functions \lstinline|grad()| and \lstinline|div()| respectively:
+\begin{lstlisting}
+ expr u = grad(x+y);
+ expr v = grad(x-y);
+ expr w = div(grad(x*x + y*y));
+\end{lstlisting}
+Note that expression containing differential operators cannot be evaluated directly, since a coordinate system needs to be specified first.
+
+A coordinate system is applied to the previous expressions by using the free function \lstinline|apply_coordinate_system()|, which is defined in the header file \lstinline|viennamath/manipulation/apply_coordinate_system.hpp|. The first function argument is a tag identifying the coordinate system (either of type \lstinline|cartesian<1>|, \lstinline|cartesian<2>|, or \lstinline|cartesian<3>| for a Cartesian coordinate system in one, two or three dimensions). The second function argument is the expression to which the coordinate system should be applied:
+\begin{lstlisting}
+ apply_coordinate_system(cartesian<1>(), u); //returns 1 + y
+ apply_coordinate_system(cartesian<2>(), v); //returns (1, -1)
+ apply_coordinate_system(cartesian<3>(), w); //returns 4
+\end{lstlisting}
+Differential operators are very handy in combination with function symbols explained in Sec.~\ref{sec:function-symbols}.
+
+%%%%%%%%%%%%%%%
+  \section{Integration Symbols}
+In certain cases the form of an integral expression is known, but the actual integration domain is determined at some later stage. 
+Here, a symbolic integration domain of type \lstinline|symbolic_interval| identified by an ID can be specified and substituted by the final integration interval later on.
+For example, the integral $\int_\Omega x^2 \: \mathrm{d} \Omega$, where $\Omega$ is specified at some later point, is specified using {\ViennaMath} as
+\begin{lstlisting}
+ expr my_integral = integral(symbolic_interval(), x*x);
+\end{lstlisting}
+The interface is again such that it can be used with both runtime and compiletime types. For simplicity, the resulting integral expression is here assigned to a runtime expression \lstinline|my_integral|. An ID can be provided to the constructor of \lstinline|symbolic_interval| for distinguishing between different symbolic intervals. By default, an ID of $0$ is used.
+
+In order to substitute the symbolic interval with the actual integration interval, the function \lstinline|substitute()| as explained in Sec.~\ref{sec:substitute} is used.
+Since the replacement consists of both the integration interval and the variable over which integration is to be carried out, the replacement argument is packed into a \lstinline|pair| as defined in the C++ STL. Thus, in order to specify $\Omega$ as the interval $[0,1]$ with an integration over the $x$-variable, the code
+\begin{lstlisting}
+ expr my_integral2 = substitute( symbolic_interval(),
+                                 std::make_pair(interval(0, 1), x),
+                                 my_integral);
+\end{lstlisting}
+is sufficient. Note that in the current release of {\ViennaMath} only the substitution with a one-dimensional integration domain is supported, but no nested integrals are possible yet.
+
+\TIP{Note that \lstinline|std::make_pair()| is defined in the header \lstinline|<utility>|.}
+
+
+%%%%%%%%%%%%%%%
+  \section{Function Symbols} \label{sec:function-symbols}
+For discretization schemes based on weak formulations of partial differential equations it is appropriate to work with abstract functions rather than with concrete expressions.
+For example, the weak form of the Poisson equation,
+\begin{align} \label{eq:weak-poisson}
+ \int_\Omega \nabla u \cdot \nabla v \: \mathrm{d} x = \int_\Omega fv \: \mathrm{d} x 
+\end{align}
+for all test functions in a certain test space $\mathcal{V}$, is formulated for functions $u$ and $v$, which are during the discretization replaced by certain trial and test functions, which finally yields a system of linear equations. 
+Such function labels (\emph{function symbols}) are modeled in {\ViennaMath} by the type \lstinline|rt_function_symbol<InterfaceType>| at runtime (with convenience shortcut \lstinline|function_symbol| for the default runtime interface type) and by \lstinline|ct_function_symbol<T>| at compiletime, where \lstinline|T| is a tag identifying the function symbol.
+
+As a simple example, the expression $uv$ is considered, where $u$ is then substituted with the expression $(1+x)$ and $v$ is replaced by $(1-x)$:
+\begin{lstlisting}
+ function_symbol u(0);
+ function_symbol v(1);
+ expr f = u * v;
+ expr g = substitute(u, 1.0 + x,
+                     substitute(v, 1.0 - x, f)
+                    );    // g becomes (1+x)*(1-x)
+\end{lstlisting}
+The constructor arguments denote the function symbol ID used for distinguishing the individual function symbols.
+
+Reconsidering the weak form \eqref{eq:weak-poisson}, function symbols at compiletime can use any arbitrary tag class for identification.
+{\ViennaMath} provides the predefined tags \lstinline|unknown_tag<id>| and \lstinline|test_tag<id>|, where the integer template parameter \lstinline|tag| is used for distinguishing between several function symbols of the same tag. The previous code snippet rewritten for compiletime manipulation thus becomes
+\begin{lstlisting}
+ ct_function_symbol< unknown_tag<0> > u;
+ ct_function_symbol<    test_tag<0> > v;
+ substitute(u, 1.0 + x,
+            substitute(v, 1.0 - x, u*v)
+           );    // returns (1+x)*(1-x)
+\end{lstlisting}
+Note that the result type of \lstinline|substitute()| encodes the result \lstinline|(1+x)*(1-x)|, thus the result is usually directly passed to another function (e.g.~\lstinline|eval()|) in order to avoid writing the return type explicitly.
+
+As a final example, the weak form \eqref{eq:weak-poisson} (with $f \equiv 1$ for simplicity) is specified directly as a {\ViennaMath} runtime expression and converted to {\LaTeX}-code using the functionality presented in this chapter:
+\begin{lstlisting}
+ function_symbol u(0);
+ function_symbol v(1);
+ equation weak_form = make_equation( integral( symbolic_interval(),
+                                               grad(u) * grad(v) ),
+                                     integral( symbolic_interval(), v ) );
+ latex_translator to_latex;
+ std::cout << to_latex(weak_form) << std::endl;
+\end{lstlisting}
+
+
+\TIP{ Have a look at \texttt{ViennaFEM}~(\texttt{http://viennafem.sourceforge.net/}) if you are interested in a software package using {\ViennaMath} for the finite element method. }
+
+
+
