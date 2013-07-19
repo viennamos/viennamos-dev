@@ -99,9 +99,9 @@ private:
     ResultAccessor source_p_acc  (vmini_device.get_storage(), simulator.result(), simulator.quantity_hole_density().id());
 
     typedef typename viennadata::result_of::accessor<QuanComplex, Quantity, double, VertexType>::type TargetVertexAccessor;
-    TargetVertexAccessor target_pot_vertex_acc = viennadata::acc(device.getQuantityComplex(), target_pot_quan_vertex_);
-    TargetVertexAccessor target_n_vertex_acc   = viennadata::acc(device.getQuantityComplex(), target_n_quan_vertex_);
-    TargetVertexAccessor target_p_vertex_acc   = viennadata::acc(device.getQuantityComplex(), target_p_quan_vertex_);
+    TargetVertexAccessor target_pot_vertex_acc = viennadata::make_accessor(device.getQuantityComplex(), target_pot_quan_vertex_);
+    TargetVertexAccessor target_n_vertex_acc   = viennadata::make_accessor(device.getQuantityComplex(), target_n_quan_vertex_);
+    TargetVertexAccessor target_p_vertex_acc   = viennadata::make_accessor(device.getQuantityComplex(), target_p_quan_vertex_);
 
     typedef QuantityTransferSetter<TargetVertexAccessor>  QuantityTransferSetter;
     QuantityTransferSetter pot_setter (target_pot_vertex_acc);
@@ -127,9 +127,9 @@ private:
                                         any_filter(), any_filter());
 
     typedef typename viennadata::result_of::accessor<QuanComplex, Quantity, double, CellType>::type TargetCellAccessor;
-    TargetCellAccessor target_pot_cell_acc = viennadata::acc(device.getQuantityComplex(), target_pot_quan_cell_);
-    TargetCellAccessor target_n_cell_acc   = viennadata::acc(device.getQuantityComplex(), target_n_quan_cell_);
-    TargetCellAccessor target_p_cell_acc   = viennadata::acc(device.getQuantityComplex(), target_p_quan_cell_);
+    TargetCellAccessor target_pot_cell_acc = viennadata::make_accessor(device.getQuantityComplex(), target_pot_quan_cell_);
+    TargetCellAccessor target_n_cell_acc   = viennadata::make_accessor(device.getQuantityComplex(), target_n_quan_cell_);
+    TargetCellAccessor target_p_cell_acc   = viennadata::make_accessor(device.getQuantityComplex(), target_p_quan_cell_);
 
     // transfer the cell-based ViennaMini results to the cell-based ViennaMOS
     // device using the ViennaMOS quantity accessor
