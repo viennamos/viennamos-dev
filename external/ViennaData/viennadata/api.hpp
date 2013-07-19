@@ -249,33 +249,31 @@ namespace viennadata
 
   /** @brief returns an accessor for a combination of <key_type, value_type, element_type/tag> */
   template<typename AccessType, typename AccessTag, typename ContainerType>
-  container_accessor<ContainerType, AccessType, AccessTag> accessor(ContainerType & container)
+  container_accessor<ContainerType, AccessType, AccessTag> make_accessor(ContainerType & container)
   {
       return container;
   }
 
   /** @brief returns an accessor for a combination of <key_type, value_type, element_type/tag> */
   template<typename AccessType, typename AccessTag, typename ContainerType>
-  container_accessor<const ContainerType, AccessType, AccessTag> accessor(ContainerType const & container)
+  container_accessor<const ContainerType, AccessType, AccessTag> make_accessor(ContainerType const & container)
   {
       return container;
   }
 
 
-
-
   /** @brief returns an accessor for a combination of <key_type, value_type, element_type/tag> */
-  template<typename KeyType, typename ValueType, typename ElementTypeOrTag, typename ContainerConfig, typename RuntimeTypeInformation>
-  typename result_of::accessor<storage<ContainerConfig, RuntimeTypeInformation>, KeyType, ValueType, ElementTypeOrTag>::type
-      accessor(storage<ContainerConfig, RuntimeTypeInformation> & storage_obj, KeyType const & key)
+  template<typename KeyType, typename ValueType, typename ElementTypeOrTag, typename StorageT>
+  typename result_of::accessor<StorageT, KeyType, ValueType, ElementTypeOrTag>::type
+      make_accessor(StorageT & storage_obj, KeyType const & key)
   {
       return container<KeyType, ValueType, ElementTypeOrTag>(storage_obj, key);
   }
 
   /** @brief returns an accessor for a combination of <key_type, value_type, element_type/tag> */
-  template<typename KeyType, typename ValueType, typename ElementTypeOrTag, typename ContainerConfig, typename RuntimeTypeInformation>
-  typename result_of::accessor<const storage<ContainerConfig, RuntimeTypeInformation>, KeyType, ValueType, ElementTypeOrTag>::type
-      accessor(storage<ContainerConfig, RuntimeTypeInformation> const & storage_obj, KeyType const & key )
+  template<typename KeyType, typename ValueType, typename ElementTypeOrTag, typename StorageT>
+  typename result_of::accessor<const StorageT, KeyType, ValueType, ElementTypeOrTag>::type
+      make_accessor(StorageT const & storage_obj, KeyType const & key )
   {
       return container<KeyType, ValueType, ElementTypeOrTag>(storage_obj, key);
   }
@@ -283,19 +281,19 @@ namespace viennadata
 
 
   /** @brief returns an accessor for a combination of <key_type, value_type, element_type/tag> */
-  template<typename ContainerConfig, typename RuntimeTypeInformation, typename KeyType>
-  storage_container_accessor_proxy< storage<ContainerConfig, RuntimeTypeInformation>, KeyType >
-      acc(storage<ContainerConfig, RuntimeTypeInformation> & storage_obj, KeyType const & key)
+  template<typename StorageT, typename KeyType>
+  storage_container_accessor_proxy< StorageT, KeyType >
+      make_accessor(StorageT & storage_obj, KeyType const & key)
   {
-      return storage_container_accessor_proxy< storage<ContainerConfig, RuntimeTypeInformation>, KeyType >(storage_obj, key);
+      return storage_container_accessor_proxy< StorageT, KeyType >(storage_obj, key);
   }
 
   /** @brief returns an accessor for a combination of <key_type, value_type, element_type/tag> */
-  template<typename ContainerConfig, typename RuntimeTypeInformation, typename KeyType>
-  storage_container_accessor_proxy< const storage<ContainerConfig, RuntimeTypeInformation>, KeyType >
-      acc(storage<ContainerConfig, RuntimeTypeInformation> const & storage_obj, KeyType const & key )
+  template<typename StorageT, typename KeyType>
+  storage_container_accessor_proxy< const StorageT, KeyType >
+      make_accessor(StorageT const & storage_obj, KeyType const & key )
   {
-      return storage_container_accessor_proxy< const storage<ContainerConfig, RuntimeTypeInformation>, KeyType >(storage_obj, key);
+      return storage_container_accessor_proxy< const StorageT, KeyType >(storage_obj, key);
   }
 
 
