@@ -180,19 +180,22 @@ void Render3D::update_render_domain()
 {
     this->reset_grid();
 
-    // do not actually copy data, but only copy pointers
-    // --> don't waste memory ... a render view is a view,
-    // thus it should work on the central datastructure!
+    // make sure that we work on a local copy in this render view
+    // so we don't have some 'crosstalk'.
+    // this crosstalk manifests due to the fact that during coloring vertex/cell data,
+    // we have to set an 'active' array. this is a vtk thing. The problem is now,
+    // when we work on a 'shared' grid, that one renderer sets a different active grid
+    // as another renderer -> hence 'crosstalk'
     //
-    local_domain->ShallowCopy(central_domain);
+    local_domain->DeepCopy(central_domain);
 
     for(unsigned int si = 0; si < local_domain->GetNumberOfBlocks(); si++)
     {
-        vtkPointSet* generic_grid = vtkPointSet::SafeDownCast(local_domain->GetBlock(si));
+        vtkPointSet* segment = vtkPointSet::SafeDownCast(local_domain->GetBlock(si));
 
         mappers.push_back(Mapper::New());
     #if VTK_MAJOR_VERSION <= 5
-        mappers.back()->SetInputConnection(generic_grid->GetProducerPort());
+        mappers.back()->SetInputConnection(segment->GetProducerPort());
     #else
         mapper->SetInputData(local_domain);
     #endif
@@ -205,21 +208,10 @@ void Render3D::update_render_domain()
         //
         vtkIntArray* segment_array = vtkIntArray::New();
         segment_array->SetName(key::segment_index.toStdString().c_str());
-        segment_array->SetNumberOfValues(generic_grid->GetNumberOfCells());
-        for(int ci = 0; ci < generic_grid->GetNumberOfCells(); ci++)
+        segment_array->SetNumberOfValues(segment->GetNumberOfCells());
+        for(int ci = 0; ci < segment->GetNumberOfCells(); ci++)
             segment_array->SetValue(ci, si);
-        generic_grid->GetCellData()->AddArray(segment_array);
-
-        // we are casting here to vtkPointSet instead of using vtkUnstructured/vtkStructured grids
-        // as the render3d should work with both, we use the superclass of both unstruct/structured grids here
-        //
-        for(int i = 0; i < generic_grid->GetPointData()->GetNumberOfArrays(); i++)
-            generic_grid->GetPointData()->AddArray(vtkPointSet::SafeDownCast(central_domain->GetBlock(si))->GetPointData()->GetArray(i));
-
-        for(int i = 0; i < generic_grid->GetCellData()->GetNumberOfArrays(); i++)
-            generic_grid->GetCellData()->AddArray(vtkPointSet::SafeDownCast(central_domain->GetBlock(si))->GetCellData()->GetArray(i));
-
-
+        segment->GetCellData()->AddArray(segment_array);
     }
 
     local_domain->Update();
@@ -227,35 +219,9 @@ void Render3D::update_render_domain()
 
     this->update_segment_index_lookup_table_range(lutSegmentIndices, this->segment_size());
 
-
-    emit grid_updated();
-
-
-//#if VTK_MAJOR_VERSION <= 5
-
-//    // the 'mapper' can not handle multiblock data, thus we have to take a detour
-//    // via the vtkCompositeDataGeometryFilter which kindof appends all blocks to one polydata object
-//    // which in turn can be handled by the mapper
-//    //
-//    local_domain_geom->SetInputConnection(local_domain->GetProducerPort());
-//    local_domain_geom->Update();
-
-//    mapper->SetInputConnection(local_domain_geom->GetOutputPort());
-//    mapper->Update();
-//#else
-//    std::cout << "Render3D::update_render_domain() - needs love for VTK versions >5"
-//    mapper->SetInputData(local_domain);
-//#endif
-
     build_coordinates(); // prepare the coordinate axis ..
 
-    //reset_view(); // as the mesh changed, we want to 'reset' the camera ..
-    //refresh();
-
-
-
-
-
+    emit grid_updated();
 }
 
 void Render3D::print_current_statistics()
