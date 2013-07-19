@@ -312,8 +312,6 @@ void Render3D::color_quantity(std::string const& key, std::string const& display
 
 void Render3D::color_quantity_vertex()
 {
-    //std::cout << "Render3D::color_quantity_vertex() - untested!"<< std::endl;
-
     double domain_quantity_range[2];
 
     for(unsigned int si = 0; si < local_domain->GetNumberOfBlocks(); si++)
@@ -325,10 +323,11 @@ void Render3D::color_quantity_vertex()
             generic_segment->GetPointData()->SetActiveScalars(current_quantity_key.c_str());
 
             double* range = generic_segment->GetPointData()->GetScalars()->GetRange();
+
             if(si == 0)
             {
                 domain_quantity_range[0] = range[0];
-                domain_quantity_range[0] = range[0];
+                domain_quantity_range[1] = range[1];
             }
             else
             {
@@ -376,65 +375,10 @@ void Render3D::color_quantity_vertex()
         if(use_log) map->SetLookupTable(lutLog);
         else        map->SetLookupTable(lutLinear);
     }
-
-//    for(unsigned int si = 0; si < local_domain->GetNumberOfBlocks(); si++)
-//    {
-//        if(vtkPointSet::SafeDownCast(local_domain->GetBlock(si))->GetPointData()->HasArray(current_quantity_key.c_str()))
-//        {
-//            // important! only the 'active' array is visualized ..
-//            vtkPointSet::SafeDownCast(local_domain->GetBlock(si))->GetPointData()->SetActiveScalars(current_quantity_key.c_str());
-
-
-//            double* range = vtkPointSet::SafeDownCast(local_domain->GetBlock(si))->GetPointData()->GetScalars()->GetRange();
-//            mapper->ScalarVisibilityOn();
-//            mapper->SetScalarModeToUsePointData();
-//            mapper->SetColorModeToMapScalars();
-//            mapper->SelectColorArray(current_quantity_key.c_str());
-//            mapper->UseLookupTableScalarRangeOff();
-//            mapper->SetScalarRange(range);
-
-//            if(use_log)
-//            {
-//                lutLog->SetRange(range); // this is ignored, if IndexedLookup = true
-//                make_lookup_from_blue_to_red(lutLog);
-//                lutLog->Build();
-//                mapper->SetLookupTable(lutLog);
-
-
-//                if(range[0] > 0) // the minimum of the values should be greater 0 for log ..
-//                {
-//                    colorbar->SetLookupTable(lutLog);
-//                }
-//                else if(range[0] == 0.0)
-//                {
-//                    lutLog->SetRange(1.0, range[1]);
-//                    mapper->SetScalarRange(1.0, range[1]);
-//                    colorbar->SetLookupTable(lutLog);
-//                }
-//                else
-//                {
-//                    QMessageBox::warning(0, QString("Warning"), QString("Values are <= 0.0"));
-//                }
-//            }
-//            else
-//            {
-//                lutLinear->SetRange(range);
-//                make_lookup_from_blue_to_red(lutLinear);
-//                lutLinear->Build();
-//                mapper->SetLookupTable(lutLinear);
-
-//                colorbar->SetLookupTable(lutLinear);
-//            }
-
-//        }
-//        else std::cerr << "[Error] Render3d::color_quantity_vertex(): quantity not avail" << std::endl;
-//    }
 }
 
 void Render3D::color_quantity_cell()
 {
-    //std::cout << "Render3D::color_quantity_cell() - untested!"<< std::endl;
-
     double domain_quantity_range[2];
 
     for(unsigned int si = 0; si < local_domain->GetNumberOfBlocks(); si++)
@@ -449,7 +393,7 @@ void Render3D::color_quantity_cell()
             if(si == 0)
             {
                 domain_quantity_range[0] = range[0];
-                domain_quantity_range[0] = range[0];
+                domain_quantity_range[1] = range[1];
             }
             else
             {
@@ -497,66 +441,7 @@ void Render3D::color_quantity_cell()
         if(use_log) map->SetLookupTable(lutLog);
         else        map->SetLookupTable(lutLinear);
     }
-
-//    local_domain->Update();
-//    local_domain_geom->Update();
-//    mapper->Update();
-//    this->update();
-
-//    for(unsigned int si = 0; si < local_domain->GetNumberOfBlocks(); si++)
-//    {
-//        if(vtkPointSet::SafeDownCast(local_domain->GetBlock(si))->GetCellData()->HasArray(current_quantity_key.c_str()))
-//        {
-//            // important! only the 'active' array is visualized ..
-//            vtkPointSet::SafeDownCast(local_domain->GetBlock(si))->GetCellData()->SetActiveScalars(current_quantity_key.c_str());
-
-//            double* range = vtkPointSet::SafeDownCast(local_domain->GetBlock(si))->GetCellData()->GetScalars()->GetRange();
-//            mapper->ScalarVisibilityOn();
-//            mapper->SetScalarModeToUseCellData();
-//            mapper->SetColorModeToMapScalars();
-//            mapper->SelectColorArray(current_quantity_key.c_str());
-//            mapper->UseLookupTableScalarRangeOff();
-//            mapper->SetScalarRange(range);
-
-//            if(use_log)
-//            {
-//                lutLog->SetRange(range); // this is ignored, if IndexedLookup = true
-//                make_lookup_from_blue_to_red(lutLog);
-//                lutLog->Build();
-//                mapper->SetLookupTable(lutLog);
-
-
-//                if(range[0] > 0) // the minimum of the values should be greater 0 for log ..
-//                {
-//                    colorbar->SetLookupTable(lutLog);
-//                }
-//                else if(range[0] == 0.0)
-//                {
-//                    lutLog->SetRange(1.0, range[1]);
-//                    mapper->SetScalarRange(1.0, range[1]);
-//                    colorbar->SetLookupTable(lutLog);
-//                }
-//                else
-//                {
-//                    QMessageBox::warning(0, QString("Warning"), QString("Values are <= 0.0"));
-//                }
-//            }
-//            else
-//            {
-//                lutLinear->SetRange(range); // this is ignored, if IndexedLookup = true
-//                make_lookup_from_blue_to_red(lutLinear);
-//                lutLinear->Build();
-//                mapper->SetLookupTable(lutLinear);
-
-//                colorbar->SetLookupTable(lutLinear);
-//            }
-//        }
-//        this->update();
-//    }
 }
-
-//if(segment_index < actors.size())
-//    actors[segment_index]->GetProperty()->SetColor(rgb[0], rgb[1], rgb[2]);
 
 void Render3D::color_solid()
 {
