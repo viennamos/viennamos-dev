@@ -1,0 +1,86 @@
+************************************************
+****           ViennaMini Readme            ****
+************************************************
+  
+Table of Contents
+------------------
+1. Requirements
+2. Installation
+3. Project Layout
+4. Authors and Contact
+A. License
+
+
+(for detailed informations, have a look into the doc/ folder containing a PDF manual and doxygen-created reference documentation)
+
+
+
+1. Requirements
+-----------------
+ViennaMini requires only a not too dated C++ compiler (e.g. gcc 4.x.x), the C++ Standard Template Library, 
+ViennaData http://viennadata.sourceforge.net/ , 
+ViennaGrid http://viennagrid.sourceforge.net/ , 
+ViennaCL   http://viennacl.sourceforge.net/ , and 
+ViennaMath http://viennamath.sourceforge.net/ . 
+For building the examples, CMake can be used.
+
+
+2. Installation
+-----------------
+
+The first step is to extract the file:
+
+Unix-based OS:
+$> gunzip ViennaMini-1.1.0.tar.gz
+$> tar -xf ViennaMini-1.1.0.tar
+$> cd ViennaMini-1.1.0
+
+For building and running the examples, proceed as follows:
+
+Unix-based clients:
+ * change to the build directory:
+   $> cd build
+ * call cmake
+   $> cmake ..
+ * Use 'make' to build all examples, tests and the main application:
+   $> make
+   (alternatively, you can build them individually via 'make example1', 'make example2', etc.
+ * Execute them via
+   $> ./examples/nin-diode-2d
+   $> ./application/vshe
+   etc.
+
+
+3. Project Layout
+-----------------
+
+---- ViennaMini-1.X.X
+   |
+   |-- build/ - Build folder for the examples
+   | 
+   |-- doc/ - Documentation (LaTeX and doxygen)
+   | 
+   |-- examples/ - Tutorial and benchmarking applications
+        | 
+        |-- data/ - Test meshes for the tutorials
+        | 
+   | 
+   |-- tests/ - Automated test suite
+   | 
+   |-- viennamini/ - The library source code
+
+
+4. Authors and Contact
+------------------------
+
+Karl Rupp (rupp@iue.tuwien.ac.at)
+Josef Weinbub (weinbub@iue.tuwien.ac.at)
+Markus Bina (bina@iue.tuwien.ac.at)
+
+ViennaMini was developed under the aegis of the 'Institute for Microelectronics' and the 'Institute for Analysis and Scientific Computing' at the 'Vienna University of Technology'.
+
+
+A. License
+------------
+ViennaMini is distributed under the MIT (X11) License. See file LICENSE.
+
