@@ -20,7 +20,7 @@
 namespace viennafvm
 {
 
-void printOps(double num_ops, double exec_time)
+inline void printOps(double num_ops, double exec_time)
 {
   std::cout << "GFLOPs: " << num_ops / (1000000 * exec_time * 1000) << std::endl;
 }
