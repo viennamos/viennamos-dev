@@ -30,64 +30,62 @@
 
 #include "viennagrid/io/vtk_writer.hpp"
 
+const int source          = 0;
+const int channel         = 1;
+const int drain           = 2;
+const int oxide           = 3;
+const int gate_contact    = 4;
+const int body            = 5;
+const int body_contact    = 6;
+const int source_contact  = 7;
+const int drain_contact   = 8;
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
-template<typename Domain, typename Segmentation, typename Storage>
-void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
+template<typename DomainT, typename SegmentationT, typename StorageT>
+void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
 {
-  const int source          = 0;
-  const int channel         = 1;
-  const int drain           = 2;
-  const int oxide           = 3;
-  const int gate_contact    = 4;
-  const int body            = 5;
-  const int body_contact    = 6;
-  const int source_contact  = 7;
-  const int drain_contact   = 8;
-
-
-  // Segment 0: Source
+  // Source
   device.assign_name          (source, "source");
   device.assign_material      (source, "Si");
-  device.assign_semiconductor (source, 1.E24, 1.E8);   // ND, NA
+  device.assign_semiconductor (source, 1e26, 1.E6);   // ND, NA
 
-  // Segment 1: Channel
+  // Channel
   device.assign_name          (channel, "channel");
   device.assign_material      (channel, "Si");
-  device.assign_semiconductor (channel, 1.E17, 1.E15);
+  device.assign_semiconductor (channel, 1.E18, 1.E14);
 
-  // Segment 2: Drain
+  // Drain
   device.assign_name          (drain, "drain");
   device.assign_material      (drain, "Si");
-  device.assign_semiconductor (drain, 1.E24, 1.E8);
+  device.assign_semiconductor (drain, 1.E26, 1.E6);
 
-  // Segment 3: Oxide
+  // Oxide
   device.assign_name          (oxide, "oxide");
   device.assign_material      (oxide, "HfO2");
   device.assign_oxide         (oxide);
 
-  // Segment 4: Gate Contact
+  // Gate Contact
   device.assign_name          (gate_contact, "gate_contact");
   device.assign_material      (gate_contact, "Cu");
   device.assign_contact       (gate_contact);
 
-  // Segment 5: Body
+  // Body
   device.assign_name          (body, "body");
   device.assign_material      (body, "Si");
-  device.assign_semiconductor (body, 1.E17, 1.E15);
+  device.assign_semiconductor (body, 1.E18, 1.E14);
 
-  // Segment 6: Body Contact
+  // Body Contact
   device.assign_name          (body_contact, "body_contact");
   device.assign_material      (body_contact, "Cu");
   device.assign_contact       (body_contact);
 
-  // Segment 7: Source Contact
+  // Source Contact
   device.assign_name          (source_contact, "source_contact");
   device.assign_material      (source_contact, "Cu");
   device.assign_contact       (source_contact);
 
-  // Segment 8: Drain Contact
+  // Drain Contact
   device.assign_name          (drain_contact, "drain_contact");
   device.assign_material      (drain_contact, "Cu");
   device.assign_contact       (drain_contact);
@@ -97,34 +95,29 @@ void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
 /** @brief Assign actual values to the dirichlet contacts */
 void prepare_boundary_conditions(viennamini::config& config)
 {
-  const int gate_contact    = 4;
-  const int body_contact    = 6;
-  const int source_contact  = 7;
-  const int drain_contact   = 8;
+  // Gate Contact
+  config.assign_contact(gate_contact, 0.1, 0.0);  // segment id, contact potential, workfunction
 
-  // Segment 4: Gate Contact
-  config.assign_contact(gate_contact, 0.3, 0.0);  // segment id, contact potential, workfunction
-
-  // Segment 6: Body Contact
+  // Body Contact
   config.assign_contact(body_contact, 0.0, 0.0);
 
-  // Segment 7: Source Contact
+  // Source Contact
   config.assign_contact(source_contact, 0.0, 0.0);
 
-  // Segment 8: Drain Contact
-  config.assign_contact(drain_contact, 0.3, 0.0);
+  // Drain Contact
+  config.assign_contact(drain_contact, 0.1, 0.0);
 }
 
 /** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
-template <typename DomainType>
-void scale_domain(DomainType & domain, double factor)
+template <typename DomainT>
+void scale_domain(DomainT & domain, double factor)
 {
-  typedef typename viennagrid::result_of::element<DomainType, viennagrid::vertex_tag>::type         VertexType;
-  typedef typename viennagrid::result_of::element_range<DomainType, viennagrid::vertex_tag>::type   VertexContainer;
-  typedef typename viennagrid::result_of::iterator<VertexContainer>::type                           VertexIterator;
+  typedef typename viennagrid::result_of::element<DomainT, viennagrid::vertex_tag>::type            VertexType;
+  typedef typename viennagrid::result_of::element_range<DomainT, viennagrid::vertex_tag>::type      VertexContainerType;
+  typedef typename viennagrid::result_of::iterator<VertexContainerType>::type                       VertexIteratorType;
 
-  VertexContainer vertices = viennagrid::elements<VertexType>(domain);
-  for ( VertexIterator vit = vertices.begin();
+  VertexContainerType vertices = viennagrid::elements<VertexType>(domain);
+  for ( VertexIteratorType vit = vertices.begin();
         vit != vertices.end();
         ++vit )
   {
@@ -134,89 +127,98 @@ void scale_domain(DomainType & domain, double factor)
 
 int main(int argc, char* argv[])
 {
-    typedef double                                                       numeric_type;
-    typedef viennagrid::domain_t< viennagrid::config::tetrahedral_3d >    domain_type;
-    typedef viennagrid::result_of::segmentation<domain_type>::type       segmentation_type;
-    typedef segmentation_type::segment_type                              segment_type;
-    typedef viennadata::storage<>                                        storage_type;
+  if(argc != 2)
+  {
+      std::cerr << "Missing parameters - Usage: " << argv[0] << " path/to/trigate.mesh" << std::endl;
+      return -1;
+  }
+#ifdef VIENNACL_WITH_OPENMP
+  viennafvm::print_platform_devices();
+#endif
 
-    //
-    // Create a domain from file
-    //
-    domain_type         domain;
-    segmentation_type   segments(domain);
-    storage_type        storage;
+  typedef double                                                       NumericType;
+  typedef viennagrid::domain_t< viennagrid::config::tetrahedral_3d >   DomainType;
+  typedef viennagrid::result_of::segmentation<DomainType>::type        SegmentationType;
+  typedef SegmentationType::segment_type                               SegmentType;
+  typedef viennadata::storage<>                                        StorageType;
 
-    try
-    {
-    viennagrid::io::netgen_reader my_reader;
-    my_reader(domain, segments, "../examples/data/half-trigate-2.mesh");
-    }
-    catch (...)
-    {
-    std::cerr << "File-Reader failed. Aborting program..." << std::endl;
-    return EXIT_FAILURE;
-    }
+  //
+  // Create a domain from file
+  //
+  DomainType         domain;
+  SegmentationType   segments(domain);
+  StorageType        storage;
 
-    //
-    // scale to nanometer
-    //
-    scale_domain(domain, 1e-9);
+  try
+  {
+  viennagrid::io::netgen_reader my_reader;
+  my_reader(domain, segments, argv[1]);
+  }
+  catch (...)
+  {
+  std::cerr << "File-Reader failed. Aborting program..." << std::endl;
+  return EXIT_FAILURE;
+  }
 
-    //
-    // Prepare material library
-    //
-    typedef vmat::Library<vmat::tag::pugixml>::type  material_library_type;
-    material_library_type matlib;
-    matlib.load("../external/ViennaMaterials/database/materials.xml");
+  //
+  // scale to nanometer
+  //
+  scale_domain(domain, 1e-9);
 
-    //
-    // Create a device and a config object
-    //
-    typedef viennamini::device<domain_type, segmentation_type, storage_type>   device_type;
-    device_type device(domain, segments, storage);
-    viennamini::config config;
+  //
+  // Prepare material library
+  //
+  typedef vmat::Library<vmat::tag::pugixml>::type  MaterialLibraryType;
+  MaterialLibraryType matlib;
+  matlib.load("../external/ViennaMaterials/database/materials.xml");
 
-    //
-    // Prepare device, i.e., assign doping and segment roles,
-    // e.g., oxide, semiconductor, contact
-    //
-    prepare(device);
+  //
+  // Create a device and a config object
+  //
+  typedef viennamini::device<DomainType, SegmentationType, StorageType>   DeviceType;
+  DeviceType device(domain, segments, storage);
+  viennamini::config config;
 
-    //
-    // Assign contact values
-    //
-    prepare_boundary_conditions(config);
+  //
+  // Prepare device, i.e., assign doping and segment roles,
+  // e.g., oxide, semiconductor, contact
+  //
+  prepare(device);
 
-    //
-    // Set simulation parameters
-    //
-    config.temperature()                        = 300;
-    config.damping()                            = 0.3;
-    config.linear_breaktol()                    = 1.0E-13;
-    config.linear_iterations()                  = 500;
-    config.nonlinear_iterations()               = 100;
-    config.nonlinear_breaktol()                 = 1.0E-3;
-    config.initial_guess_smoothing_iterations() = 6;
+  //
+  // Assign contact values
+  //
+  prepare_boundary_conditions(config);
 
-    //
-    // Create a simulator object
-    //
-    typedef viennamini::simulator<device_type, material_library_type>     simulator_type;
-    simulator_type simulator(device, matlib, config);
+  //
+  // Set simulation parameters
+  //
+  config.temperature()                        = 300;
+  config.damping()                            = 0.4;
+  config.linear_breaktol()                    = 1.0E-13;
+  config.linear_iterations()                  = 1000;
+  config.nonlinear_iterations()               = 100;
+  config.nonlinear_breaktol()                 = 1.0E-2;
+  config.initial_guess_smoothing_iterations() = 0;
 
-    //
-    // Run the simulation
-    //
-    simulator();
+  //
+  // Create a simulator object
+  //
+  typedef viennamini::simulator<DeviceType, MaterialLibraryType>     SimulatorType;
+  SimulatorType simulator(device, matlib, config);
 
-    // Write results to vtk files
-    simulator.write_result("trigate");
+  //
+  // Run the simulation
+  //
+  simulator();
+
+  // Write results to vtk files
+  simulator.write_result("trigate");
 
 
-    std::cout << "********************************************" << std::endl;
-    std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
-    std::cout << "********************************************" << std::endl;
-    return EXIT_SUCCESS;
+  std::cout << "********************************************" << std::endl;
+  std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
+  std::cout << "********************************************" << std::endl;
+  return EXIT_SUCCESS;
 }
 
