@@ -26,6 +26,7 @@
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/pde_solver.hpp"
 #include "viennafvm/initial_guess.hpp"
+#include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
 #include "viennagrid/domain/domain.hpp"
@@ -271,13 +272,17 @@ int main()
 
   pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
+  //
+  // Setup Linear Solver
+  //
+  viennafvm::linsolv::viennacl  linear_solver;
 
   //
   // Create PDE solver instance and run the solver:
   //
   viennafvm::pde_solver<> pde_solver;
 
-  pde_solver(pde_system, domain, storage);   // weird math happening in here ;-)
+  pde_solver(pde_system, domain, storage, linear_solver);   // weird math happening in here ;-)
 
 
   //
@@ -287,7 +292,7 @@ int main()
   for (std::size_t i=0; i<pde_system.size(); ++i)
     result_ids[i] = pde_system.unknown(i)[0].id();
 
-  viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "nin", domain, segmentation, storage, result_ids);
+  viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "nin_1d", domain, segmentation, storage, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;

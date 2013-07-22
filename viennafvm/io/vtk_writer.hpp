@@ -55,7 +55,9 @@ namespace viennafvm
       typedef viennafvm::mapping_key          MappingKeyType;
       typedef viennafvm::boundary_key         BoundaryKeyType;
 
+    #ifdef VIENNAFVM_VERBOSE
       std::cout << "* write_solution_to_VTK_file(): Writing result on mesh for later export" << std::endl;
+    #endif
       viennagrid::io::vtk_writer<DomainType> my_vtk_writer;
 
 
@@ -102,10 +104,11 @@ namespace viennafvm
         my_vtk_writer.add_scalar_data_on_cells( output_value_accessor, result_string );
       }
 
+    #ifdef VIENNAFVM_VERBOSE
       std::cout << "* write_solution_to_VTK_file(): Writing data to '"
                 << filename
                 << "' (can be viewed with e.g. Paraview)" << std::endl;
-
+    #endif
       my_vtk_writer(domain, segmentation, filename);
     }
 

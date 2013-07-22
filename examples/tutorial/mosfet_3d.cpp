@@ -20,12 +20,14 @@
 #include <iostream>
 
 // ViennaFVM includes:
+#define VIENNAFVM_VERBOSE
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/pde_solver.hpp"
 #include "viennafvm/initial_guess.hpp"
+#include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
 #include "viennagrid/domain/domain.hpp"
@@ -180,8 +182,71 @@ void scale_domain(DomainType & domain, double factor)
   }
 }
 
-int main()
+template<typename DomainT, typename SegmentationT, typename StorageT>
+void write_device_doping(DomainT& domain, SegmentationT& segments, StorageT& storage)
 {
+  typedef typename viennagrid::result_of::cell_tag<DomainT>::type            CellTag;
+  typedef typename viennagrid::result_of::element<DomainT, CellTag>::type    CellType;
+
+  typedef typename viennadata::result_of::accessor<StorageT, donator_doping_key, double, CellType>::type  DonatorAccessor;
+  typedef typename viennadata::result_of::accessor<StorageT, acceptor_doping_key, double, CellType>::type AcceptorAccessor;
+
+  DonatorAccessor  donator_acc  = viennadata::make_accessor(storage, donator_doping_key());
+  AcceptorAccessor acceptor_acc = viennadata::make_accessor(storage, acceptor_doping_key());
+
+  viennagrid::io::vtk_writer<DomainT> my_vtk_writer;
+  my_vtk_writer.add_scalar_data_on_cells( donator_acc , "donators" );
+  my_vtk_writer.add_scalar_data_on_cells( acceptor_acc , "acceptors" );
+  my_vtk_writer(domain, segments, "mosfet_3d_doping");
+}
+
+template<typename DomainT, typename SegmentationT, typename StorageT>
+void write_device_initial_guesses(DomainT& domain, SegmentationT& segments, StorageT& storage)
+{
+  typedef viennafvm::boundary_key                                                                         BoundaryKey;
+  typedef viennafvm::current_iterate_key                                                                  IterateKey;
+
+  typedef typename viennagrid::result_of::cell_tag<DomainT>::type                                         CellTag;
+  typedef typename viennagrid::result_of::element<DomainT, CellTag>::type                                 CellType;
+
+  typedef typename viennadata::result_of::accessor<StorageT, BoundaryKey, double, CellType>::type         BoundaryAccessor;
+  typedef typename viennadata::result_of::accessor<StorageT, IterateKey, double, CellType>::type          InitGuessAccessor;
+
+  BoundaryAccessor  bnd_pot_acc  = viennadata::make_accessor(storage, BoundaryKey(0));
+  InitGuessAccessor init_pot_acc = viennadata::make_accessor(storage, IterateKey(0));
+
+  BoundaryAccessor  bnd_n_acc  = viennadata::make_accessor(storage, BoundaryKey(1));
+  InitGuessAccessor init_n_acc = viennadata::make_accessor(storage, IterateKey(1));
+
+  BoundaryAccessor  bnd_p_acc  = viennadata::make_accessor(storage, BoundaryKey(2));
+  InitGuessAccessor init_p_acc = viennadata::make_accessor(storage, IterateKey(2));
+
+  viennagrid::io::vtk_writer<DomainT> bnd_vtk_writer;
+  bnd_vtk_writer.add_scalar_data_on_cells( bnd_pot_acc , "potential" );
+  bnd_vtk_writer.add_scalar_data_on_cells( bnd_n_acc ,   "electrons" );
+  bnd_vtk_writer.add_scalar_data_on_cells( bnd_p_acc ,   "holes" );
+  bnd_vtk_writer(domain, segments, "mosfet_3d_boundary_conditions");
+
+  viennagrid::io::vtk_writer<DomainT> init_vtk_writer;
+  init_vtk_writer.add_scalar_data_on_cells( init_pot_acc , "potential" );
+  init_vtk_writer.add_scalar_data_on_cells( init_n_acc ,   "electrons" );
+  init_vtk_writer.add_scalar_data_on_cells( init_p_acc ,   "holes" );
+  init_vtk_writer(domain, segments, "mosfet_3d_initial_conditions");
+}
+
+void setup_device()
+{
+}
+
+
+int main(int argc, char* argv[])
+{
+  if(argc != 2)
+  {
+      std::cerr << "Missing parameters - Usage: " << argv[0] << " path/to/trigate.mesh" << std::endl;
+      return -1;
+  }
+
   typedef double   numeric_type;
 
   typedef viennagrid::tetrahedral_3d_domain                       DomainType;
@@ -205,7 +270,7 @@ int main()
   try
   {
     viennagrid::io::netgen_reader my_reader;
-    my_reader(domain, segmentation, "../examples/data/half-trigate-2.mesh");
+    my_reader(domain, segmentation, argv[1]);
   }
   catch (...)
   {
@@ -213,17 +278,11 @@ int main()
     return EXIT_FAILURE;
   }
 
-  for (SegmentationType::iterator it = segmentation.begin(); it != segmentation.end(); ++it)
-    std::cout << it->id() << std::endl;
-
   scale_domain(domain, 1e-9); // scale to nanometer
 
   //
   // Set initial values
   //
-//   double n_plus = 1e24;
-//   double p_plus = 1e20;
-
   init_quantities(segmentation, storage);
 
   //
@@ -235,10 +294,9 @@ int main()
 
   // potential:
 //   double built_in_pot = built_in_potential(300, n_plus, 1e32/n_plus); // should match specification in init_quantities()!
-  viennafvm::set_dirichlet_boundary(segmentation(Gate),          storage, psi, 0.8 + built_in_potential(300, 1e26, 1e6)); // Gate contact
+  viennafvm::set_dirichlet_boundary(segmentation(Gate),          storage, psi, 0.0 + built_in_potential(300, 1e26, 1e6)); // Gate contact
   viennafvm::set_dirichlet_boundary(segmentation(SourceContact), storage, psi, 0.0 + built_in_potential(300, 1e26, 1e6)); // Source contact
-  viennafvm::set_dirichlet_boundary(segmentation(DrainContact),  storage, psi, 0.3 + built_in_potential(300, 1e26, 1e6)); // Drain contact
-  // using floating body, hence commented:
+  viennafvm::set_dirichlet_boundary(segmentation(DrainContact),  storage, psi, 0.0 + built_in_potential(300, 1e26, 1e6)); // Drain contact
   viennafvm::set_dirichlet_boundary(segmentation(BodyContact),   storage, psi, 0.0 + built_in_potential(300, 1e18, 1e14)); // Body contact
 
   // electron density
@@ -269,23 +327,31 @@ int main()
   // Initial conditions (required for nonlinear problems)
   //
   viennafvm::set_initial_guess(domain, storage, psi, builtin_potential_key());
-  //viennafvm::smooth_initial_guess(domain, psi, viennafvm::arithmetic_mean_smoother());
-  //viennafvm::smooth_initial_guess(domain, psi, viennafvm::arithmetic_mean_smoother());
-
-  viennafvm::set_initial_guess(domain, storage, n, donator_doping_key());
-  //viennafvm::smooth_initial_guess(domain, n, viennafvm::geometric_mean_smoother());
-  //viennafvm::smooth_initial_guess(domain, n, viennafvm::geometric_mean_smoother());
-
-  viennafvm::set_initial_guess(domain, storage, p, acceptor_doping_key());
-  //viennafvm::smooth_initial_guess(domain, p, viennafvm::geometric_mean_smoother());
-  //viennafvm::smooth_initial_guess(domain, p, viennafvm::geometric_mean_smoother());
+  viennafvm::set_initial_guess(domain, storage, n,   donator_doping_key());
+  viennafvm::set_initial_guess(domain, storage, p,   acceptor_doping_key());
 
 
+  //  
+  // Smooth initial guesses
+  //
+  for(int si = 0; si < 5; si++)
+  {
+    viennafvm::smooth_initial_guess(domain, storage, viennafvm::arithmetic_mean_smoother(), psi);
+//    viennafvm::smooth_initial_guess(domain, storage, viennafvm::geometric_mean_smoother(), n); // counterproductive .. 
+//    viennafvm::smooth_initial_guess(domain, storage, viennafvm::geometric_mean_smoother(), p); // counterproductive .. 
+    viennafvm::smooth_initial_guess(domain, storage, viennafvm::arithmetic_mean_smoother(), n);
+    viennafvm::smooth_initial_guess(domain, storage, viennafvm::arithmetic_mean_smoother(), p);
+  }
+
+  //
+  // Write Doping and initial guesses/boundary conditions to VTK output files for inspection
+  //
+  write_device_doping(domain, segmentation, storage);
+  write_device_initial_guesses(domain, segmentation, storage);
 
   //
   // Specify PDEs:
   //
-
   viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  permittivity;       permittivity.wrap_constant( storage, permittivity_key() );
   viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  donator_doping;   donator_doping.wrap_constant( storage, donator_doping_key() );
   viennafvm::ncell_quantity<CellType, viennamath::expr::interface_type>  acceptor_doping; acceptor_doping.wrap_constant( storage, acceptor_doping_key() );
@@ -305,8 +371,8 @@ int main()
   // Specify the PDE system:
   viennafvm::linear_pde_system<> pde_system;
   pde_system.add_pde(poisson_eq, psi); // equation and associated quantity
-  pde_system.add_pde(cont_eq_n, n);    // equation and associated quantity
-  pde_system.add_pde(cont_eq_p, p);    // equation and associated quantity
+  pde_system.add_pde(cont_eq_n,  n);   // equation and associated quantity
+  pde_system.add_pde(cont_eq_p,  p);   // equation and associated quantity
 
   pde_system.option(0).damping_term( (n + p) * (-q / VT) );
   pde_system.option(1).geometric_update(true);
@@ -314,13 +380,24 @@ int main()
 
   pde_system.is_linear(false); // temporary solution up until automatic nonlinearity detection is running
 
+  //
+  // Setup Linear Solver
+  //
+  viennafvm::linsolv::viennacl  linear_solver;
+  linear_solver.solver()         = viennafvm::linsolv::viennacl::solver_ids::bicgstab;
+  linear_solver.preconditioner() = viennafvm::linsolv::viennacl::preconditioner_ids::ilu0;
 
   //
   // Create PDE solver instance and run the solver:
   //
   viennafvm::pde_solver<> pde_solver;
 
-  pde_solver(pde_system, domain, storage);   // weird math happening in here ;-)
+  pde_solver.set_damping(0.5);
+  pde_solver.set_nonlinear_iterations(100);
+  pde_solver.set_nonlinear_breaktol(1.0E-3);
+
+  std::cout << "** Simulation # 0" << std::endl;
+  pde_solver(pde_system, domain, storage, linear_solver); 
 
 
   //
@@ -331,6 +408,34 @@ int main()
     result_ids[i] = pde_system.unknown(i)[0].id();
 
   viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "mosfet_3d", domain, segmentation, storage, result_ids);
+
+  //
+  // 
+  //
+  std::cout << "** Simulation # 1" << std::endl;
+  viennafvm::set_dirichlet_boundary(segmentation(Gate),          storage, psi, 0.3 + built_in_potential(300, 1e26, 1e6)); // Gate contact
+  viennafvm::set_dirichlet_boundary(segmentation(SourceContact), storage, psi, 0.0 + built_in_potential(300, 1e26, 1e6)); // Source contact
+  viennafvm::set_dirichlet_boundary(segmentation(DrainContact),  storage, psi, 0.3 + built_in_potential(300, 1e26, 1e6)); // Drain contact
+  viennafvm::set_dirichlet_boundary(segmentation(BodyContact),   storage, psi, 0.0 + built_in_potential(300, 1e18, 1e14)); // Body contact
+
+  pde_solver.set_damping(0.4);
+  pde_solver(pde_system, domain, storage, linear_solver); 
+
+  viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "mosfet_3d_step_1", domain, segmentation, storage, result_ids);
+
+  //
+  // 
+  //
+  std::cout << "** Simulation # 2" << std::endl;
+  viennafvm::set_dirichlet_boundary(segmentation(Gate),          storage, psi, 0.7 + built_in_potential(300, 1e26, 1e6)); // Gate contact
+  viennafvm::set_dirichlet_boundary(segmentation(SourceContact), storage, psi, 0.0 + built_in_potential(300, 1e26, 1e6)); // Source contact
+  viennafvm::set_dirichlet_boundary(segmentation(DrainContact),  storage, psi, 0.3 + built_in_potential(300, 1e26, 1e6)); // Drain contact
+  viennafvm::set_dirichlet_boundary(segmentation(BodyContact),   storage, psi, 0.0 + built_in_potential(300, 1e18, 1e14)); // Body contact
+
+  pde_solver.set_damping(0.4);
+  pde_solver(pde_system, domain, storage, linear_solver); 
+
+  viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "mosfet_3d_step_2", domain, segmentation, storage, result_ids);
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
