@@ -292,7 +292,7 @@ namespace viennafvm
                 viennafvm::Timer timer;
                 timer.start();
                 std::cout << " * Quantity " << pde_index << " : " << std::endl;
-                std::cout << " ------------------------------------------" << std::endl;
+                std::cout << "   ------------------------------------" << std::endl;
               #endif 
 
 
@@ -392,7 +392,7 @@ namespace viennafvm
               std::cout << std::endl;
               std::cout << "--------" << std::endl;
               std::cout << "Success: Simulation converged successfully!" << std::endl;
-              std::cout << "  Potential update reached the break-tolerance of " << nonlinear_breaktol
+              std::cout << "  Update norm of observed variable reached the break-tolerance of " << nonlinear_breaktol
                         << " in " << required_nonlinear_iterations << " iterations" << std::endl;
               std::cout << "--------" << std::endl;
           }
@@ -400,8 +400,8 @@ namespace viennafvm
           {
               std::cout << std::endl;
               std::cout << "--------" << std::endl;
-              std::cout << "Error: Simulation did not converge" << std::endl;
-              std::cout << "  Potential update did not reach the break-tolerance of " << nonlinear_breaktol
+              std::cout << "Warning: Simulation did not converge!" << std::endl;
+              std::cout << "  Update norm of observed variable did not reach the break-tolerance of " << nonlinear_breaktol
                         << " in " << nonlinear_iterations << " iterations" << std::endl;
               std::cout << "--------" << std::endl;
           }
