@@ -29,6 +29,7 @@
 #include "viennamaterials/kernels/pugixml.hpp"
 
 #include "viennagrid/io/vtk_writer.hpp"
+#include "viennagrid/algorithm/scale.hpp"
 
 const int source          = 0;
 const int channel         = 1;
@@ -48,7 +49,7 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
   // Source
   device.assign_name          (source, "source");
   device.assign_material      (source, "Si");
-  device.assign_semiconductor (source, 1e26, 1.E6);   // ND, NA
+  device.assign_semiconductor (source, 1e24, 1.E8);   // ND, NA
 
   // Channel
   device.assign_name          (channel, "channel");
@@ -58,7 +59,7 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
   // Drain
   device.assign_name          (drain, "drain");
   device.assign_material      (drain, "Si");
-  device.assign_semiconductor (drain, 1.E26, 1.E6);
+  device.assign_semiconductor (drain, 1.E24, 1.E8);
 
   // Oxide
   device.assign_name          (oxide, "oxide");
@@ -96,7 +97,7 @@ void prepare(viennamini::device<DomainT, SegmentationT, StorageT>& device)
 void prepare_boundary_conditions(viennamini::config& config)
 {
   // Gate Contact
-  config.assign_contact(gate_contact, 0.1, 0.0);  // segment id, contact potential, workfunction
+  config.assign_contact(gate_contact, 0.2, 0.4);  // segment id, contact potential, workfunction
 
   // Body Contact
   config.assign_contact(body_contact, 0.0, 0.0);
@@ -105,24 +106,7 @@ void prepare_boundary_conditions(viennamini::config& config)
   config.assign_contact(source_contact, 0.0, 0.0);
 
   // Drain Contact
-  config.assign_contact(drain_contact, 0.1, 0.0);
-}
-
-/** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
-template <typename DomainT>
-void scale_domain(DomainT & domain, double factor)
-{
-  typedef typename viennagrid::result_of::element<DomainT, viennagrid::vertex_tag>::type            VertexType;
-  typedef typename viennagrid::result_of::element_range<DomainT, viennagrid::vertex_tag>::type      VertexContainerType;
-  typedef typename viennagrid::result_of::iterator<VertexContainerType>::type                       VertexIteratorType;
-
-  VertexContainerType vertices = viennagrid::elements<VertexType>(domain);
-  for ( VertexIteratorType vit = vertices.begin();
-        vit != vertices.end();
-        ++vit )
-  {
-    viennagrid::point(domain, *vit) *= factor;
-  }
+  config.assign_contact(drain_contact, 0.2, 0.0);
 }
 
 int main(int argc, char* argv[])
@@ -163,7 +147,7 @@ int main(int argc, char* argv[])
   //
   // scale to nanometer
   //
-  scale_domain(domain, 1e-9);
+  viennagrid::scale(domain, 1e-9);
 
   //
   // Prepare material library
@@ -194,12 +178,12 @@ int main(int argc, char* argv[])
   // Set simulation parameters
   //
   config.temperature()                        = 300;
-  config.damping()                            = 0.4;
+  config.damping()                            = 1.0;
   config.linear_breaktol()                    = 1.0E-13;
   config.linear_iterations()                  = 1000;
   config.nonlinear_iterations()               = 100;
   config.nonlinear_breaktol()                 = 1.0E-2;
-  config.initial_guess_smoothing_iterations() = 0;
+  config.initial_guess_smoothing_iterations() = 5;
 
   //
   // Create a simulator object
