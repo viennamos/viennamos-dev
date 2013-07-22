@@ -108,9 +108,9 @@ struct device
   numeric_type get_acceptor(std::size_t segment_index) { return segment_acceptors[segment_index]; }
 
 
-  inline domain_type&       get_domain()   { return domain;   }
-  inline segmentation_type& get_segments() { return segments; }
-  inline storage_type&      get_storage()  { return storage;  }
+  inline domain_type&       get_domain()                { return domain;   }
+  inline segmentation_type& get_segments()              { return segments; }
+  inline storage_type&      get_storage()               { return storage;  }
   inline segment_type&      get_segment(std::size_t si) { return segments(segment_index_map[si]); }
 
   // -----

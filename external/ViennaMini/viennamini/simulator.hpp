@@ -24,7 +24,9 @@
 #endif
 
 // ViennaFVM includes:
-#define VIENNAFVM_VERBOSE
+#ifdef VIENNAMINI_DEBUG
+  #define VIENNAFVM_VERBOSE
+#endif
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
@@ -120,11 +122,7 @@ namespace viennamini
           NA.wrap_constant  ( device.get_storage(), NA_key   );
 
 
-          // check the config object, which model is active. add each active
-          // model to the linear pde system ...
-          //
-          if(config.has_drift_diffusion())
-            add_drift_diffusion();
+
         }
 
         /**
@@ -283,6 +281,7 @@ namespace viennamini
             return NOTFOUND;
         }
 
+
         /**
             @brief Perform final steps required for the device simulation:
             1. assign dirichlet boundary conditions
@@ -296,6 +295,8 @@ namespace viennamini
            std::cout << "* finalizing device segments:" << std::endl;
         #endif
 
+          Storage      & storage      = device.get_storage();
+
           //
           // CONTACTS
           //
@@ -303,14 +304,11 @@ namespace viennamini
           for(typename Indices::iterator iter = contact_segments.begin();
               iter != contact_segments.end(); iter++)
           {
-
               // deactivate the permittivity and the builtin potential for a contact
               //
-              viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), eps_key,     false);
-              viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), builtin_key, false);
-
-              viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), mu_n_key,    false);
-              viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), mu_p_key,    false);
+              viennafvm::set_quantity_region(device.get_segment(*iter), storage, builtin_key, false);
+              viennafvm::set_quantity_region(device.get_segment(*iter), storage, mu_n_key,    false);
+              viennafvm::set_quantity_region(device.get_segment(*iter), storage, mu_p_key,    false);
 
               if(isContactInsulatorInterface(*iter))
               {
@@ -325,7 +323,7 @@ namespace viennamini
                   //
                   viennafvm::set_dirichlet_boundary(
                       device.get_segment(*iter),
-                      device.get_storage(),
+                      storage,
                       quantity_potential(),
                       config.get_contact_value(*iter) + config.get_workfunction(*iter)
                       );
@@ -336,13 +334,21 @@ namespace viennamini
 //                            << " :: contact potential: " << config.get_contact_value(*iter) <<
 //                               " workfunction: " << config.get_workfunction(*iter) << std::endl;
 
+                  // a contact segment needs the permittivity as well. we use the 
+                  // permittivity from the adjacent segment
+                  //
+                  viennafvm::set_quantity_region(device.get_segment(*iter), storage, eps_key, true);
+                  viennafvm::set_quantity_value (device.get_segment(*iter), storage, eps_key,
+                                                 matlib.getParameterValue(
+                                                   device.get_segment_materials()[adjacent_oxide_segment], "permittivity") * viennamini::eps0::val());
+
                   // delete obsolete quantities for the current contact and the adjacent oxide segments
                   // in both, electrons and holes don't make sense.
                   //
-                  viennafvm::disable_quantity(device.get_segment(*iter),                  device.get_storage(), quantity_electron_density());
-                  viennafvm::disable_quantity(device.get_segment(*iter),                  device.get_storage(), quantity_hole_density());
-                  viennafvm::disable_quantity(device.get_segment(adjacent_oxide_segment), device.get_storage(), quantity_electron_density());
-                  viennafvm::disable_quantity(device.get_segment(adjacent_oxide_segment), device.get_storage(), quantity_hole_density());
+                  viennafvm::disable_quantity(device.get_segment(*iter),                  storage, quantity_electron_density());
+                  viennafvm::disable_quantity(device.get_segment(*iter),                  storage, quantity_hole_density());
+                  viennafvm::disable_quantity(device.get_segment(adjacent_oxide_segment), storage, quantity_electron_density());
+                  viennafvm::disable_quantity(device.get_segment(adjacent_oxide_segment), storage, quantity_hole_density());
                 }
               else if(isContactSemiconductorInterface(*iter))
               {
@@ -357,16 +363,25 @@ namespace viennamini
                   Numeric NA = device.get_acceptor(adjacent_semiconductor_segment);
                   Numeric builtin_pot = viennamini::built_in_potential(config.temperature(), ND, NA);
 
+                  // a contact segment needs the permittivity as well. we use the 
+                  // permittivity from the adjacent segment
+                  //
+                  viennafvm::set_quantity_region(device.get_segment(*iter), storage, eps_key, true);
+                  viennafvm::set_quantity_value (device.get_segment(*iter), storage, eps_key,
+                                                 matlib.getParameterValue(
+                                                   device.get_segment_materials()[adjacent_semiconductor_segment], "permittivity") * viennamini::eps0::val());
+
+
 //                  std::cout << "contact segment " << *iter << " interfaces with semiconductor segment " << adjacent_semiconductor_segment
 //                            << " :: contact potential: " << config.get_contact_value(*iter) <<
 //                               " workfunction: " << config.get_workfunction(*iter) <<
-//                               "builtin-pot: " << builtin_pot << " ND: " << ND << " NA: " << NA << std::endl;
+//                               " builtin-pot: " << builtin_pot << " ND: " << ND << " NA: " << NA << std::endl;
 
                   // aside of the contact potential, add the builtin-pot and the workfunction (0 by default ..)
                   //
                   viennafvm::set_dirichlet_boundary(
                           device.get_segment(*iter),  // segment
-                          device.get_storage(),
+                          storage,
                           quantity_potential(),
                           config.get_contact_value(*iter) + config.get_workfunction(*iter) + builtin_pot // BC value
                           );
@@ -376,22 +391,22 @@ namespace viennamini
                   //
                   viennafvm::set_dirichlet_boundary(
                           device.get_segment(*iter), // segment
-                          device.get_storage(),
+                          storage,
                           quantity_electron_density(),
                           ND // BC value
                           );
 
                   viennafvm::set_dirichlet_boundary(
                           device.get_segment(*iter), // segment
-                          device.get_storage(),
+                          storage,
                           quantity_hole_density(),
                           NA // BC value
                           );
 
                 // for a contact, the following quantities don't make any sense
                 //
-                viennafvm::disable_quantity(device.get_segment(*iter), device.get_storage(), quantity_electron_density());
-                viennafvm::disable_quantity(device.get_segment(*iter), device.get_storage(), quantity_hole_density());
+                viennafvm::disable_quantity(device.get_segment(*iter), storage, quantity_electron_density());
+                viennafvm::disable_quantity(device.get_segment(*iter), storage, quantity_hole_density());
 
               }
           }
@@ -407,20 +422,19 @@ namespace viennamini
                  std::cout << "  * segment " << *iter << " : oxide" << std::endl;
           #endif
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), eps_key, true);
-            viennafvm::set_quantity_value (device.get_segment(*iter), device.get_storage(), eps_key,
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, eps_key, true);
+            viennafvm::set_quantity_value (device.get_segment(*iter), storage, eps_key,
                                            matlib.getParameterValue(
                                              device.get_segment_materials()[*iter], "permittivity") * viennamini::eps0::val());
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), mu_n_key, false);
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), mu_p_key, false);
-
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), builtin_key, false);
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, mu_n_key, false);
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, mu_p_key, false);
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, builtin_key, false);
 
             // disable the electron and hole quantities
             //
-            viennafvm::disable_quantity(device.get_segment(*iter), device.get_storage(), quantity_electron_density());
-            viennafvm::disable_quantity(device.get_segment(*iter), device.get_storage(), quantity_hole_density());
+            viennafvm::disable_quantity(device.get_segment(*iter), storage, quantity_electron_density());
+            viennafvm::disable_quantity(device.get_segment(*iter), storage, quantity_hole_density());
           }
 
           //
@@ -434,22 +448,22 @@ namespace viennamini
                  std::cout << "  * segment " << *iter << " : semiconductor" << std::endl;
           #endif
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), eps_key, true);
-            viennafvm::set_quantity_value (device.get_segment(*iter), device.get_storage(), eps_key,
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, eps_key, true);
+            viennafvm::set_quantity_value (device.get_segment(*iter), storage, eps_key,
                                            matlib.getParameterValue(
                                              device.get_segment_materials()[*iter], "permittivity") * viennamini::eps0::val());
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), mu_n_key, true);
-            viennafvm::set_quantity_value (device.get_segment(*iter), device.get_storage(), mu_n_key, 1.0);// TODO
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, mu_n_key, true);
+            viennafvm::set_quantity_value (device.get_segment(*iter), storage, mu_n_key, 0.1430);// TODO
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), mu_p_key, true);
-            viennafvm::set_quantity_value (device.get_segment(*iter), device.get_storage(), mu_p_key, 1.0);// TODO
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, mu_p_key, true);
+            viennafvm::set_quantity_value (device.get_segment(*iter), storage, mu_p_key, 0.046);// TODO
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), ND_key, true);
-            viennafvm::set_quantity_value (device.get_segment(*iter), device.get_storage(), ND_key, device.get_donator(*iter));
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, ND_key, true);
+            viennafvm::set_quantity_value (device.get_segment(*iter), storage, ND_key, device.get_donator(*iter));
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), NA_key, true);
-            viennafvm::set_quantity_value (device.get_segment(*iter), device.get_storage(), NA_key, device.get_acceptor(*iter));
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, NA_key, true);
+            viennafvm::set_quantity_value (device.get_segment(*iter), storage, NA_key, device.get_acceptor(*iter));
 
 
             // within the semiconductor segments, we have to prepare an initial guess quantity for the potential distribution
@@ -459,8 +473,8 @@ namespace viennamini
             Numeric builtin_potential_value = viennamini::built_in_potential(
                     config.temperature(), device.get_donator(*iter), device.get_acceptor(*iter));
 
-            viennafvm::set_quantity_region(device.get_segment(*iter), device.get_storage(), builtin_key, true);
-            viennafvm::set_quantity_value(device.get_segment(*iter), device.get_storage(), builtin_key, builtin_potential_value);
+            viennafvm::set_quantity_region(device.get_segment(*iter), storage, builtin_key, true);
+            viennafvm::set_quantity_value(device.get_segment(*iter), storage, builtin_key, builtin_potential_value);
           }
 
       #ifdef VIENNAMINI_DEBUG
@@ -470,9 +484,9 @@ namespace viennamini
           // Initial conditions (required for nonlinear problems)
           // we use the doping for the n, p - initial guesses
           //
-          viennafvm::set_initial_guess(device.get_domain(), device.get_storage(), quantity_potential(),        viennamini::builtin_potential_key());
-          viennafvm::set_initial_guess(device.get_domain(), device.get_storage(), quantity_electron_density(), viennamini::donator_doping_key());
-          viennafvm::set_initial_guess(device.get_domain(), device.get_storage(), quantity_hole_density(),     viennamini::acceptor_doping_key());
+          viennafvm::set_initial_guess(device.get_domain(), storage, quantity_potential(),        viennamini::builtin_potential_key());
+          viennafvm::set_initial_guess(device.get_domain(), storage, quantity_electron_density(), viennamini::donator_doping_key());
+          viennafvm::set_initial_guess(device.get_domain(), storage, quantity_hole_density(),     viennamini::acceptor_doping_key());
 
       #ifdef VIENNAMINI_DEBUG
           std::cout << "* smoothing initial conditions " << config. initial_guess_smoothing_iterations() << " times " << std::endl;
@@ -483,13 +497,13 @@ namespace viennamini
           //
           for(int i = 0; i < config.initial_guess_smoothing_iterations(); i++)
           {
-            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(),
+            viennafvm::smooth_initial_guess(device.get_domain(), storage,
                                             viennafvm::arithmetic_mean_smoother(), quantity_potential());
 
-            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(),
+            viennafvm::smooth_initial_guess(device.get_domain(), storage,
                                             viennafvm::geometric_mean_smoother(), quantity_electron_density());
 
-            viennafvm::smooth_initial_guess(device.get_domain(), device.get_storage(),
+            viennafvm::smooth_initial_guess(device.get_domain(), storage,
                                             viennafvm::geometric_mean_smoother(), quantity_hole_density());
           }
         }
@@ -516,12 +530,6 @@ namespace viennamini
             const double kB = viennamini::kB::val();
 
 
-            // [NOTE] Instead of '1', I am using the values for silicon at 300 K.
-            // Also I am using different mobilities for electrons/holes
-            // We need a ViennaModels/ViennaMaterials approach here. .. obviously
-            //
-//            const double mu_n = 0.1430; // Silicon (m^2/Vs)       // mobility (constant is fine for the moment)
-//            const double mu_p = 0.046;  // Silicon (m^2/Vs)       // TODO do segment (material) specific assembly, and get mobility from matlib!
             const double T  = config.temperature();
             viennamath::expr VT = kB * T / q;
 
@@ -553,6 +561,12 @@ namespace viennamini
         */
         void run()
         {
+          // check the config object, which model is active. add each active
+          // model to the linear pde system ...
+          //
+          if(config.has_drift_diffusion())
+            add_drift_diffusion();
+        
           linear_solver.max_iterations()  = config.linear_iterations();
           linear_solver.break_tolerance() = config.linear_breaktol();
         
@@ -578,9 +592,9 @@ namespace viennamini
         Vector const& result() { return pde_solver.result(); }
 
     private:
-        DeviceT&                device;
-        MatlibT&                matlib;
-        viennamini::config&     config;
+        DeviceT            & device;
+        MatlibT            & matlib;
+        viennamini::config & config;
 
         PDESystem               pde_system;
         PDESolver               pde_solver;

@@ -35,9 +35,9 @@ struct config
     local_nonlinear_iterations = 100;
     local_nonlinear_breaktol = 1.E-3;
     local_linear_breaktol = 1.E-14;
-    local_linear_iterations = 700;
+    local_linear_iterations = 1000;
     local_damping = 1.0;
-    local_initial_guess_smoothing_iterations = 2;
+    local_initial_guess_smoothing_iterations = 0;
 
     model_drift_diffusion_state = true; // on by default ..
   }

@@ -28,20 +28,22 @@
 #include "viennamaterials/library.hpp"
 #include "viennamaterials/kernels/pugixml.hpp"
 
+#include "viennagrid/algorithm/scale.hpp"
+
+const int gate_contact    = 0;
+const int source_contact  = 1;
+const int oxide           = 2;
+const int drain_contact   = 3;
+const int source          = 4;
+const int drain           = 5;
+const int body            = 6;
+const int body_contact    = 7;
+
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
 template<typename Domain, typename Segmentation, typename Storage>
 void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
 {
-  const int gate_contact    = 0;
-  const int source_contact  = 1;
-  const int oxide           = 2;
-  const int drain_contact   = 3;
-  const int source          = 4;
-  const int drain           = 5;
-  const int body            = 6;
-  const int body_contact    = 7;
-
   // Segment 0: Gate Contact
   device.assign_name          (gate_contact, "gate_contact");
   device.assign_material      (gate_contact, "Cu");
@@ -75,7 +77,7 @@ void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
   // Segment 6: Body
   device.assign_name          (body, "body");
   device.assign_material      (body, "Si");
-  device.assign_semiconductor (body, 1.E17, 1.E15);
+  device.assign_semiconductor (body, 1.E12, 1.E20);
 
   // Segment 7: Body Contact
   device.assign_name          (body_contact, "body_contact");
@@ -86,13 +88,8 @@ void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
 /** @brief Assign actual values to the dirichlet contacts */
 void prepare_boundary_conditions(viennamini::config& config)
 {
-  const int gate_contact    = 0;
-  const int body_contact    = 7;
-  const int source_contact  = 1;
-  const int drain_contact   = 3;
-
   // Segment 0: Gate Contact
-  config.assign_contact(gate_contact, 0.5, 0.0);  // segment id, contact potential, workfunction
+  config.assign_contact(gate_contact, 0.2, 0.4);  // segment id, contact potential, workfunction
 
   // Segment 7: Body Contact
   config.assign_contact(body_contact, 0.0, 0.0);
@@ -101,26 +98,8 @@ void prepare_boundary_conditions(viennamini::config& config)
   config.assign_contact(source_contact, 0.0, 0.0);
 
   // Segment 3: Drain Contact
-  config.assign_contact(drain_contact, 1.0, 0.0);
+  config.assign_contact(drain_contact, 0.2, 0.0);
 }
-
-/** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
-template <typename DomainType>
-void scale_domain(DomainType & domain, double factor)
-{
-  typedef typename viennagrid::result_of::element<DomainType, viennagrid::vertex_tag>::type         VertexType;
-  typedef typename viennagrid::result_of::element_range<DomainType, viennagrid::vertex_tag>::type   VertexContainer;
-  typedef typename viennagrid::result_of::iterator<VertexContainer>::type                           VertexIterator;
-
-  VertexContainer vertices = viennagrid::elements<VertexType>(domain);
-  for ( VertexIterator vit = vertices.begin();
-        vit != vertices.end();
-        ++vit )
-  {
-    viennagrid::point(domain, *vit) *= factor;
-  }
-}
-
 
 int main()
 {
@@ -151,7 +130,7 @@ int main()
   //
   // scale to nanometer
   //
-  scale_domain(domain, 1e-9);
+  viennagrid::scale(domain, 1e-9);
 
   //
   // Prepare material library
@@ -184,10 +163,10 @@ int main()
   config.temperature()                        = 300;
   config.damping()                            = 1.0;
   config.linear_breaktol()                    = 1.0E-13;
-  config.linear_iterations()                  = 700;
+  config.linear_iterations()                  = 1000;
   config.nonlinear_iterations()               = 100;
   config.nonlinear_breaktol()                 = 1.0E-3;
-  config.initial_guess_smoothing_iterations() = 4;
+  config.initial_guess_smoothing_iterations() = 0;
 
   //
   // Create a simulator object
