@@ -20,12 +20,14 @@
 #include <iostream>
 
 // ViennaFVM includes:
+#define VIENNAFVM_VERBOSE
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
 #include "viennafvm/boundary.hpp"
 #include "viennafvm/pde_solver.hpp"
 #include "viennafvm/initial_guess.hpp"
+#include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
 #include "viennagrid/config/default_configs.hpp"
@@ -168,9 +170,8 @@ int main()
   FunctionSymbol psi(0);   // potential, using id=0
 
   // potential:
-  double built_in_pot = built_in_potential(300, 1.0e24, 1.0e8); // should match specification in init_quantities()!
-  viennafvm::set_dirichlet_boundary( segmentation(1), storage, psi, 0.0 + built_in_pot); // Gate contact
-  viennafvm::set_dirichlet_boundary( segmentation(5), storage, psi, 0.8 + built_in_pot); // Source contact
+  viennafvm::set_dirichlet_boundary( segmentation(1), storage, psi, 0.0); 
+  viennafvm::set_dirichlet_boundary( segmentation(5), storage, psi, 0.8); 
 
   //
   // Specify PDEs:
@@ -185,15 +186,20 @@ int main()
   viennafvm::linear_pde_system<> pde_system;
   pde_system.add_pde(laplace_eq, psi); // equation and associated quantity
 
-  pde_system.is_linear(false); 
+  pde_system.is_linear(true); 
 
+
+  //
+  // Setup Linear Solver
+  //
+  viennafvm::linsolv::viennacl  linear_solver;
 
   //
   // Create PDE solver instance and run the solver:
   //
   viennafvm::pde_solver<> pde_solver;
 
-  pde_solver(pde_system, domain, storage);   // weird math happening in here ;-)
+  pde_solver(pde_system, domain, storage, linear_solver);   // weird math happening in here ;-)
 
 
   //
@@ -203,7 +209,7 @@ int main()
   for (std::size_t i=0; i<pde_system.size(); ++i)
     result_ids[i] = pde_system.unknown(i)[0].id();
 
-  viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "nin", domain, segmentation, storage, result_ids);
+  viennafvm::io::write_solution_to_VTK_file(pde_solver.result(), "nin_2d_laplace", domain, segmentation, storage, result_ids);
 
   std::cout << "*************************************" << std::endl;
   std::cout << "* Simulation finished successfully! *" << std::endl;

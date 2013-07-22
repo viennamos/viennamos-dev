@@ -22,8 +22,8 @@
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/io/vtk_writer.hpp"
 #include "viennafvm/ncell_quantity.hpp"
-#include "viennafvm/linear_solve.hpp"
 #include "viennafvm/pde_solver.hpp"
+#include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
 #include "viennagrid/domain/domain.hpp"
@@ -138,6 +138,10 @@ int main()
     boundary_accessor(*cit) = cell_on_boundary;
   }
 
+  //
+  // Setup Linear Solver
+  //
+  viennafvm::linsolv::viennacl  linear_solver;
 
   //
   // Create PDE solver instance
@@ -149,7 +153,7 @@ int main()
   //
   pde_solver(viennafvm::make_linear_pde_system(poisson_eq, u),  // PDE with associated unknown
              domain,
-             storage);
+             storage, linear_solver);
 
   //
   // Writing solution back to domain (discussion about proper way of returning a solution required...)
