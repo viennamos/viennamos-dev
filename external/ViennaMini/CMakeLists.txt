@@ -55,14 +55,19 @@ IF(ENABLE_OPENMP)
   ENDIF(OPENMP_FOUND)
 ENDIF(ENABLE_OPENMP)
 
+# build the ViennaMini library
+AUX_SOURCE_DIRECTORY(src/ LIBSOURCES) 
+ADD_LIBRARY(viennamini SHARED ${LIBSOURCES})
+SET(LIBRARIES ${LIBRARIES} viennamini)
+
 #list all source files here
-ADD_EXECUTABLE(mosfet     examples/tutorial/mosfet.cpp)
+ADD_EXECUTABLE(mosfet     examples/mosfet.cpp)
 TARGET_LINK_LIBRARIES(mosfet ${LIBRARIES})
 
-ADD_EXECUTABLE(trigate     examples/tutorial/trigate.cpp)
+ADD_EXECUTABLE(trigate     examples/trigate.cpp)
 TARGET_LINK_LIBRARIES(trigate ${LIBRARIES})
 
-ADD_EXECUTABLE(nin2d     examples/tutorial/nin2d.cpp)
+ADD_EXECUTABLE(nin2d     examples/nin2d.cpp)
 TARGET_LINK_LIBRARIES(nin2d ${LIBRARIES})
 
 
@@ -70,3 +75,6 @@ TARGET_LINK_LIBRARIES(nin2d ${LIBRARIES})
 file( GLOB_RECURSE QtCreatorCompatibility_SRC
     viennamini/*.hpp viennamini/*.h)
 add_custom_target( QtCreatorCompatibility SOURCES ${QtCreatorCompatibility_SRC} )
+
+
+

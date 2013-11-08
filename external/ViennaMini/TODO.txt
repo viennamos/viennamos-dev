@@ -1,0 +1,2 @@
+1. viennamini library -> outsource linear solver and simualtor class into standalone library
+2. dynamic xml/ipd config: dynamic config class hierarchy, user should create instance and forward to simulator (gui)

@@ -11,13 +11,6 @@
    license:    To be discussed, see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-//#define VIENNAFVM_DEBUG
-
-// Define NDEBUG to get any reasonable performance with ublas:
-#define NDEBUG
-
-#define VIENNAMINI_DEBUG
-
 // include necessary system headers
 #include <iostream>
 
@@ -28,21 +21,20 @@
 #include "viennamaterials/library.hpp"
 #include "viennamaterials/kernels/pugixml.hpp"
 
-#include "viennagrid/algorithm/scale.hpp"
 
-const int gate_contact    = 0;
-const int source_contact  = 1;
-const int oxide           = 2;
-const int drain_contact   = 3;
-const int source          = 4;
-const int drain           = 5;
-const int body            = 6;
-const int body_contact    = 7;
+const int gate_contact    = 1;
+const int source_contact  = 2;
+const int oxide           = 3;
+const int drain_contact   = 4;
+const int source          = 5;
+const int drain           = 6;
+const int body            = 7;
+const int body_contact    = 8;
 
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
-template<typename Domain, typename Segmentation, typename Storage>
-void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
+template<typename MeshT, typename SegmentationT, typename StorageT>
+void prepare(viennamini::device<MeshT, SegmentationT, StorageT>& device)
 {
   // Segment 0: Gate Contact
   device.assign_name          (gate_contact, "gate_contact");
@@ -103,23 +95,17 @@ void prepare_boundary_conditions(viennamini::config& config)
 
 int main()
 {
-    typedef double                                                       numeric_type;
-    typedef viennagrid::domain_t< viennagrid::config::triangular_2d >    domain_type;
-    typedef viennagrid::result_of::segmentation<domain_type>::type       segmentation_type;
-    typedef segmentation_type::segment_type                              segment_type;
-    typedef viennadata::storage<>                                        storage_type;
-
   //
   // Create a domain from file
   //
-    domain_type         domain;
-    segmentation_type   segments(domain);
-    storage_type        storage;
+  viennamini::MeshTriangular2DType           mesh;
+  viennamini::SegmentationTriangular2DType   segments(mesh);
+  viennamini::StorageType                    storage;
 
   try
   {
     viennagrid::io::netgen_reader my_reader;
-    my_reader(domain, segments, "../examples/data/mosfet.mesh");
+    my_reader(mesh, segments, "../external/ViennaDeviceCollection/mosfet2d/mosfet2d.mesh");
   }
   catch (...)
   {
@@ -130,20 +116,18 @@ int main()
   //
   // scale to nanometer
   //
-  viennagrid::scale(domain, 1e-9);
+  viennagrid::scale(mesh, 1e-9);
 
   //
   // Prepare material library
   //
-  typedef vmat::Library<vmat::tag::pugixml>::type  material_library_type;
-  material_library_type matlib;
+  viennamini::MatLibPugixmlType matlib;
   matlib.load("../external/ViennaMaterials/database/materials.xml");
 
   //
   // Create a device and a config object
   //
-  typedef viennamini::device<domain_type, segmentation_type, storage_type>   device_type;
-  device_type device(domain, segments, storage);
+  viennamini::DeviceTriangular2DType device(mesh, segments, storage);
   viennamini::config config;
 
   //
@@ -171,17 +155,15 @@ int main()
   //
   // Create a simulator object
   //
-  typedef viennamini::simulator<device_type, material_library_type>     simulator_type;
-  simulator_type simulator(device, matlib, config);
+  viennamini::SimulatorTriangular2DType sim(device, matlib, config);
 
   //
   // Run the simulation
   //
-  simulator();
+  sim();
 
   // Write results to vtk files
-  simulator.write_result("mosfet");
-
+  sim.write_result("mosfet");
 
   std::cout << "********************************************" << std::endl;
   std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
