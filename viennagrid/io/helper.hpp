@@ -2,18 +2,13 @@
 #define VIENNAGRID_IO_HELPER_GUARD
 
 /* =======================================================================
-   Copyright (c) 2011-2012, Institute for Microelectronics,
+   Copyright (c) 2011-2013, Institute for Microelectronics,
                             Institute for Analysis and Scientific Computing,
                             TU Wien.
 
                             -----------------
                      ViennaGrid - The Vienna Grid Library
                             -----------------
-
-   Authors:      Karl Rupp                           rupp@iue.tuwien.ac.at
-                 Josef Weinbub                    weinbub@iue.tuwien.ac.at
-
-   (A list of additional contributors can be found in the PDF manual)
 
    License:      MIT (X11), see file LICENSE in the base directory
 ======================================================================= */
@@ -26,14 +21,13 @@
 #include <string>
 #include "viennagrid/forwards.hpp"
 
-/** @file helper.hpp
+/** @file viennagrid/io/helper.hpp
     @brief Various helpers for I/O operations
 */
 
 
 namespace viennagrid
 {
-  /** @brief A namespace with all the input/output functionality, in particular file readers and writers */
   namespace io
   {
     /** @brief Helper class for writing points to file. Aids as a generic layer for point types that don't have operator<< overloaded in a suitable way */
@@ -129,9 +123,9 @@ namespace viennagrid
           return ss.str().c_str();
         }
 
-        cannot_open_file_exception(std::string file) : filename_(file) {};
+        cannot_open_file_exception(std::string file) : filename_(file) {}
 
-        virtual ~cannot_open_file_exception() throw() {};
+        virtual ~cannot_open_file_exception() throw() {}
 
       private:
         std::string filename_;
@@ -152,11 +146,11 @@ namespace viennagrid
         }
 
         /** @brief Constructor taking the file name and a custom parser-specific message to be issued */
-        bad_file_format_exception(std::string file, std::string message) : filename_(file), message_(message) {};
+        bad_file_format_exception(std::string file, std::string message) : filename_(file), message_(message) {}
         /** @brief Constructor taking a custom parser-specific message to be issued */
-        bad_file_format_exception(std::string message) : filename_(), message_(message) {};
+        bad_file_format_exception(std::string message) : filename_(), message_(message) {}
 
-        virtual ~bad_file_format_exception() throw() {};
+        virtual ~bad_file_format_exception() throw() {}
 
       private:
         std::string filename_;

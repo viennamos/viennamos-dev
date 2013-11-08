@@ -2,18 +2,13 @@
 #define VIENNAGRID_TOPOLOGY_QUADRILATERAL_HPP
 
 /* =======================================================================
-   Copyright (c) 2011-2012, Institute for Microelectronics,
+   Copyright (c) 2011-2013, Institute for Microelectronics,
                             Institute for Analysis and Scientific Computing,
                             TU Wien.
 
                             -----------------
                      ViennaGrid - The Vienna Grid Library
                             -----------------
-
-   Authors:      Karl Rupp                           rupp@iue.tuwien.ac.at
-                 Josef Weinbub                    weinbub@iue.tuwien.ac.at
-
-   (A list of additional contributors can be found in the PDF manual)
 
    License:      MIT (X11), see file LICENSE in the base directory
 ======================================================================= */
@@ -22,7 +17,7 @@
 #include "viennagrid/topology/vertex.hpp"
 #include "viennagrid/topology/line.hpp"
 
-/** @file quadrilateral.hpp
+/** @file viennagrid/topology/quadrilateral.hpp
     @brief Provides the topological definition of a quadrilateral
 */
 
@@ -38,6 +33,7 @@ namespace viennagrid
     static std::string name() { return "Quadrilateral"; }
   };
 
+  /** @brief Topological description of the 1-cells (edges/lines) of a quadrilateral */
   template <>
   struct boundary_elements<hypercube_tag<2>, simplex_tag<1> >
   {
@@ -45,6 +41,7 @@ namespace viennagrid
     static const int num = 4;
   };
 
+  /** @brief Topological description of the 0-cells (vertices) of a quadrilateral */
   template <>
   struct boundary_elements<hypercube_tag<2>, simplex_tag<0> >
   {
@@ -52,7 +49,7 @@ namespace viennagrid
     static const int num = 4;
   };
 
-  namespace element_topology
+  namespace detail
   {
       //fill edges:
       //
@@ -68,28 +65,28 @@ namespace viennagrid
     template<typename BoundaryElementType>
     struct boundary_element_generator<hypercube_tag<2>, simplex_tag<1>, BoundaryElementType>
     {
-        template<typename element_type, typename inserter_type>
-        static void create_boundary_elements(element_type & element, inserter_type & inserter)
-        {
-            BoundaryElementType boundary_element( inserter.get_physical_container_collection() );
-            int index = 0;
+      template<typename element_type, typename inserter_type>
+      static void create_boundary_elements(element_type & element, inserter_type & inserter)
+      {
+        BoundaryElementType boundary_element( inserter.get_physical_container_collection() );
+        int index = 0;
 
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(0), 0 );
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(1), 1 );
-            element.set_boundary_element( boundary_element, inserter(boundary_element), index++ );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(0), 0 );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(1), 1 );
+        element.set_boundary_element( boundary_element, inserter.template insert<true, true>(boundary_element), index++ );
 
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(0), 0 );
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(2), 1 );
-            element.set_boundary_element( boundary_element, inserter(boundary_element), index++ );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(0), 0 );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(2), 1 );
+        element.set_boundary_element( boundary_element, inserter.template insert<true, true>(boundary_element), index++ );
 
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(1), 0 );
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(3), 1 );
-            element.set_boundary_element( boundary_element, inserter(boundary_element), index++ );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(1), 0 );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(3), 1 );
+        element.set_boundary_element( boundary_element, inserter.template insert<true, true>(boundary_element), index++ );
 
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(2), 0 );
-            boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(3), 1 );
-            element.set_boundary_element( boundary_element, inserter(boundary_element), index++ );
-        }
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(2), 0 );
+        boundary_element.container(dimension_tag<0>()).set_handle( element.container( dimension_tag<0>() ).handle_at(3), 1 );
+        element.set_boundary_element( boundary_element, inserter.template insert<true, true>(boundary_element), index++ );
+      }
     };
 
   }

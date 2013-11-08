@@ -9,12 +9,10 @@ endif(COMMAND cmake_policy)
 
 project(ViennaGrid)
 
-set(VERSION_MAJOR 1)
-set(VERSION_MINOR 1)
+set(VERSION_MAJOR 2)
+set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
-
-#SET(CMAKE_VERBOSE_MAKEFILE ON)   #uncomment this line to increase CMake verbosity
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -33,9 +31,9 @@ ENDIF()
 # User options
 ##############
 
-option(BUILD_DOXYGEN_DOCS "Build the Doxygen-generated API docs" OFF)
+option(BUILD_TESTING "Build the tests" ON)
 
-option(BUILD_MANUAL "Build the PDF manual" OFF)
+option(ENABLE_PEDANTIC_FLAGS "Enable pedantic compiler flags" ON)
 
 cmake_dependent_option(ENABLE_DIST "Enable the the distribution tarball target" ON "BUILD_DOXYGEN_DOCS;BUILD_MANUAL" OFF)
 
@@ -66,7 +64,7 @@ if(BUILD_EXAMPLES)
 endif()
 
 if(BUILD_TESTING)
-   INCLUDE(CTest)
+   include(CTest)
    add_subdirectory(tests)
 endif()
 
@@ -114,7 +112,7 @@ if(ENABLE_DIST)
 
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${DISTDIR}/build"
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-         "${PROJECT_SOURCE_DIR}/build/README" "${DISTDIR}/build/README"
+         "${PROJECT_SOURCE_DIR}/cmake/README" "${DISTDIR}/build/README"
 
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${DISTDIR}/cmake"
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
@@ -128,12 +126,13 @@ if(ENABLE_DIST)
 
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${DISTDIR}/doc"
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-         "${PROJECT_SOURCE_DIR}/doc/viennagrid.pdf" "${DISTDIR}/doc/viennagrid.pdf"
+         "${CMAKE_CURRENT_BINARY_DIR}/doc/viennagrid.pdf" "${DISTDIR}/doc/viennagrid.pdf"
       COMMAND "${CMAKE_COMMAND}" -E copy_directory
          "${CMAKE_CURRENT_BINARY_DIR}/doc/doxygen"
          "${DISTDIR}/doc/doxygen"
+
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-         "${PROJECT_SOURCE_DIR}/doc/viennagrid.pdf" "${DISTDIR}/doc/viennagrid.pdf"
+         "${PROJECT_SOURCE_DIR}/doc/CMakeLists.txt" "${DISTDIR}/doc/CMakeLists.txt"
 
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
          "${PROJECT_SOURCE_DIR}/doc/Doxyfile.in" "${DISTDIR}/doc/Doxyfile.in"

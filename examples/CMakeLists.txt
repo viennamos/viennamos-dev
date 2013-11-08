@@ -30,11 +30,10 @@ set(EXAMPLES_TESTDATA
    data/tets_with_data_1.vtu
    data/tets_with_data_main.pvd
    data/twocubes.mesh
+   data/test.poly
    )
 foreach(f IN LISTS EXAMPLES_TESTDATA)
    configure_file(${f} "${CMAKE_CURRENT_BINARY_DIR}/${f}" COPYONLY)
 endforeach()
 
 add_subdirectory(tutorial)
-add_subdirectory(meta)
-#add_subdirectory(geometry)

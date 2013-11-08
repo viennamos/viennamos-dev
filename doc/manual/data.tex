@@ -1,79 +1,108 @@
 \chapter{Data Storage and Retrieval} \label{chap:data}
 
- \NOTE{This description has not been updated for ViennaGrid 1.1.0 yet!}
- 
-
 One of the central operations whenever dealing with meshes is the storage and the retrieval of data.
 A common approach is to model vertices, edges and the like as separate classes and add data members to them.
 {\ViennaGrid} does not follow this approach for three reasons:
 \begin{enumerate}
  \item \textbf{Reusability}: As soon as a data member is added to any of these classes, the class is refined towards a particular use case. For example, adding a color data member to a triangle class reduces reusability for e.g.~Finite Element methods considerably.
  \item \textbf{Flexibility}: Whenever a data member needs to be added for a particular functionality, one has to carefully extend the existing class layout. Moreover, it is somewhere between hard to impossible to 'just add a data member for the moment' in a productive environment. Moreover, the class needs to be adjusted if the data type changes.
- \item \textbf{Efficiency}: A data member that is never used obviously wastes memory. For large numbers of object it might be even advisable to use special containers for data that is relevant for a tiny fraction of all objects only (e.g.~domain boundary flags). Apart from reduced memory footprint, the possibly tighter grouping of data allows for better CPU caching. 
+ \item \textbf{Efficiency}: A data member that is never used obviously wastes memory. For large numbers of objects it might be even advisable to use special containers for data that is relevant for a tiny fraction of all objects only (e.g.~mesh boundary flags). Apart from reduced memory footprint, the possibly tighter grouping of data allows for better CPU caching.
 \end{enumerate}
-{\ViennaGrid} relies on {\ViennaData} \cite{ViennaData} for the storage of data associated with topological objects.
-For full details on the capabilities of {\ViennaData}, please refer to the {\ViennaData} manual.
-For the sake of completeness, a brief overview of the basic usage of {\ViennaData} for {\ViennaGrid} is given in the following.
 
-\TIP{A tutorial code can be found in \texttt{examples/tutorial/store\_access\_data.cpp}.}
+Previous version of {\ViennaGrid} relies on {\ViennaData} \cite{ViennaData} for the storage of data associated with topological objects.
+{\ViennaGridversion} dropped the dependencies on {\ViennaData} in favor of the accessor and the field concept.
+These concepts are essential for decoupling the actual algorithm implementation from the underlying storage.
+Although in many cases a user will store data in a plain array using e.g.~a numeric vertex ID as the index, a vertex may not carry a numeric ID at all for the sake of smaller memory footprint.
+In such case a user may prefer to store data in a map using the vertex address as key object.
+Using the accessor and field concepts, algorithm implementations do not need to be duplicated in order to deal with both storage types.
 
-\section{Handling Data}
-{\ViennaData} can be seen in a simplified view as something that behaves like a \lstinline|std::map<KeyType, DataType>| for each object for which data should be stored or retrieved. For a \lstinline|key| object of type \lstinline|KeyType|, \lstinline|data| of type \lstinline|DataType| is stored on an object \lstinline|obj| as
+An accessor is a simple class which manages access to data stored on objects.
+For example, one might want to store potential values with type \lstinline|double| on vertices.
+An accessor provides an  \lstinline|operator()| returning a reference to the data stored for that object:
+
 \begin{lstlisting}
- viennadata::access<KeyType, DataType>(key)(obj) = data;
-\end{lstlisting}
-At some later stage, the data can be conveniently retrieved from the object as
-\begin{lstlisting}
- DataType my_data = viennadata::access<KeyType, DataType>(key)(obj);
-\end{lstlisting}
-One may also erase data stored for the object using
-\begin{lstlisting}
- viennadata::erase<KeyType, DataType>(key)(obj);
+ SomeAccessorType my_accessor;
+ my_accessor(vertex) = 42.0;
+ std::cout << my_accessor(vertex) << std::endl;
 \end{lstlisting}
 
-\section{Customizations of the Internal Storage Scheme}
-It can readily be seen that the free function \lstinline|access()| mimics the template arguments of a \lstinline|std::map<KeyType, DataType>| and takes the key as argument. In fact, the default internal storage scheme of {\ViennaData} for objects of type \lstinline|ObjectType| is 
-\begin{lstlisting}
- std::map<ObjectType const *,
-          std::map<KeyType, DataType> >
-\end{lstlisting}
-which is generated for each triple of \lstinline|KeyType|, \lstinline|DataType| and \lstinline|ObjectType| by the compiler.
-Since the tree-based structure is well suited for data that is stored for a small fraction of the total number of objects of the same type, we call it a \emph{sparse} data storage scheme. However, such a nested map is not a good datastructure in many cases and can thus be customized in a rather transparent manner.
+Each class fulfilling the accessor concepts presented in Table~\ref{tab:accessor-concepts} can be used in ViennaGrid.
 
-For objects that provide integral IDs ranging from $0$ to some number $N$, a storage scheme of the form
-\begin{lstlisting}
- std::vector< std::map<KeyType, DataType> >
-\end{lstlisting}
-for each \lstinline|ObjectType| is more appropriate. Since memory for all objects of the same type is used then, we refer to this scheme as a \emph{dense} data storage scheme. It can be enabled by first using one of the macros (mind the VIENNAGRID prefix!)
-\begin{lstlisting}
-VIENNAGRID_ENABLE_NCELL_ID_FOR_DATA(A, B)     //config A, n-cell-tag B
-VIENNAGRID_ENABLE_ALL_NCELL_ID_FOR_DATA(A)    //all n-cells with config A
-VIENNAGRID_GLOBAL_ENABLE_NCELL_ID_FOR_DATA(B) //all configs, n-cell-tag B
-VIENNAGRID_GLOBAL_ENABLE_ALL_NCELL_ID_FOR_DATA() //all configs, all n-cells
-\end{lstlisting}
-with \lstinline|A| and \lstinline|B| denoting the configuration class and the $n$-cell tag respectively. This configures {\ViennaData} to use the integral ID of the element. 
-Second, dense storage can then be selectively enabled using one of the macros
-\begin{lstlisting}
- VIENNADATA_ENABLE_DENSE_DATA_STORAGE_FOR_*
-\end{lstlisting}
-where the star refers to \lstinline|KEY|, \lstinline|DATA|, \lstinline|OBJECT| or a mixture of these. For details consult the {\ViennaData} manual.
+ \begin{table}[tbp]
+ \begin{center}
+  \begin{tabular}{|l|p{8cm}|}
+   \hline
+   Member name & Description \\
+   \hline
+   \lstinline|value_type|      & The value type which is stored in the accessor. \\
+   \lstinline|access_type|     & The access type on which the data is stored. \\
+   \lstinline|reference|       & A reference to \lstinline|value_type|. \\
+   \lstinline|const_reference| & A const reference to \lstinline|value_type|. \\
+   \lstinline|pointer|         & A point to \lstinline|value_type|. \\
+   \lstinline|const_pointer|   & A const pointer to \lstinline|value_type|. \\
+   \hline
+   \lstinline|is_valid() const| & Returns true if the accessor is in a valid stage.  \\
+   \hline
+   \lstinline|find(AccessType const&)| & Searches for the data of element. Returns pointer to data. If there is no data available, NULL is returned. \\
+   \hline
+   \lstinline|operator()(AccessType const&)| & Retrieves data for the element. Returns a reference to the data. Non-const: if no data is available it is created. Const: if data is not available, the behavior is undefined. \\
+   \hline
+   \lstinline|at(AccessType const&)| & Same as \lstinline|operator()|, but throws \lstinline|std::out_of_range| if data is not available. \\
+   \hline
+  \end{tabular}
+ \end{center}
+ \caption{Accessor concepts}
+ \label{tab:accessor-concepts}
+ \end{table}
 
-\NOTE{In order to use a dense storage scheme, the storage of IDs for the particular $n$-cells must not be disabled, cf.~Section \ref{subsec:ncell-ids}!}
+Beside accessors, {\ViennaGrid} defines the field concept.
+A field is similar to an accessor but more suitable for sparse storage.
+The same concepts as for accessor apply to field concepts with the exception of the concepts in Table~\ref{tab:field-concepts}.
 
-Moreover, the \lstinline|std::map<KeyType, DataType>| type may be too costly due to key comparisons. For example, it is immediately clear that a repeated comparison of the two strings \lstinline|"rather_long_string_1"| and \lstinline|"rather_long_string_2"| is not suitable for high-performance environments. In such cases, {\ViennaData}
-can be configured to dispatch based on the key type only, but not based on runtime information. Using the macro
-\begin{lstlisting}
- VIENNADATA_ENABLE_TYPE_BASED_KEY_DISPATCH(my_key)
-\end{lstlisting}
-configures {\ViennaData} to use a type-based dispatch for a key class type \lstinline|my_key|. In this case, the internal data container of {\ViennaData}
-changes to either
-\begin{lstlisting}
- std::map<ObjectIDType, DataType>
-\end{lstlisting}
-with \lstinline|ObjectIDType| being either a pointer or an integral ID, or using a key type based dispatch to
-\begin{lstlisting}
- std::vector< DataType >
-\end{lstlisting}
-Therefore, {\ViennaData} can be configured with a high granularity in order to accomodate for the individual data access patterns and data densities.
+ \begin{table}[tbp]
+ \begin{center}
+  \begin{tabular}{|l|p{8cm}|}
+   \hline
+   Member name & Description \\
+   \hline
+   \lstinline|operator()(AccessType const&)| & Retrieves data for element and returns a reference to the data. Non-const: same behavior as accessor. Const: if data is not available, a default value is returned \\
+   \hline
+  \end{tabular}
+ \end{center}
+ \caption{Field concept. Same as the accessor concept except for the const-access case.}
+ \label{tab:field-concepts}
+ \end{table}
 
-\TIP{For additional features such as default data types as well as \lstinline|move()| and \lstinline|copy()| functions, consult the {\ViennaData} manual.}
+Usually an accessor or field does not store the data on its own.
+Instead, they reference a container where the data is stored.
+{\ViennaGrid} provides meta-functions and function to define and create accessor or fields from base containers.
+The example below demonstrates the use of {\ViennaGrid} accessors.
+ \begin{lstlisting}
+ std::vector<int> int_vector; // instantiate a simple int vector
+
+ // instantiate an accessor which uses the int vector
+ viennagrid::result_of::accessor<std::vector<int>, VertexType>::type int_accessor(int_vector);
+
+ int_accessor(my_vertex) = -3;
+
+ // obtain a container for storing double values on vertices using std::map
+ typedef viennagrid::result_of::accessor_container<VertexType, double, viennagrid::std_map_tag>::type ContainerType;
+
+ // instantiate a container and an accessor for the container
+ ContainerType container;
+ viennagrid::result_of::accessor<ContainerType, VertexType>::type container_accessor(container);
+\end{lstlisting}
+Fields are used accordingly. The following storage tags are directly available in {\ViennaGridminorversion} for use with standard STL containers:
+\begin{center}
+\begin{tabular}{|l|l|}
+ \hline
+ Tag              & Container \\
+ \hline
+ \lstinline|std_vector_tag|   &  \lstinline|std::vector| \\
+ \lstinline|std_deque_tag|    &  \lstinline|std::deque|  \\
+ \lstinline|std_list_tag|     &  \lstinline|std::list|   \\
+ \lstinline|std_map_tag|      &  \lstinline|std::map|    \\
+ \lstinline|std_set_tag|      &  \lstinline|std::set|    \\
+ \hline
+\end{tabular}
+\end{center}
