@@ -2,7 +2,7 @@
 #define VIENNAGRID_FORWARDS_H
 
 /* =======================================================================
-   Copyright (c) 2011-2012, Institute for Microelectronics,
+   Copyright (c) 2011-2013, Institute for Microelectronics,
                             Institute for Analysis and Scientific Computing,
                             TU Wien.
 
@@ -10,16 +10,11 @@
                      ViennaGrid - The Vienna Grid Library
                             -----------------
 
-   Authors:      Karl Rupp                           rupp@iue.tuwien.ac.at
-                 Josef Weinbub                    weinbub@iue.tuwien.ac.at
-
-   (A list of additional contributors can be found in the PDF manual)
-
    License:      MIT (X11), see file LICENSE in the base directory
 ======================================================================= */
 
 /**
- @mainpage Source Code Documentation for ViennaGrid 1.0.1
+ @mainpage Source Code Documentation for ViennaGrid 2.0.0
 
  This is the source code documentation of ViennaGrid. Detailed information about the functions in ViennaGrid can be found here.
 
@@ -33,44 +28,61 @@
 #include <cstddef>     //for std::size_t
 #include <cstdlib>     //for EXIT_SUCCESS and EXIT_FAILURE
 
+#define VIENNAGRID_MAJOR_VERSION   2
+#define VIENNAGRID_MINOR_VERSION   0
+#define VIENNAGRID_BUGFIX_LEVEL    0
+
 
 #include "viennagrid/storage/static_array.hpp"
-#include "viennagrid/utils/remove_pointer.hpp"
-
 #include "viennagrid/storage/forwards.hpp"
-//#include "topology/polygon.hpp"
-
 
 //Debug levels:
 //VIENNAGRID_DEBUG_ALL          Output every little piece of debug information
 //VIENNAGRID_DEBUG_IO           Debug IO operations
-//VIENNAGRID_DEBUG_REFINEMENT   Debug refinement algorithms
 //VIENNAGRID_DEBUG_STATUS       Print status messages to std::cout (very little debug info)
 
 #ifdef VIENNAGRID_DEBUG_ALL
   #define VIENNAGRID_DEBUG_IO
-  #define VIENNAGRID_DEBUG_REFINEMENT
   #define VIENNAGRID_DEBUG_STATUS
 #endif
 
-/** @file forwards.h
+/** @file viennagrid/forwards.hpp
     @brief Contains forward declarations and definition of small classes that must be defined at an early stage
 */
 
-/** @brief The main ViennaGrid namespace. Most functionality resides in this namespace */
+/** @brief The main ViennaGrid namespace. Most user functionality resides directly in this namespace rather than in sub-namespaces. */
 namespace viennagrid
 {
+  /** @brief Namespace for implementation details. Not intended to be used directly by a library user */
+  namespace detail
+  {
+    /** @brief Namespace for metafunctions for implementation details. Not intended to be used directly by a library user */
+    namespace result_of {}
+  }
 
+  /** @brief Provides a number of predefined configuration classes, which cover the most frequent use cases. */
+  namespace config
+  {
+    /** @brief Namespace for metafunctions for obtaining the respective mesh configurations. */
+    namespace result_of {}
+  }
 
-    template<typename iterator_type, typename distance_type>
-    iterator_type advance(const iterator_type & in, distance_type distance)
-    {
-        iterator_type out(in);
-        std::advance(out, distance);
-        return out;
-    }
+  /** @brief A namespace with all the input/output functionality, in particular file readers and writers */
+  namespace io {}
 
-
+  /** @brief Advances an iterator and returns it
+    *
+    * @param in          the input iterator
+    * @param distance    the distance to advance
+    * @return            the iterator, advanced by distance
+    */
+  template<typename iterator_type, typename distance_type>
+  iterator_type advance(iterator_type const & in, distance_type distance)
+  {
+      iterator_type out(in);
+      std::advance(out, distance);
+      return out;
+  }
 
 
   /** @brief A global size_type equivalent for use throughout ViennaData. */
@@ -98,20 +110,29 @@ namespace viennagrid
   };
 
   //Tags for the handling of elements at different topological levels (see topology::subcell_desc)
-  /** @brief A tag denoting full storage of (boundary) k-cells of a certain topological dimension */
+  /** @brief A tag denoting full storage of boundary elements of a certain topological element */
   struct full_handling_tag {};
-  /** @brief A tag denoting that the (boundary) k-cells should not be stored */
+  /** @brief A tag denoting that the boundary elements should not be stored at all */
   struct no_handling_tag {};
 
+  /** @brief A tag denoting that the boundary elements should stored without orientation */
   struct no_orientation_handling_tag {};
+
+//   Lazy storage reserved for future use
+  /** @brief A tag denoting that orientation should be stored/computed only on request ('lazy'). */
   struct no_orientation_lazy_handling_tag {};
+  /** @brief A tag denoting lazy handling of boundary elements. Reserved for future use. */
   struct full_lazy_handling_tag {};
 
-  struct coboundary_collection_tag;
-  struct neighbour_collection_tag;
-  struct boundary_information_collection_tag;
 
-  struct interface_information_collection_tag;
+  /** @brief A tag for identifying the coboundary collection */
+  struct coboundary_collection_tag {};
+  /** @brief A tag for identifying the neighbor element collection */
+  struct neighbor_collection_tag {};
+  /** @brief A tag for identifying boundary information */
+  struct boundary_information_collection_tag {};
+  /** @brief A tag identifying interface information */
+  struct interface_information_collection_tag {};
 
 
   /********* Forward definitions of main classes *******************/
@@ -123,8 +144,9 @@ namespace viennagrid
 
   /** @brief Convenience type definition for a vertex */
   typedef simplex_tag<0>    vertex_tag;
-  /** @brief Convenience type definition for a line */
+  /** @brief Convenience type definition for a line (same as edge_tag) */
   typedef simplex_tag<1>    line_tag;
+  /** @brief Convenience type definition for a line (same as line_tag) */
   typedef simplex_tag<1>    edge_tag;
   /** @brief Convenience type definition for a triangle */
   typedef simplex_tag<2>    triangle_tag;
@@ -142,85 +164,46 @@ namespace viennagrid
   /** @brief Convenience type definition for a hexahedron */
   typedef hypercube_tag<3>  hexahedron_tag;
 
+  //see viennagrid/topology/polygon.hpp
   struct polygon_tag;
-//   struct hole_polygon_tag;
 
+  //see viennagrid/topology/plc.hpp
   struct plc_tag;
 
+
+  /** @brief Tag that indicates that a static container can be used for storing the boundary element handles (e.g. used in simplices and hypercubes) */
+  struct static_layout_tag {};
+  /** @brief Tag that indicates that a dynamic container has to be used for storing the boundary element handles (e.g. polygon and plc) */
+  struct dynamic_layout_tag {};
+
+
+
   //forward declarations:
+
+  /** @brief Represents an arbitrary point in the underlying coordinate system.
+   *
+   * @tparam CoordType          Type of each coordinate entry (usually double or float)
+   * @tparam CoordinateSystem   The underlying coordinate system of the point.
+   */
   template <typename CoordType, typename CoordinateSystem>
-  class point_t;
+  class spatial_point;
 
-
-  template<typename element_tag, typename WrappedConfigType>
-  class element_t;
-
-  template <typename element_type>
-  class element_key;
-
-
-  /** @brief A key used for ViennaData to store coboundary information on n-cells */
-  template <typename T, typename element_tag> //topological dimension of the elements over which to iterate
-  class coboundary_key
-  {
-    public:
-      coboundary_key(T const & t_) : t(&t_) {}
-
-      /** @brief Comparison operator for compatibility with std::map */
-      bool operator<(coboundary_key const & other) const
-      {
-        return t < other.t;
-      }
-    private:
-      T const * t;
-  };
-
-  template <typename T, typename connector_boundary_element_tag> //topological dimension of the elements over which to iterate
-  class neighbour_key
-  {
-    public:
-      neighbour_key(T const & t_) : t(&t_) {}
-
-      /** @brief Comparison operator for compatibility with std::map */
-      bool operator<(neighbour_key const & other) const
-      {
-        return t < other.t;
-      }
-    private:
-      T const * t;
-  };
-
-  template <typename T>
-  class boundary_key;
-
-  template <typename T>
-  class interface_key;
+  /** @brief Represents a topological element within a mesh
+   *
+   * @tparam ElementTag         Tag representing the element (e.g. vertex_tag)
+   * @tparam WrappedConfigType  The configuration of the complex where the element lives
+   */
+  template<typename ElementTag, typename WrappedConfigType>
+  class element;
 
 
 
-  template <typename SegmentType>
-  class segment_mapping_key
-  {
-    public:
-      segment_mapping_key(SegmentType const & seg) : pSeg(&seg) {}
-
-      //for compatibility with std::map
-      bool operator<(segment_mapping_key const & other) const
-      {
-        return pSeg < other.pSeg;
-      }
-
-    private:
-      SegmentType const * pSeg;
-  };
-
-
-  struct static_layout_tag;
-  struct dynamic_layout_tag;
-  struct dynamic_unique_layout_tag;
-
-
-  template <typename ElementTag, typename BoundaryNCellTag = ElementTag>
+  /** @brief Helper class for defining boundary element information
+   *
+   * @tparam ElementTag         Tag for the identification of the hosting element
+   * @tparam BoundaryElementTag A tag representing the boundary element of the element with ElementTag
+   */
+  template <typename ElementTag, typename BoundaryElementTag = ElementTag>
   struct boundary_elements
   {
     //the default case is simultaneously a pathetic case:
@@ -234,685 +217,1518 @@ namespace viennagrid
   };
 
 
-  /** @brief Namespace for definition and handling of the individual topological elements (triangles, hexahedra, etc.) */
-  namespace element_topology
+  namespace detail
   {
-
-    /** @brief Holds the topological information about boundary cells for a n-cell
+    /** @brief Worker class that generates the boundary elements of a host element
      *
-     * @tparam ElementTag   Identifier for the n-cell
-     * @tparam level        Topological dimension of the boundary that is specified here
+     * @tparam ElementTag           Tag for the identification of the hosting n-cell
+     * @tparam BoundaryElementTag   Topological boundary tag
+     * @tparam BoundaryElementType  Topological boundary type, used within create_boundary_elements method
      */
-
-
-
-
-    /** @brief Worker class that sets up the boundary k-cells of a n-cell
-     *
-     * @tparam ElementTag   Tag for the identification of the hosting n-cell
-     * @tparam k            Topological boundary dimension
-     */
-
-    template <typename element_tag, typename bnd_cell_tag, typename bnd_cell_type>
+    template <typename ElementTag, typename BoundaryElementTag, typename BoundaryElementType>
     struct boundary_element_generator {};
 
-    template<typename cell_type, typename bnd_cell_type>
-    struct boundary_element_generator<cell_type, simplex_tag<0>, bnd_cell_type>
+    template<typename ElementTag, typename BoundaryElementType>
+    struct boundary_element_generator<ElementTag, vertex_tag, BoundaryElementType>
     {
-        template<typename element_type, typename inserter_type>
-        static void create_boundary_elements(element_type &, inserter_type &) {}
+      template<typename element_type, typename inserter_type>
+      static void create_boundary_elements(element_type &, inserter_type &) {}
     };
 
   }
 
 
-  /** @brief The metafunction layer. Provides type generators that derive the respective type from the domain configuration */
-  namespace result_of
+
+
+
+  namespace detail
   {
-    template<typename something>
-    struct domain;
-
-    template<typename something>
-    struct element_collection;
-
-    template<typename something>
-    struct container_collection_typemap;
-
-    template<typename something>
-    struct topologic_cell_dimension;
-
-    template<typename something>
-    struct cells;
-
-    template<typename something>
-    struct cell;
-
-    template<typename something>
-    struct cell_tag;
-
-
-    template<typename something>
-    struct point;
-
-    template<typename something>
-    struct coord
-    {
-        typedef typename coord< typename point<something>::type >::type type;
-    };
-
-    template<typename something>
-    struct geometric_dimension
-    {
-        static const int value = geometric_dimension< typename point<something>::type >::value;
-    };
-
-
-
-
-    /** @brief Metafunction for the type retrieval of n-cells
-     *
-     * @tparam Config       The configuration class
-     * @tparam dim          Topological level n
-     * @tparam cell_level   Internal flag that refers to the maximum dimension in the domain
-     */
-
-    template<typename config_domain_segment_element_or_something_like_that, typename element_tag>
-    struct element;
-
-    template<typename element_tag, typename WrappedConfigType>
-    struct element< element_t<element_tag, WrappedConfigType>, element_t<element_tag, WrappedConfigType> >
-    {
-        typedef element_t<element_tag, WrappedConfigType> type;
-    };
-
-    template<typename element_tag, typename WrappedConfigType>
-    struct element< element_t<element_tag, WrappedConfigType>, element_tag >
-    {
-        typedef element_t<element_tag, WrappedConfigType> type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct element<config_domain_segment_element_or_something_like_that, viennagrid::meta::null_type>
-    {
-        typedef viennagrid::meta::null_type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct vertex
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, vertex_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct line
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, line_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct triangle
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, triangle_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct quadrilateral
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, quadrilateral_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct plc
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, plc_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct tetrahedron
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, tetrahedron_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct hexahedron
-    {
-        typedef typename element<config_domain_segment_element_or_something_like_that, hexahedron_tag>::type type;
-    };
-
-
-
-    template<typename config_domain_segment_element_or_something_like_that, typename element_tag>
-    struct handle;
-
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct vertex_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, vertex_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct line_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, line_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct triangle_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, triangle_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct quadrilateral_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, quadrilateral_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct plc_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, plc_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct tetrahedron_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, tetrahedron_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct hexahedron_handle
-    {
-        typedef typename handle<config_domain_segment_element_or_something_like_that, hexahedron_tag>::type type;
-    };
-
-
-
-    template<typename config_domain_segment_element_or_something_like_that, typename element_tag>
-    struct const_handle;
-
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_vertex_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, vertex_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_line_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, line_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_triangle_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, triangle_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_quadrilateral_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, quadrilateral_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_plc_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, plc_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_tetrahedron_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, tetrahedron_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_hexahedron_handle
-    {
-        typedef typename const_handle<config_domain_segment_element_or_something_like_that, hexahedron_tag>::type type;
-    };
-
-
-
-    template<typename element_type>
-    struct facet;
-
-    template<typename element_type>
-    struct facet_handle;
-
-    template<typename element_type>
-    struct const_facet_handle;
-
-
-
-    template <typename T,
-              typename element_tag>
-    struct element_range;
-
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct cell_range
-    {
-        typedef typename cell_tag<config_domain_segment_element_or_something_like_that>::type cell_tag;
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, cell_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct vertex_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, vertex_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct line_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, line_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct triangle_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, triangle_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct quadrilateral_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, quadrilateral_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct plc_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, plc_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct tetrahedron_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, tetrahedron_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct hexahedron_range
-    {
-        typedef typename element_range<config_domain_segment_element_or_something_like_that, hexahedron_tag>::type type;
-    };
-
-
-
-
-
-
-    template <typename T,
-              typename element_tag>
-    struct const_element_range;
-
-
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_cell_range
-    {
-        typedef typename cell_tag<config_domain_segment_element_or_something_like_that>::type cell_tag;
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, cell_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_vertex_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, vertex_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_line_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, line_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_triangle_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, triangle_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_quadrilateral_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, quadrilateral_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_plc_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, plc_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_tetrahedron_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, tetrahedron_tag>::type type;
-    };
-
-    template<typename config_domain_segment_element_or_something_like_that>
-    struct const_hexahedron_range
-    {
-        typedef typename const_element_range<config_domain_segment_element_or_something_like_that, hexahedron_tag>::type type;
-    };
-
-
-
-
-    template <typename container>
-    struct iterator
-    {
-        typedef typename container::iterator type;
-    };
-
-    template <typename container>
-    struct const_iterator
-    {
-        typedef typename container::const_iterator type;
-    };
-
-    template <typename container>
-    struct handle_iterator
-    {
-        typedef typename container::handle_iterator type;
-    };
-
-    template <typename container>
-    struct const_handle_iterator
-    {
-        typedef typename container::const_handle_iterator type;
-    };
-
-
-
-    template<typename element_tag_>
-    struct element_tag
-    {
-        typedef element_tag_ type;
-    };
-
-    template<typename element_tag_, typename WrappedConfigType>
-    struct element_tag< element_t<element_tag_, WrappedConfigType> >
-    {
-        typedef element_tag_ type;
-    };
-
-    template<typename element_tag_, typename WrappedConfigType>
-    struct element_tag< const element_t<element_tag_, WrappedConfigType> >
-    {
-        typedef element_tag_ type;
-    };
-
-
-
-    template<typename element_type_or_tag>
-    struct facet_tag
-    {
-        typedef typename element_tag<element_type_or_tag>::type::facet_tag type;
-    };
-
-
-
-    template<typename element_type>
-    struct facet
-    {
-        typedef typename element<element_type, typename facet_tag<element_type>::type >::type type;
-    };
-
-    template<typename element_tag, typename WrappedConfigType>
-    struct facet_handle< element_t<element_tag, WrappedConfigType> >
-    {
-        typedef typename handle< element_t<element_tag, WrappedConfigType>, typename facet_tag<element_tag>::type >::type type;
-    };
-
-    template<typename element_tag, typename WrappedConfigType>
-    struct const_facet_handle< element_t<element_tag, WrappedConfigType> >
-    {
-        typedef typename const_handle< element_t<element_tag, WrappedConfigType>, typename facet_tag<element_tag>::type >::type type;
-    };
-
-
-    template<typename element_type>
-    struct facet_range
-    {
-        typedef typename element_range<element_type, typename facet_tag<element_type>::type >::type type;
-    };
-
-    template<typename element_type>
-    struct const_facet_range
-    {
-        typedef typename const_element_range<element_type, typename facet_tag<element_type>::type >::type type;
-    };
+    template <typename MeshConfigT, typename ElementTypeListT, typename ContainerConfigT>
+    class decorated_mesh_view_config;
   }
 
+  // see mesh.hpp
+  template <typename WrappedConfigT>
+  class mesh;
 
+  // see segmentation.hpp
+  template<typename WrappedConfigT>
+  class segmentation;
 
+  // see segmentation.hpp
+  template<typename SegmentationT>
+  class segment_handle;
 
-    template<typename element_domain_segment_config_or_something_like_that>
-    struct element_range_proxy
-    {
-        element_range_proxy(element_domain_segment_config_or_something_like_that & something_) : something(something_) {}
-
-        element_domain_segment_config_or_something_like_that const & operator() () const { return something; }
-        element_domain_segment_config_or_something_like_that & operator() () { return something; }
-
-        element_domain_segment_config_or_something_like_that & something;
-    };
-
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    element_range_proxy<element_domain_segment_config_or_something_like_that> elements( element_domain_segment_config_or_something_like_that & something)
-    { return element_range_proxy<element_domain_segment_config_or_something_like_that>(something); }
-
-    template<typename element_tag, typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, element_tag>::type elements( element_domain_segment_config_or_something_like_that & something);
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::cell_range<element_domain_segment_config_or_something_like_that>::type cells( element_domain_segment_config_or_something_like_that & something)
-    { return elements<typename result_of::cell_tag<element_domain_segment_config_or_something_like_that>::type>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, vertex_tag>::type vertices( element_domain_segment_config_or_something_like_that & something)
-    { return elements<vertex_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, line_tag>::type lines( element_domain_segment_config_or_something_like_that & something)
-    { return elements<line_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, triangle_tag>::type triangles( element_domain_segment_config_or_something_like_that & something)
-    { return elements<triangle_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, quadrilateral_tag>::type quadrilaterals( element_domain_segment_config_or_something_like_that & something)
-    { return elements<quadrilateral_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, plc_tag>::type plcs( element_domain_segment_config_or_something_like_that & something)
-    { return elements<plc_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, tetrahedron_tag>::type tetraheda( element_domain_segment_config_or_something_like_that & something)
-    { return elements<tetrahedron_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::element_range<element_domain_segment_config_or_something_like_that, hexahedron_tag>::type hexaheda( element_domain_segment_config_or_something_like_that & something)
-    { return elements<hexahedron_tag>(something); }
-
-
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    element_range_proxy<const element_domain_segment_config_or_something_like_that> elements( const element_domain_segment_config_or_something_like_that & something)
-    { return element_range_proxy<const element_domain_segment_config_or_something_like_that>(something); }
-
-    template<typename element_tag, typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, element_tag>::type elements( const element_domain_segment_config_or_something_like_that & something);
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_cell_range<element_domain_segment_config_or_something_like_that>::type cells( element_domain_segment_config_or_something_like_that const & something)
-    { return elements<typename result_of::cell_tag<element_domain_segment_config_or_something_like_that>::type>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, vertex_tag>::type vertices( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<vertex_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, line_tag>::type lines( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<line_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, triangle_tag>::type triangles( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<triangle_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, quadrilateral_tag>::type quadrilaterals( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<quadrilateral_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, plc_tag>::type plcs( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<plc_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, tetrahedron_tag>::type tetraheda( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<tetrahedron_tag>(something); }
-
-    template<typename element_domain_segment_config_or_something_like_that>
-    typename result_of::const_element_range<element_domain_segment_config_or_something_like_that, hexahedron_tag>::type hexaheda( const element_domain_segment_config_or_something_like_that & something)
-    { return elements<hexahedron_tag>(something); }
-
-
-
-    template<typename element_type>
-    typename result_of::facet_range<element_type>::type facets(element_type & element)
-    {
-      return elements< typename result_of::facet_tag<element_type>::type >(element);
-    }
-
-    template<typename element_type>
-    typename result_of::const_facet_range<element_type>::type facets(const element_type & element)
-    {
-        return elements< typename result_of::facet_tag<element_type>::type >(element);
-    }
-
-
-    template <typename DomainConfigType, typename ElementTypeList, typename ContainerConfig>
-    class decorated_domain_view_config;
-
-    template <typename WrappedConfigType>
-    class domain_t;
-
-    template<typename WrappedConfigType>
-    class segmentation_t;
-
-    template<typename segmentation_type_>
-    class segment_t;
-
+  namespace detail
+  {
     template<typename container_type_, typename change_counter_type>
     struct coboundary_container_wrapper;
 
     template<typename container_type_, typename change_counter_type>
-    struct neighbour_container_wrapper;
+    struct neighbor_container_wrapper;
 
     template<typename container_type_, typename change_counter_type>
     struct boundary_information_wrapper;
+  }
 
 
-    template<typename container_type, typename vertex_type>
-    typename container_type::value_type & point( container_type & geometric_container, vertex_type const & vertex );
 
 
-    template<typename ElementTypeOrTag, typename DomainType, typename HandleIteratorType>
-    typename result_of::handle<DomainType, ElementTypeOrTag>::type create_element(
-          DomainType & domain,
-          HandleIteratorType array_start,
-          HandleIteratorType const & array_end );
 
-    template<typename ElementTypeOrTag, typename DomainType, typename HandleIteratorType>
-    typename result_of::handle<DomainType, ElementTypeOrTag>::type create_element_with_id(
-          DomainType & domain,
-          HandleIteratorType array_start,
-          HandleIteratorType const & array_end,
-          typename viennagrid::result_of::element<DomainType, ElementTypeOrTag>::type::id_type id );
+  /** @brief The metafunction layer. Provides type generators that derive the respective type from the mesh configuration */
+  namespace result_of
+  {
+    template<typename WrappedConfigT>
+    struct mesh;
+
+    /** @brief Metafunction for obtaining the element collection of something
+     *
+     * @tparam SomethingT     The host type, can be a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct element_collection {};
+
+    /** @brief Metafunction for obtaining the container collection typemap of something
+     *
+     * @tparam SomethingT     The host type, can be a typelist or a collection
+     */
+    template<typename SomethingT>
+    struct container_collection_typemap {};
+
+    template<typename SomethingT>
+    struct topologic_cell_dimension;
+
+    template<typename SomethingT, int TopologicDimensionV>
+    struct elements_of_topologic_dim;
+
+    template<typename SomethingT>
+    struct cells;
+
+    template<typename SomethingT>
+    struct cell;
+
+    template<typename SomethingT>
+    struct cell_tag;
 
 
-    template<typename WrappedDomainConfigType, typename ElementTag, typename WrappedConfigType>
-    element_t<ElementTag, WrappedConfigType> & dereference_handle( domain_t<WrappedDomainConfigType> &, element_t<ElementTag, WrappedConfigType> & handle)
-    { return handle; }
+    template<typename SomethingT>
+    struct point;
 
-    template<typename WrappedDomainConfigType, typename ElementTag, typename WrappedConfigType>
-    element_t<ElementTag, WrappedConfigType> const & dereference_handle( domain_t<WrappedDomainConfigType> const &, element_t<ElementTag, WrappedConfigType> const & handle)
-    { return handle; }
+    /** @brief Metafunction for obtaining the coordinate type of the geometric point type of something
+     *
+     * @tparam SomethingT           The host type, can be a point, an element, a mesh, a segmentation, a segment, an accessor or a field
+     */
+    template<typename SomethingT>
+    struct coord
+    {
+      typedef typename coord< typename point<SomethingT>::type >::type type;
+    };
+
+    /** @brief Metafunction for obtaining the geometric dimension of something
+     *
+     * @tparam SomethingT           The host type, can be an element, a mesh, a segmentation, a segment, an accessor or a field
+     */
+    template<typename SomethingT>
+    struct geometric_dimension
+    {
+      static const int value = geometric_dimension< typename point<SomethingT>::type >::value;
+    };
 
 
-    
-    template<typename SourceWrappedConfigT, typename DestinationWrappedConfigT>
-    void copy_domain( domain_t<SourceWrappedConfigT> const & source_domain, domain_t<DestinationWrappedConfigT> & destination_domain );
+    /** @brief Metafunction for obtaining the id type of an element
+     *
+     * @tparam ElementT           The host element type
+     */
+    template<typename ElementT>
+    struct id
+    {
+      typedef typename ElementT::id_type type;
+    };
 
 
-   // norm tags for: algorithm/norm.hpp
+    template<typename SomethingT, typename ElementTypeOrTagT>
+    struct element;
+
+    /** \cond */
+    template<typename element_tag, typename WrappedConfigType>
+    struct element< viennagrid::element<element_tag, WrappedConfigType>, viennagrid::element<element_tag, WrappedConfigType> >
+    {
+      typedef viennagrid::element<element_tag, WrappedConfigType> type;
+    };
+
+    template<typename element_tag, typename WrappedConfigType>
+    struct element< viennagrid::element<element_tag, WrappedConfigType>, element_tag >
+    {
+      typedef viennagrid::element<element_tag, WrappedConfigType> type;
+    };
+
+    template<typename SomethingT>
+    struct element<SomethingT, viennagrid::null_type>
+    {
+      typedef viennagrid::null_type type;
+    };
+    /** \endcond */
+
+    /** @brief Convenience metafunction for the type retrieval of a vertex
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct vertex
+    {
+      typedef typename element<SomethingT, vertex_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a line (same as edge)
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct line
+    {
+      typedef typename element<SomethingT, line_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a edge (same as line)
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct edge
+    {
+      typedef typename element<SomethingT, edge_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a triangle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct triangle
+    {
+      typedef typename element<SomethingT, triangle_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a quadrilateral
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct quadrilateral
+    {
+      typedef typename element<SomethingT, quadrilateral_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a polygon
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct polygon
+    {
+      typedef typename element<SomethingT, polygon_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a plc
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct plc
+    {
+      typedef typename element<SomethingT, plc_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a tetrahedron
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct tetrahedron
+    {
+      typedef typename element<SomethingT, tetrahedron_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a hexahedron
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct hexahedron
+    {
+      typedef typename element<SomethingT, hexahedron_tag>::type type;
+    };
+
+
+    template<typename SomethingT, typename ElementTypeOrTagT>
+    struct handle;
+
+    /** @brief Convenience metafunction for the type retrieval of a cell handle. Will fail if there is more than one cell type
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct cell_handle
+    {
+      typedef typename cell_tag<SomethingT>::type cell_tag;
+      typedef typename handle<SomethingT, cell_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a vertex handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct vertex_handle
+    {
+      typedef typename handle<SomethingT, vertex_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a line handle (same as edge_handle)
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct line_handle
+    {
+      typedef typename handle<SomethingT, line_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a line handle (same as line_handle)
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct edge_handle
+    {
+      typedef typename handle<SomethingT, edge_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a triangle handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct triangle_handle
+    {
+      typedef typename handle<SomethingT, triangle_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a quadrilateral handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct quadrilateral_handle
+    {
+      typedef typename handle<SomethingT, quadrilateral_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a polygon handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct polygon_handle
+    {
+      typedef typename handle<SomethingT, polygon_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a plc handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct plc_handle
+    {
+      typedef typename handle<SomethingT, plc_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a tetrahedron handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct tetrahedron_handle
+    {
+      typedef typename handle<SomethingT, tetrahedron_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a hexahedron handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct hexahedron_handle
+    {
+      typedef typename handle<SomethingT, hexahedron_tag>::type type;
+    };
+
+
+
+    template<typename SomethingT, typename ElementTypeOrTagT>
+    struct const_handle;
+
+    /** @brief Convenience metafunction for the type retrieval of a const cell handle. Will fail if there is more than one cell type
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_cell_handle
+    {
+      typedef typename cell_tag<SomethingT>::type cell_tag;
+      typedef typename const_handle<SomethingT, cell_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const vertex handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_vertex_handle
+    {
+      typedef typename const_handle<SomethingT, vertex_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const line handle (same as const_edge_handle)
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_line_handle
+    {
+      typedef typename const_handle<SomethingT, line_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const line handle (same as const_line_handle)
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_edge_handle
+    {
+      typedef typename const_handle<SomethingT, edge_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const triangle handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_triangle_handle
+    {
+      typedef typename const_handle<SomethingT, triangle_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const quadrilateral handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_quadrilateral_handle
+    {
+      typedef typename const_handle<SomethingT, quadrilateral_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const polygon handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_polygon_handle
+    {
+      typedef typename const_handle<SomethingT, polygon_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const plc handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_plc_handle
+    {
+      typedef typename const_handle<SomethingT, plc_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const tetrahedron handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_tetrahedron_handle
+    {
+      typedef typename const_handle<SomethingT, tetrahedron_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const hexahedron handle
+     *
+     * @tparam SomethingT         The host type, can be a collection, an element, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_hexahedron_handle
+    {
+      typedef typename const_handle<SomethingT, hexahedron_tag>::type type;
+    };
+
+
+
+    template <typename SomethingT,
+              typename ElementTypeOrTagT>
+    struct element_range;
+
+
+    /** @brief Convenience metafunction for the type retrieval of a cell range. Will fail if there is more than one cell type
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct cell_range
+    {
+      typedef typename cell_tag<SomethingT>::type cell_tag;
+      typedef typename element_range<SomethingT, cell_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a vertex range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct vertex_range
+    {
+      typedef typename element_range<SomethingT, vertex_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a line range (same as edge_range)
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct line_range
+    {
+      typedef typename element_range<SomethingT, line_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a edge range (same as line_range)
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct edge_range
+    {
+      typedef typename element_range<SomethingT, edge_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a triangle range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct triangle_range
+    {
+      typedef typename element_range<SomethingT, triangle_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a quadrilateral range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct quadrilateral_range
+    {
+      typedef typename element_range<SomethingT, quadrilateral_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a polygon range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct polygon_range
+    {
+      typedef typename element_range<SomethingT, polygon_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a PLC range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct plc_range
+    {
+      typedef typename element_range<SomethingT, plc_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a tetrahedron range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct tetrahedron_range
+    {
+      typedef typename element_range<SomethingT, tetrahedron_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a hexahedron range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct hexahedron_range
+    {
+      typedef typename element_range<SomethingT, hexahedron_tag>::type type;
+    };
+
+
+
+
+
+
+    template <typename SomethingT,
+              typename ElementTypeOrTagT>
+    struct const_element_range;
+
+
+    /** @brief Convenience metafunction for the type retrieval of a const cell range. Will fail if there is more than one cell type
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_cell_range
+    {
+      typedef typename cell_tag<SomethingT>::type cell_tag;
+      typedef typename const_element_range<SomethingT, cell_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const vertex range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_vertex_range
+    {
+      typedef typename const_element_range<SomethingT, vertex_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const line range (same as const_edge_range)
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_line_range
+    {
+      typedef typename const_element_range<SomethingT, line_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const edge range (same as const_line_range)
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_edge_range
+    {
+      typedef typename const_element_range<SomethingT, edge_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const triangle range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_triangle_range
+    {
+      typedef typename const_element_range<SomethingT, triangle_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const quadrilateral range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_quadrilateral_range
+    {
+      typedef typename const_element_range<SomethingT, quadrilateral_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const polygon range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_polygon_range
+    {
+      typedef typename const_element_range<SomethingT, polygon_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const PLC range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_plc_range
+    {
+      typedef typename const_element_range<SomethingT, plc_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const tetrahedron range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_tetrahedron_range
+    {
+      typedef typename const_element_range<SomethingT, tetrahedron_tag>::type type;
+    };
+
+    /** @brief Convenience metafunction for the type retrieval of a const hexahedron range
+     *
+     * @tparam SomethingT         The host type, can be a typelist, a collection, a mesh, a segmentation or a segment
+     */
+    template<typename SomethingT>
+    struct const_hexahedron_range
+    {
+      typedef typename const_element_range<SomethingT, hexahedron_tag>::type type;
+    };
+
+
+
+
+    /** @brief Metafunction for the type retrieval of an iterator from a container or range
+     *
+     * @tparam ContainerT         The container type, can also be a range
+     */
+    template <typename ContainerT>
+    struct iterator
+    {
+      typedef typename ContainerT::iterator type;
+    };
+
+    /** @brief Metafunction for the type retrieval of a const iterator from a container or range
+     *
+     * @tparam ContainerT         The container type, can also be a range
+     */
+    template <typename ContainerT>
+    struct const_iterator
+    {
+      typedef typename ContainerT::const_iterator type;
+    };
+
+    /** \cond */
+    template <typename ContainerT>
+    struct iterator<const ContainerT>
+    {
+      typedef typename const_iterator<ContainerT>::type type;
+    };
+    /** \endcond */
+
+
+
+    /** @brief Metafunction for retrieving the tag of an element
+     *
+     * @tparam ElementTypeOrTagT    The element type of which the tag is requested, can also be a tag. In this case the tag is returned.
+     */
+    template<typename ElementTypeOrTagT>
+    struct element_tag
+    {
+      typedef ElementTypeOrTagT type;
+    };
+
+    /** \cond */
+    template<typename ElementTagT, typename WrappedConfigT>
+    struct element_tag< viennagrid::element<ElementTagT, WrappedConfigT> >
+    {
+      typedef ElementTagT type;
+    };
+
+    template<typename ElementTagT, typename WrappedConfigT>
+    struct element_tag< const viennagrid::element<ElementTagT, WrappedConfigT> >
+    {
+      typedef ElementTagT type;
+    };
+    /** \endcond */
+
+
+    /** @brief Metafunction for retrieving the facet tag of an element, a mesh, a segmentation or a segment
+     *
+     * @tparam SomethingT    The element type of which the facet tag is requested. Can also be a mesh, a segmentation or a segment. In this case the facet tag of the cell type is returned.
+     */
+    template<typename SomethingT>
+    struct facet_tag
+    {
+      typedef typename element_tag<SomethingT>::type::facet_tag type;
+    };
+
+    /** \cond */
+    template<typename WrappedMeshConfigT>
+    struct facet_tag< viennagrid::mesh<WrappedMeshConfigT> >
+    {
+      typedef typename facet_tag< typename cell_tag< viennagrid::mesh<WrappedMeshConfigT> >::type >::type type;
+    };
+
+    template<typename WrappedSegmentationConfigT>
+    struct facet_tag< viennagrid::segmentation<WrappedSegmentationConfigT> >
+    {
+      typedef typename facet_tag< typename cell_tag< viennagrid::segmentation<WrappedSegmentationConfigT> >::type >::type type;
+    };
+
+    template<typename SegmentationT>
+    struct facet_tag< viennagrid::segment_handle<SegmentationT> >
+    {
+      typedef typename facet_tag< typename cell_tag< viennagrid::segment_handle<SegmentationT> >::type >::type type;
+    };
+    /** \endcond */
+
+
+
+
+    /** @brief Metafunction for retrieving the facet element type an element, a mesh, a segmentation or a segment
+     *
+     * @tparam SomethingT    The element type of which the facet type is requested. Can also be a mesh, a segmentation or a segment. In this case the facet type of the cell type is returned.
+     */
+    template<typename SomethingT>
+    struct facet
+    {
+      typedef typename element<SomethingT, typename facet_tag<SomethingT>::type >::type type;
+    };
+
+    /** \cond */
+    template<typename WrappedMeshConfigT>
+    struct facet< viennagrid::mesh<WrappedMeshConfigT> >
+    {
+      typedef typename facet< typename cell< viennagrid::mesh<WrappedMeshConfigT> >::type >::type type;
+    };
+
+    template<typename WrappedSegmentationConfigT>
+    struct facet< viennagrid::segmentation<WrappedSegmentationConfigT> >
+    {
+      typedef typename facet< typename cell< viennagrid::segmentation<WrappedSegmentationConfigT> >::type >::type type;
+    };
+
+    template<typename SegmentationT>
+    struct facet< viennagrid::segment_handle<SegmentationT> >
+    {
+      typedef typename facet< typename cell< viennagrid::segment_handle<SegmentationT> >::type >::type type;
+    };
+    /** \endcond */
+
+
+    /** @brief Metafunction for retrieving the facet handle type an element, a mesh, a segmentation or a segment
+     *
+     * @tparam SomethingT    The element type of which the facet handle type is requested. Can also be a mesh, a segmentation or a segment. In this case the facet handle type of the cell type is returned.
+     */
+    template<typename SomethingT>
+    struct facet_handle
+    {
+      typedef typename handle< SomethingT, typename facet_tag<SomethingT>::type >::type type;
+    };
+
+    /** @brief Metafunction for retrieving the const facet handle type an element, a mesh, a segmentation or a segment
+     *
+     * @tparam SomethingT    The element type of which the const facet handle type is requested. Can also be a mesh, a segmentation or a segment. In this case the const facet handle type of the cell type is returned.
+     */
+    template<typename SomethingT>
+    struct const_facet_handle
+    {
+      typedef typename const_handle< SomethingT, typename facet_tag<SomethingT>::type >::type type;
+    };
+
+
+    /** @brief Metafunction for retrieving the facet range type an element, a mesh, a segmentation or a segment
+     *
+     * @tparam SomethingT    The element type of which the facet range type is requested. Can also be a mesh, a segmentation or a segment. In this case the facet range type of the cell type is returned.
+     */
+    template<typename SomethingT>
+    struct facet_range
+    {
+      typedef typename element_range<SomethingT, typename facet_tag<SomethingT>::type >::type type;
+    };
+
+    /** @brief Metafunction for retrieving the const facet range type an element, a mesh, a segmentation or a segment
+     *
+     * @tparam SomethingT    The element type of which the const facet range type is requested. Can also be a mesh, a segmentation or a segment. In this case the const facet range type of the cell type is returned.
+     */
+    template<typename SomethingT>
+    struct const_facet_range
+    {
+      typedef typename const_element_range<SomethingT, typename facet_tag<SomethingT>::type >::type type;
+    };
+
+
+    /** @brief Metafunction for obtaining the segment type from a segmentation type
+     *
+     * @tparam SegmentationT      The segmentation type
+     */
+    template<typename SegmentationT>
+    struct segment_handle;
+  }
+
+
+  /** @brief Function for retrieving an element range or a boundary element range from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @tparam ElementTypeOrTagT  The element type/tag for the requested element range
+    * @param  something          The host object of type SomethingT
+    * @return                    An element range
+    */
+  template<typename ElementTypeOrTagT, typename SomethingT>
+  typename result_of::element_range<SomethingT, ElementTypeOrTagT>::type elements(SomethingT & something);
+
+  /** @brief Function for retrieving an element range or a boundary element range from a segment
+    *
+    * @tparam SomethingT         The host segment
+    * @tparam ElementTypeOrTagT  The element type/tag for the requested element range
+    * @param  something          The host object of type SomethingT
+    * @return                    An element range
+    */
+  template<typename ElementTypeOrTagT, typename SegmentationT>
+  typename result_of::element_range< viennagrid::segment_handle<SegmentationT>, ElementTypeOrTagT>::type elements( viennagrid::segment_handle<SegmentationT> & something);
+
+
+
+  /** @brief Function for retrieving a cell range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A cell range
+    */
+  template<typename SomethingT>
+  typename result_of::cell_range<SomethingT>::type cells(SomethingT & something)
+  { return elements<typename result_of::cell_tag<SomethingT>::type>(something); }
+
+  /** @brief Function for retrieving a facet range object from a host object
+    *
+    * @tparam ElementT           The host element (cell)
+    * @param  element            The host object of type ElementT
+    * @return                    A facet range
+    */
+  template<typename ElementT>
+  typename result_of::facet_range<ElementT>::type facets(ElementT & element)
+  { return elements< typename result_of::facet_tag<ElementT>::type >(element); }
+
+  /** @brief Function for retrieving a vertex range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A vertex range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, vertex_tag>::type vertices(SomethingT & something)
+  { return elements<vertex_tag>(something); }
+
+  /** @brief Function for retrieving a line range object from a host object (same as edges)
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A line range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, line_tag>::type lines(SomethingT & something)
+  { return elements<line_tag>(something); }
+
+  /** @brief Function for retrieving a edge range object from a host object (same as lines)
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    An edge range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, edge_tag>::type edges(SomethingT & something)
+  { return elements<edge_tag>(something); }
+
+  /** @brief Function for retrieving a triangle range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A triangle range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, triangle_tag>::type triangles(SomethingT & something)
+  { return elements<triangle_tag>(something); }
+
+  /** @brief Function for retrieving a quadrilaterals range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A quadrilateral range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, quadrilateral_tag>::type quadrilaterals(SomethingT & something)
+  { return elements<quadrilateral_tag>(something); }
+
+  /** @brief Function for retrieving a polygon range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A polygon range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, polygon_tag>::type polygons(SomethingT & something)
+  { return elements<polygon_tag>(something); }
+
+  /** @brief Function for retrieving a PLC range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A PLC range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, plc_tag>::type plcs(SomethingT & something)
+  { return elements<plc_tag>(something); }
+
+  /** @brief Function for retrieving a tetrahedron range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A tetrahedron range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, tetrahedron_tag>::type tetraheda(SomethingT & something)
+  { return elements<tetrahedron_tag>(something); }
+
+  /** @brief Function for retrieving a hexahedron range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A hexahedron range
+    */
+  template<typename SomethingT>
+  typename result_of::element_range<SomethingT, hexahedron_tag>::type hexahedra(SomethingT & something)
+  { return elements<hexahedron_tag>(something); }
+
+
+
+  /** @brief Function for retrieving a const element range or a boundary element range from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @tparam ElementTypeOrTagT  The element type/tag for the requested element range
+    * @param  something          The host object of type SomethingT
+    * @return                    A const element range
+    */
+  template<typename ElementTypeOrTagT, typename SomethingT>
+  typename result_of::const_element_range<SomethingT, ElementTypeOrTagT>::type elements(SomethingT const & something);
+
+  /** @brief Function for retrieving a const element range or a boundary element range from a segment
+    *
+    * @tparam SomethingT         The host segment
+    * @tparam ElementTypeOrTagT  The element type/tag for the requested element range
+    * @param  something          The host object of type SomethingT
+    * @return                    A const element range
+    */
+  template<typename ElementTypeOrTagT, typename SegmentationT>
+  typename result_of::const_element_range< viennagrid::segment_handle<SegmentationT>, ElementTypeOrTagT>::type elements( viennagrid::segment_handle<SegmentationT> const & something);
+
+
+  /** @brief Function for retrieving a const cell range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const cell range
+    */
+  template<typename SomethingT>
+  typename result_of::const_cell_range<SomethingT>::type cells( SomethingT const & something)
+  { return elements<typename result_of::cell_tag<SomethingT>::type>(something); }
+
+  /** @brief Function for retrieving a const facet range object from a host object
+    *
+    * @tparam ElementT         The host element type
+    * @param  element          The host object of type SomethingT
+    * @return                  A const facet range
+    */
+  template<typename ElementT>
+  typename result_of::const_facet_range<ElementT>::type facets(const ElementT & element)
+  { return elements< typename result_of::facet_tag<ElementT>::type >(element); }
+
+  /** @brief Function for retrieving a const vertex range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const vertex range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, vertex_tag>::type vertices(SomethingT const & something)
+  { return elements<vertex_tag>(something); }
+
+  /** @brief Function for retrieving a const line range object from a host object (same as edges)
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const line range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, line_tag>::type lines(SomethingT const & something)
+  { return elements<line_tag>(something); }
+
+  /** @brief Function for retrieving a const edge range object from a host object (same as lines)
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const edge range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, edge_tag>::type edges(SomethingT const & something)
+  { return elements<edge_tag>(something); }
+
+  /** @brief Function for retrieving a const triangles range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const triangle range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, triangle_tag>::type triangles(SomethingT const & something)
+  { return elements<triangle_tag>(something); }
+
+  /** @brief Function for retrieving a const quadrilateral range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const quadrilateral range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, quadrilateral_tag>::type quadrilaterals(SomethingT const & something)
+  { return elements<quadrilateral_tag>(something); }
+
+  /** @brief Function for retrieving a const polygon range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const polygon range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, polygon_tag>::type polygons(SomethingT const & something)
+  { return elements<polygon_tag>(something); }
+
+  /** @brief Function for retrieving a const PLC range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const PLC range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, plc_tag>::type plcs(SomethingT const & something)
+  { return elements<plc_tag>(something); }
+
+  /** @brief Function for retrieving a const tetrahedron range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const tetrahedron range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, tetrahedron_tag>::type tetraheda(SomethingT const & something)
+  { return elements<tetrahedron_tag>(something); }
+
+  /** @brief Function for retrieving a const hexahedron range object from a host object
+    *
+    * @tparam SomethingT         The host type, can be an element, a collection, a mesh, a segment or a segmentation
+    * @param  something          The host object of type SomethingT
+    * @return                    A const hexahedron range
+    */
+  template<typename SomethingT>
+  typename result_of::const_element_range<SomethingT, hexahedron_tag>::type hexahedra(SomethingT const & something)
+  { return elements<hexahedron_tag>(something); }
+
+
+
+
+  /** @brief Function for creating an element within a mesh or a segment
+    *
+    * @tparam ElementTypeOrTagT       The element type/tag to be created
+    * @tparam MeshOrSegmentHandleTypeT    The mesh or segment type where the element is created
+    * @tparam VertexHandleIteratorT   A vertex handle iterator type
+    * @param  mesh_segment            The mesh or segment object where the element should be created
+    * @param  array_start             An iterator pointing to the first vertex handle of the element
+    * @param  array_end               An iterator defining the end of the vertices
+    * @return                         A handle to the created element
+    */
+  template<typename ElementTypeOrTagT, typename MeshOrSegmentHandleTypeT, typename VertexHandleIteratorT>
+  typename result_of::handle<MeshOrSegmentHandleTypeT, ElementTypeOrTagT>::type make_element(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleIteratorT array_start,
+        VertexHandleIteratorT const & array_end );
+
+
+  /** @brief Function for creating an element within a mesh or segment with a specific ID
+    *
+    * @tparam ElementTypeOrTagT       The element type/tag to be created
+    * @tparam MeshOrSegmentHandleTypeT    The mesh or segment type where the element is created
+    * @tparam VertexHandleIteratorT   A vertex handle iterator type
+    * @param  mesh_segment            The mesh or segment object where the element should be created
+    * @param  array_start             An iterator pointing to the first vertex handle of the element
+    * @param  array_end               An iterator defining the end of the vertices
+    * @param  id                      The id of the new element
+    * @return                         A handle to the created element
+    */
+  template<typename ElementTypeOrTagT, typename MeshOrSegmentHandleTypeT, typename VertexHandleIteratorT, typename IDT>
+  typename result_of::handle<MeshOrSegmentHandleTypeT, ElementTypeOrTagT>::type make_element_with_id(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleIteratorT array_start,
+        VertexHandleIteratorT const & array_end,
+        IDT id );
+
+  /** @brief Function for creating a vertex within a mesh or a segment
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the vertex is created
+    * @param  mesh_segment            The mesh or segment object where the vertex should be created
+    * @return                         A handle to the created vertex
+    */
+  template<typename MeshOrSegmentHandleTypeT>
+  typename result_of::vertex_handle<MeshOrSegmentHandleTypeT>::type make_vertex(MeshOrSegmentHandleTypeT & mesh_segment);
+
+  /** @brief Function for creating a vertex within a mesh or a segment with a specific point
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the vertex is created
+    * @param  mesh_segment            The mesh or segment object where the vertex should be created
+    * @param  point                   The point which corresponds to the created vertex
+    * @return                         A handle to the created vertex
+    */
+  template<typename MeshOrSegmentHandleTypeT>
+  typename result_of::vertex_handle<MeshOrSegmentHandleTypeT>::type make_vertex(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        typename result_of::point<MeshOrSegmentHandleTypeT>::type const & point);
+
+  /** @brief Function for creating a vertex within a mesh or a segment with a specific point and specific ID
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the vertex is created
+    * @param  mesh_segment            The mesh or segment object where the vertex should be created
+    * @param  id                      The id of the new vertex
+    * @param  point                   The point which corresponds to the created vertex
+    * @return                         A handle to the created vertex
+    */
+#ifndef _MSC_VER
+  template<typename MeshOrSegmentHandleTypeT>
+  typename result_of::vertex_handle<MeshOrSegmentHandleTypeT>::type make_vertex_with_id(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        typename viennagrid::result_of::element<MeshOrSegmentHandleTypeT, vertex_tag>::type::id_type id,
+        typename result_of::point<MeshOrSegmentHandleTypeT>::type const & point);
+#endif
+
+  /** @brief Function for creating a unique vertex. The uniqueness is checked by using the point of the vertex: if there is any vertex whose point is close to the point currently inserted, this handle is returned. A new vertex is created otherwise. A classical 2-norm and the tolerance is used for distance checking. The runtime of this function is linear in the vertices within the mesh.
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the vertex is created
+    * @param  mesh_segment            The mesh or segment object where the vertex should be created
+    * @param  point                   The point which corresponds to the created vertex
+    * @param  tolerance               The tolerance of the 2-norm for checking if two points are equal
+    * @return                         A handle to a vertex which is close enough to point or a handle to a newly created vertex
+    */
+  template<typename MeshOrSegmentHandleTypeT>
+  typename result_of::vertex_handle<MeshOrSegmentHandleTypeT>::type make_unique_vertex(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        typename result_of::point<MeshOrSegmentHandleTypeT>::type const & point,
+        typename result_of::coord<MeshOrSegmentHandleTypeT>::type tolerance);
+
+  /** @brief Function for creating a unique vertex. The uniqueness is checked by using the point of the vertex: if there is any vertex whose point is close to the point currently inserted, this handle is returned. A new vertex is created otherwise. A classical 2-norm and the 2-norm of points as tolerance is used for distance checking. The runtime of this function is linear in the vertices within the mesh.
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the vertex is created
+    * @param  mesh_segment            The mesh or segment object where the vertex should be created
+    * @param  p                       The point which corresponds to the created vertex
+    * @return                         A handle to a vertex which is close enough to point or a handle to a newly created vertex
+    */
+  template<typename MeshOrSegmentHandleTypeT>
+  typename result_of::vertex_handle<MeshOrSegmentHandleTypeT>::type make_unique_vertex(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        typename result_of::point<MeshOrSegmentHandleTypeT>::type const & p);
+
+  /** @brief Function for creating a line within a mesh or a segment (same as make_edge)
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the line is created
+    * @tparam VertexHandleT           The vertex handle type
+    * @param  mesh_segment            The mesh or segment object where the line should be created
+    * @param  v0                      A handle to the first vertex of the line
+    * @param  v1                      A handle to the second vertex of the line
+    * @return                         A handle to the created line
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename VertexHandleT>
+  typename result_of::line_handle<MeshOrSegmentHandleTypeT>::type make_line(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleT v0, VertexHandleT v1);
+
+  /** @brief Function for creating an edge within a mesh or a segment (same as make_edge)
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the edge is created
+    * @tparam VertexHandleT           The vertex handle type
+    * @param  mesh_segment            The mesh or segment object where the edge should be created
+    * @param  v0                      A handle to the first vertex of the edge
+    * @param  v1                      A handle to the second vertex of the edge
+    * @return                         A handle to the created edge
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename VertexHandleT>
+  typename result_of::edge_handle<MeshOrSegmentHandleTypeT>::type make_edge(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleT v0, VertexHandleT v1);
+
+  /** @brief Function for creating a triangle within a mesh or a segment
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the triangle is created
+    * @tparam VertexHandleT           The vertex handle type
+    * @param  mesh_segment            The mesh or segment object where the triangle should be created
+    * @param  v0                      A handle to the first vertex of the triangle
+    * @param  v1                      A handle to the second vertex of the triangle
+    * @param  v2                      A handle to the third vertex of the triangle
+    * @return                         A handle to the created triangle
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename VertexHandleT>
+  typename result_of::triangle_handle<MeshOrSegmentHandleTypeT>::type make_triangle(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleT v0, VertexHandleT v1, VertexHandleT v2);
+
+  /** @brief Function for creating a quadrilateral within a mesh or a segment
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the quadrilateral is created
+    * @tparam VertexHandleT           The vertex handle type
+    * @param  mesh_segment            The mesh or segment object where the quadrilateral should be created
+    * @param  v0                      A handle to the first vertex of the quadrilateral
+    * @param  v1                      A handle to the second vertex of the quadrilateral
+    * @param  v2                      A handle to the third vertex of the quadrilateral
+    * @param  v3                      A handle to the forth vertex of the quadrilateral
+    * @return                         A handle to the created quadrilateral
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename VertexHandleT>
+  typename result_of::quadrilateral_handle<MeshOrSegmentHandleTypeT>::type make_quadrilateral(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleT v0, VertexHandleT v1, VertexHandleT v2, VertexHandleT v3);
+
+  /** @brief Function for creating a PLC within a mesh or a segment
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the PLC is created
+    * @tparam LineHandleIteratorT     A line handle iterator type
+    * @tparam VertexHandleIteratorT   A vertex handle iterator type
+    * @tparam PointIteratorT          A point handle iterator type
+    * @param  mesh_segment            The mesh or segment object where the PLC should be created
+    * @param  lines_begin             An iterator pointing to the first line handle of the PLC
+    * @param  lines_end               An iterator defining the end of the lines
+    * @param  loose_vertices_begin    An iterator pointing to the first loose vertex handle of the PLC
+    * @param  loose_vertices_end      An iterator defining the end of the loose vertices
+    * @param  hole_points_begin       An iterator pointing to the first hole point of the PLC
+    * @param  hole_points_end         An iterator defining the end of the hole points
+    * @return                         A handle to the created PLC
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename LineHandleIteratorT, typename VertexHandleIteratorT, typename PointIteratorT>
+  typename result_of::plc_handle<MeshOrSegmentHandleTypeT>::type make_plc(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        LineHandleIteratorT    lines_begin,           LineHandleIteratorT     lines_end,
+        VertexHandleIteratorT  loose_vertices_begin,  VertexHandleIteratorT   loose_vertices_end,
+        PointIteratorT         hole_points_begin,     PointIteratorT          hole_points_end);
+
+  /** @brief Function for creating a tetrahedron within a mesh or a segment
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the tetrahedron is created
+    * @tparam VertexHandleT           The vertex handle type
+    * @param  mesh_segment            The mesh or segment object where the tetrahedron should be created
+    * @param  v0                      A handle to the first vertex of the tetrahedron
+    * @param  v1                      A handle to the second vertex of the tetrahedron
+    * @param  v2                      A handle to the third vertex of the tetrahedron
+    * @param  v3                      A handle to the forth vertex of the tetrahedron
+    * @return                         A handle to the created tetrahedron
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename VertexHandleT>
+  typename result_of::tetrahedron_handle<MeshOrSegmentHandleTypeT>::type make_tetrahedron(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleT v0, VertexHandleT v1, VertexHandleT v2, VertexHandleT v3);
+
+  /** @brief Function for creating a hexahedron within a mesh or a segment
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type where the hexahedron is created
+    * @tparam VertexHandleT           The vertex handle type
+    * @param  mesh_segment            The mesh or segment object where the hexahedron should be created
+    * @param  v0                      A handle to the first vertex of the hexahedron
+    * @param  v1                      A handle to the second vertex of the hexahedron
+    * @param  v2                      A handle to the third vertex of the hexahedron
+    * @param  v3                      A handle to the forth vertex of the hexahedron
+    * @param  v4                      A handle to the fifth vertex of the hexahedron
+    * @param  v5                      A handle to the sixth vertex of the hexahedron
+    * @param  v6                      A handle to the seventh vertex of the hexahedron
+    * @param  v7                      A handle to the eighth vertex of the hexahedron
+    * @return                         A handle to the created hexahedron
+    */
+  template<typename MeshOrSegmentHandleTypeT, typename VertexHandleT>
+  typename result_of::hexahedron_handle<MeshOrSegmentHandleTypeT>::type make_hexahedron(
+        MeshOrSegmentHandleTypeT & mesh_segment,
+        VertexHandleT v0, VertexHandleT v1, VertexHandleT v2, VertexHandleT v3,
+        VertexHandleT v4, VertexHandleT v5, VertexHandleT v6, VertexHandleT v7);
+
+  /** @brief Function for copying an element to a domain or segment
+    *
+    * @tparam ElementT                The element type which is copied
+    * @tparam DomainOrSegmentHandleT  The domain or segment type where the hexahedron is created
+    * @param  element                 The element which is copied
+    * @param  domain_segment          The domain or segment object where the element is copied to
+    * @return                         A handle to the created hexahedron
+    */
+  template<typename ElementT, typename DomainOrSegmentHandleT>
+  typename viennagrid::result_of::handle<
+      DomainOrSegmentHandleT,
+      typename viennagrid::result_of::element_tag<ElementT>::type
+    >::type copy_element( ElementT const & element, DomainOrSegmentHandleT & domain_segment );
+
+
+
+
+
+  /** @brief Function for dereferencing an element -> identity
+    *
+    * @tparam WrappedMeshConfigT      Wrapped config of the mesh type
+    * @tparam ElementTagT             Element tag of the element to dereference
+    * @tparam WrappedConfigT          Wrapped config of the element to dereference
+    * @param  element                 The element to be derferenced, this object is returned
+    * @return                         element (identity)
+    */
+  template<typename WrappedMeshConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> & dereference_handle( viennagrid::mesh<WrappedMeshConfigT> &, viennagrid::element<ElementTagT, WrappedConfigT> & element)
+  { return element; }
+
+  /** @brief Function for dereferencing an element -> identity
+    *
+    * @tparam WrappedMeshConfigT      Wrapped config of the mesh type
+    * @tparam ElementTagT             Element tag of the element to dereference
+    * @tparam WrappedConfigT          Wrapped config of the element to dereference
+    * @param  element                 The element to be derferenced, this object is returned
+    * @return                         element (identity)
+    */
+  template<typename WrappedMeshConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> & dereference_handle( viennagrid::segment_handle<WrappedMeshConfigT> &, viennagrid::element<ElementTagT, WrappedConfigT> & element)
+  { return element; }
+
+  /** @brief Function for dereferencing an element -> identity
+    *
+    * @tparam WrappedMeshConfigT      Wrapped config of the mesh type
+    * @tparam ElementTagT             Element tag of the element to dereference
+    * @tparam WrappedConfigT          Wrapped config of the element to dereference
+    * @param  element                 The element to be derferenced, this object is returned
+    * @return                         element (identity)
+    */
+  template<typename HostElementTagT, typename WrappedHostElementConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> & dereference_handle( viennagrid::element<HostElementTagT, WrappedHostElementConfigT> &, viennagrid::element<ElementTagT, WrappedConfigT> & element)
+  { return element; }
+
+  /** @brief Function for dereferencing a const element -> identity
+    *
+    * @tparam WrappedMeshConfigT      Wrapped config of the mesh type
+    * @tparam ElementTagT             Element tag of the element to dereference
+    * @tparam WrappedConfigT          Wrapped config of the element to dereference
+    * @param  element                 The element to be derferenced, this object is returned
+    * @return                         element (identity)
+    */
+  template<typename WrappedMeshConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::mesh<WrappedMeshConfigT> const &, viennagrid::element<ElementTagT, WrappedConfigT> const & element)
+  { return element; }
+
+  /** @brief Function for dereferencing a const element -> identity */
+  template<typename WrappedMeshConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::mesh<WrappedMeshConfigT> &, viennagrid::element<ElementTagT, WrappedConfigT> const & element)
+  { return element; }
+
+  /** @brief Function for dereferencing a const element -> identity */
+  template<typename WrappedMeshConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::mesh<WrappedMeshConfigT> const &, viennagrid::element<ElementTagT, WrappedConfigT> & element)
+  { return element; }
+
+
+  /** @brief Function for dereferencing a const element -> identity */
+  template<typename SegmentationT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::segment_handle<SegmentationT> const &, viennagrid::element<ElementTagT, WrappedConfigT> const & element)
+  { return element; }
+
+  /** @brief Function for dereferencing a const element -> identity */
+  template<typename SegmentationT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::segment_handle<SegmentationT> &, viennagrid::element<ElementTagT, WrappedConfigT> const & element)
+  { return element; }
+
+  /** @brief Function for dereferencing an element -> identity */
+  template<typename SegmentationT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::segment_handle<SegmentationT> const &, viennagrid::element<ElementTagT, WrappedConfigT> & element)
+  { return element; }
+
+
+  /** @brief Function for dereferencing a const element -> identity */
+  template<typename HostElementTagT, typename WrappedHostElementConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::element<HostElementTagT, WrappedHostElementConfigT> const &, viennagrid::element<ElementTagT, WrappedConfigT> const & element)
+  { return element; }
+
+  /** @brief Function for dereferencing a const element -> identity */
+  template<typename HostElementTagT, typename WrappedHostElementConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::element<HostElementTagT, WrappedHostElementConfigT> &, viennagrid::element<ElementTagT, WrappedConfigT> const & element)
+  { return element; }
+
+  /** @brief Function for dereferencing an element -> identity */
+  template<typename HostElementTagT, typename WrappedHostElementConfigT, typename ElementTagT, typename WrappedConfigT>
+  viennagrid::element<ElementTagT, WrappedConfigT> const & dereference_handle( viennagrid::element<HostElementTagT, WrappedHostElementConfigT> const &, viennagrid::element<ElementTagT, WrappedConfigT> & element)
+  { return element; }
+
+  /** @brief Function for creating a handle, default implementation -> identity
+    *
+    * @tparam MeshOrSegmentHandleT    Wrapped config of the mesh type
+    * @tparam HandleT                 Type of the handle
+    * @param  handle                  The handle object
+    * @return                         handle (identity)
+    */
+  template<typename MeshOrSegmentHandleT, typename HandleT>
+  HandleT handle( MeshOrSegmentHandleT &, HandleT handle) { return handle; }
+
+  /** @brief Function for creating a const handle, default implementation -> identity
+    *
+    * @tparam MeshOrSegmentHandleT    Wrapped config of the mesh type
+    * @tparam HandleT                 Type of the handle
+    * @param  handle                  The handle object
+    * @return                         handle (identity)
+    */
+  template<typename MeshOrSegmentHandleT, typename HandleT>
+  const HandleT handle( MeshOrSegmentHandleT const &, HandleT handle) { return handle; }
+
+
+
+
+  /** @brief Proxy object for a mesh. This is used for wrapping a mesh/mesh view when creating a view
+    *
+    * @tparam MeshT    The mesh/mesh view type
+    */
+  template<typename MeshT>
+  struct mesh_proxy
+  {
+    mesh_proxy( MeshT & mesh_obj ) : mesh_obj_(&mesh_obj){}
+    MeshT * mesh_obj_;
+  };
+
+  /** @brief Creates a view out of a mesh using the mesh_proxy object
+    *
+    * @tparam MeshOrSegmentHandleT    The mesh or segment type from which the mesh view is created
+    * @param  mesh_obj                The mesh or segment object from which the mesh view is created
+    * @return                         A mesh_proxy object holding the host mesh/segment object, can be assigned to a mesh_t object
+    */
+  template<typename WrappedConfigT>
+  mesh_proxy< viennagrid::mesh<WrappedConfigT> > make_view(viennagrid::mesh<WrappedConfigT> & mesh_obj)
+  {
+    return mesh_proxy< viennagrid::mesh<WrappedConfigT> >( mesh_obj );
+  }
+
+  /** @brief Creates an empty view out of a segment. */
+  template<typename SegmentationT>
+  mesh_proxy< typename SegmentationT::view_type > make_view(segment_handle<SegmentationT> & segment);
+
+
+  // norm tags for: algorithm/norm.hpp
   /** @brief Tag for denoting the 1-norm */
-  struct one_tag {};
+  struct one_norm_tag {};
   /** @brief Tag for denoting the 2-norm */
-  struct two_tag {};
+  struct two_norm_tag {};
   /** @brief Tag for denoting the infinity-norm */
-  struct inf_tag {};
+  struct inf_norm_tag {};
 
-  /** @brief Types for cell normals in algorithm/cell_normals.hpp (to be added in afuture release) */
+  /** @brief Types for cell normals in algorithm/cell_normals.hpp (to be added in a future release) */
   struct seg_cell_normal_tag {};
 
-  /** @brief Data type for cell normals in algorithm/cell_normals.hpp (to be added in afuture release) */
+  /** @brief Data type for cell normals in algorithm/cell_normals.hpp (to be added in a future release) */
   struct seg_cell_normal_data {
-    typedef viennagrid::point_t<double, cartesian_cs<3> >         point_type;
+    typedef viennagrid::spatial_point<double, cartesian_cs<3> >         point_type;
     typedef std::map<std::size_t, point_type>    type;
   };
 
 
-  //
-  //refinement
-  //
-
-  template <typename T>
-  struct element_refinement;
-
-  /** @brief A key type used for tagging edges for refinement using ViennaData */
-  struct refinement_key {};
-
-  template <typename CellTag, typename DomainType, typename RefinementTag>
-  class refinement_proxy;
-
-  /** @brief A tag denoting uniform refinement */
-  struct uniform_refinement_tag {};
-
-  /** @brief A tag denoting local refinement */
-  struct local_refinement_tag {};
-
-  /** @brief The namespace holding the implementations of domains, segments and ncells as well as some algorithm implementations. Not of interest for library users */
   namespace detail
   {
-    template <typename CellTagIn, typename DomainTypeIn, typename DomainTypeOut>
-    void refine_impl(DomainTypeIn const & domain_in,
-                    DomainTypeOut & domain_out,
-                    uniform_refinement_tag);
-
-    template <typename CellTagIn, typename DomainTypeIn, typename DomainTypeOut>
-    void refine_impl(DomainTypeIn const & domain_in,
-                    DomainTypeOut & domain_out,
-                    local_refinement_tag);
+    /** @brief Helper struct for element refinement */
+    template <typename ElementTagT>
+    struct element_refinement;
   }
-
-  //
-  // Voronoi information:
-  //
-  /** @brief ViennaData key for the Voronoi interface area associated with an edge */
-  struct voronoi_interface_area_key {};
-  /** @brief ViennaData key for the Voronoi box volume associated with an edge or vertex */
-  struct voronoi_box_volume_key {};
 }
 
 #endif

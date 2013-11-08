@@ -2,18 +2,13 @@
 #define VIENNAGRID_IO_NETGEN_READER_GUARD
 
 /* =======================================================================
-   Copyright (c) 2011-2012, Institute for Microelectronics,
+   Copyright (c) 2011-2013, Institute for Microelectronics,
                             Institute for Analysis and Scientific Computing,
                             TU Wien.
 
                             -----------------
                      ViennaGrid - The Vienna Grid Library
                             -----------------
-
-   Authors:      Karl Rupp                           rupp@iue.tuwien.ac.at
-                 Josef Weinbub                    weinbub@iue.tuwien.ac.at
-
-   (A list of additional contributors can be found in the PDF manual)
 
    License:      MIT (X11), see file LICENSE in the base directory
 ======================================================================= */
@@ -25,11 +20,11 @@
 #include "viennagrid/forwards.hpp"
 #include "viennagrid/io/helper.hpp"
 
-#include "viennagrid/domain/domain.hpp"
-#include "viennagrid/domain/segmentation.hpp"
-#include "viennagrid/domain/element_creation.hpp"
+#include "viennagrid/mesh/mesh.hpp"
+#include "viennagrid/mesh/segmentation.hpp"
+#include "viennagrid/mesh/element_creation.hpp"
 
-/** @file netgen_reader.hpp
+/** @file viennagrid/io/netgen_reader.hpp
     @brief Provides a reader for Netgen files
 */
 
@@ -44,37 +39,22 @@ namespace viennagrid
     {
       /** @brief The functor interface triggering the read operation.
        *
-       * @param domain    A ViennaGrid domain
-       * @param filename  Name of the file
+       * @param mesh_obj      The mesh where the file content is written to
+       * @param segmentation  The segmentation where the file content is written to
+       * @param filename      Name of the file
        */
-      template <typename DomainType, typename SegmentationType>
-      int operator()(DomainType & domain, SegmentationType & segmentation, std::string const & filename) const
+      template <typename MeshType, typename SegmentationType>
+      int operator()(MeshType & mesh_obj, SegmentationType & segmentation, std::string const & filename) const
       {
-        typedef typename SegmentationType::segment_type SegmentType;
+        typedef typename viennagrid::result_of::point<MeshType>::type    PointType;
 
-        typedef typename viennagrid::result_of::point<DomainType>::type    PointType;
-        typedef typename viennagrid::result_of::coord< PointType >::type         CoordType;
+        const int point_dim = viennagrid::result_of::static_size<PointType>::value;
 
-        static const int point_dim = viennagrid::traits::static_size<PointType>::value;
+        typedef typename result_of::cell_tag<MeshType>::type CellTag;
+        typedef typename result_of::element<MeshType, CellTag>::type CellType;
 
-        typedef typename result_of::cell_tag<DomainType>::type CellTag;
-        typedef typename result_of::element<DomainType, CellTag>::type CellType;
-        typedef typename result_of::handle<DomainType, CellTag>::type                           CellHandleType;
-
-        typedef typename result_of::element<DomainType, vertex_tag>::type                           VertexType;
-        typedef typename result_of::handle<DomainType, vertex_tag>::type                           VertexHandleType;
-
-        typedef typename viennagrid::result_of::element_range<DomainType, vertex_tag>::type   VertexRange;
-        typedef typename viennagrid::result_of::iterator<VertexRange>::type        VertexIterator;
-
-        typedef typename viennagrid::result_of::element_range<DomainType, line_tag>::type   EdgeRange;
-        typedef typename viennagrid::result_of::iterator<EdgeRange>::type          EdgeIterator;
-
-        typedef typename viennagrid::result_of::element_range<DomainType, typename CellType::tag::facet_tag >::type   FacetRange;
-        typedef typename viennagrid::result_of::iterator<FacetRange>::type                                 FacetIterator;
-
-        typedef typename viennagrid::result_of::element_range<DomainType, CellTag>::type     CellRange;
-        typedef typename viennagrid::result_of::iterator<CellRange>::type                                  CellIterator;
+        typedef typename result_of::element<MeshType, vertex_tag>::type                           VertexType;
+        typedef typename result_of::handle<MeshType, vertex_tag>::type                           VertexHandleType;
 
         std::ifstream reader(filename.c_str());
 
@@ -117,7 +97,7 @@ namespace viennagrid
           for (int j=0; j<point_dim; j++)
             reader >> p[j];
 
-          viennagrid::make_vertex( domain, typename VertexType::id_type(i), p );
+          viennagrid::make_vertex_with_id( mesh_obj, typename VertexType::id_type(i), p );
         }
 
         if (!reader.good())
@@ -136,7 +116,7 @@ namespace viennagrid
         for (int i=0; i<cell_num; ++i)
         {
           long vertex_num;
-          viennagrid::storage::static_array<VertexHandleType, boundary_elements<CellTag, vertex_tag>::num> cell_vertex_handles;
+          viennagrid::static_array<VertexHandleType, boundary_elements<CellTag, vertex_tag>::num> cell_vertex_handles;
 
           if (!reader.good())
             throw bad_file_format_exception(filename, "EOF encountered while reading cells (segment index expected).");
@@ -150,7 +130,7 @@ namespace viennagrid
               throw bad_file_format_exception(filename, "EOF encountered while reading cells (cell ID expected).");
 
             reader >> vertex_num;
-            cell_vertex_handles[j] = viennagrid::get_vertex_handle(domain, vertex_num - 1);
+            cell_vertex_handles[j] = viennagrid::vertices(mesh_obj).handle_at(vertex_num-1);
           }
 
           viennagrid::make_element_with_id<CellType>(segmentation[segment_index], cell_vertex_handles.begin(), cell_vertex_handles.end(), typename CellType::id_type(i));
@@ -158,6 +138,20 @@ namespace viennagrid
 
         return EXIT_SUCCESS;
       } //operator()
+
+
+      /** @brief The functor interface triggering the read operation.
+       *
+       * @param mesh_obj      The mesh where the file content is written to
+       * @param filename      Name of the file
+       */
+      template <typename MeshType>
+      int operator()(MeshType & mesh_obj, std::string const & filename)
+      {
+        typedef typename viennagrid::result_of::segmentation<MeshType>::type SegmentationType;
+        SegmentationType tmp(mesh_obj);
+        return (*this)(mesh_obj, tmp, filename);
+      }
 
     }; //class netgen_reader
 
