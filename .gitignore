@@ -1,4 +1,5 @@
 build/
 CMakeLists.txt.user
 .*.swp
-
+modules/SiSpin
+modules/ViennaWD
