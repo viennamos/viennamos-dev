@@ -80,18 +80,18 @@ template <typename SegmentationType, typename StorageType>
 void init_quantities( SegmentationType const & segmentation, StorageType & storage )
 {
   typedef typename viennagrid::result_of::cell<SegmentationType>::type CellType;
-  
+
   //
   // Init permittivity
   //
   double eps0 = 8.854e-12;
   double epsr_silicon = 11.7; // silicon!
   double eps_silicon = eps0 * epsr_silicon;
-  
+
 
   // donator doping
   viennafvm::set_quantity_region( segmentation(1), storage, permittivity_key(), false);
-  
+
   viennafvm::set_quantity_region( segmentation(2), storage, permittivity_key(), true);
   viennafvm::set_quantity_value( segmentation(2),  storage, permittivity_key(), eps_silicon);
 
@@ -112,8 +112,8 @@ void scale_domain(DomainType & domain, double factor)
   typedef typename viennagrid::result_of::iterator<VertexContainer>::type VertexIterator;
 
   typename viennagrid::result_of::default_point_accessor<DomainType>::type point_accessor = viennagrid::default_point_accessor(domain);
-  
-  VertexContainer vertices = viennagrid::elements(domain);
+
+  VertexContainer vertices(domain);
   for ( VertexIterator vit = vertices.begin();
         vit != vertices.end();
         ++vit )
@@ -126,9 +126,9 @@ int main()
 {
   typedef double   numeric_type;
 
-  typedef viennagrid::triangular_2d_domain   DomainType;
+  typedef viennagrid::triangular_2d_mesh   DomainType;
   typedef viennagrid::result_of::segmentation<DomainType>::type SegmentationType;
-  
+
   typedef viennagrid::result_of::cell_tag<DomainType>::type CellTag;
 
   typedef viennagrid::result_of::element<DomainType, CellTag>::type        CellType;
@@ -170,8 +170,8 @@ int main()
   FunctionSymbol psi(0);   // potential, using id=0
 
   // potential:
-  viennafvm::set_dirichlet_boundary( segmentation(1), storage, psi, 0.0); 
-  viennafvm::set_dirichlet_boundary( segmentation(5), storage, psi, 0.8); 
+  viennafvm::set_dirichlet_boundary( segmentation(1), storage, psi, 0.0);
+  viennafvm::set_dirichlet_boundary( segmentation(5), storage, psi, 0.8);
 
   //
   // Specify PDEs:
@@ -186,7 +186,7 @@ int main()
   viennafvm::linear_pde_system<> pde_system;
   pde_system.add_pde(laplace_eq, psi); // equation and associated quantity
 
-  pde_system.is_linear(true); 
+  pde_system.is_linear(true);
 
 
   //

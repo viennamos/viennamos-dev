@@ -25,7 +25,7 @@
 #include "viennadata/api.hpp"
 #include "viennafvm/forwards.h"
 #include "viennagrid/algorithm/voronoi.hpp"
-#include "viennagrid/domain/coboundary_iteration.hpp"
+#include "viennagrid/mesh/coboundary_iteration.hpp"
 
 
 
@@ -46,10 +46,10 @@ namespace viennafvm
 
     // 1d
     template <typename FacetType, typename WrappedConfigType, typename PointAccessorType>
-    typename viennagrid::result_of::point<PointAccessorType>::type
-    unit_outer_normal(FacetType const & facet, viennagrid::element_t<viennagrid::line_tag, WrappedConfigType> const & cell, PointAccessorType const point_accessor)
+    typename viennagrid::result_of::point<FacetType>::type
+    unit_outer_normal(FacetType const & facet, viennagrid::element<viennagrid::line_tag, WrappedConfigType> const & cell, PointAccessorType const & point_accessor)
     {
-      typedef typename viennagrid::result_of::point<PointAccessorType>::type      PointType;
+      typedef typename viennagrid::result_of::point<FacetType>::type      PointType;
       typedef typename viennagrid::line_tag CellTag;
 
       FacetType const * other_facet = &(viennagrid::elements<typename CellTag::facet_tag>(cell)[0]);
@@ -67,10 +67,10 @@ namespace viennafvm
     namespace detail
     {
       template <typename FacetType, typename CellType, typename PointAccessorType>
-      typename viennagrid::result_of::point<PointAccessorType>::type
-      unit_outer_normal_2d(FacetType const & facet, CellType const & cell, PointAccessorType const point_accessor)
+      typename viennagrid::result_of::point<FacetType>::type
+      unit_outer_normal_2d(FacetType const & facet, CellType const & cell, PointAccessorType const & point_accessor)
       {
-        typedef typename viennagrid::result_of::point<PointAccessorType>::type      PointType;
+        typedef typename viennagrid::result_of::point<FacetType>::type      PointType;
 
         typedef typename viennagrid::result_of::vertex<CellType>::type VertexType;
 
@@ -112,16 +112,16 @@ namespace viennafvm
 
     // interface for triangles
     template <typename FacetType, typename WrappedConfigType, typename PointAccessorType>
-    typename viennagrid::result_of::point<PointAccessorType>::type
-    unit_outer_normal(FacetType const & facet, viennagrid::element_t<viennagrid::triangle_tag, WrappedConfigType> const & cell, PointAccessorType point_accessor)
+    typename viennagrid::result_of::point<FacetType>::type
+    unit_outer_normal(FacetType const & facet, viennagrid::element<viennagrid::triangle_tag, WrappedConfigType> const & cell, PointAccessorType const & point_accessor)
     {
       return detail::unit_outer_normal_2d(facet, cell, point_accessor);
     }
 
     // interface for quadrilaterals
     template <typename FacetType, typename WrappedConfigType, typename PointAccessorType>
-    typename viennagrid::result_of::point<PointAccessorType>::type
-    unit_outer_normal(FacetType const & facet, viennagrid::element_t<viennagrid::quadrilateral_tag, WrappedConfigType> const & cell, PointAccessorType point_accessor)
+    typename viennagrid::result_of::point<FacetType>::type
+    unit_outer_normal(FacetType const & facet, viennagrid::element<viennagrid::quadrilateral_tag, WrappedConfigType> const & cell, PointAccessorType const & point_accessor)
     {
       return detail::unit_outer_normal_2d(facet, cell, point_accessor);
     }
@@ -131,10 +131,10 @@ namespace viennafvm
     namespace detail
     {
       template <typename FacetType, typename CellType, typename PointAccessorType>
-      typename viennagrid::result_of::point<PointAccessorType>::type
-      unit_outer_normal_3d(FacetType const & facet, CellType const & cell, PointAccessorType point_accessor)
+      typename viennagrid::result_of::point<FacetType>::type
+      unit_outer_normal_3d(FacetType const & facet, CellType const & cell, PointAccessorType const & point_accessor)
       {
-        typedef typename viennagrid::result_of::point<PointAccessorType>::type      PointType;
+        typedef typename viennagrid::result_of::point<FacetType>::type      PointType;
 
         typedef typename viennagrid::result_of::vertex<CellType>::type VertexType;
 
@@ -179,16 +179,16 @@ namespace viennafvm
 
     // interface for tetrahedra
     template <typename FacetType, typename WrappedConfigType, typename PointAccessorType>
-    typename viennagrid::result_of::point<PointAccessorType>::type
-    unit_outer_normal(FacetType const & facet, viennagrid::element_t<viennagrid::tetrahedron_tag, WrappedConfigType> const & cell, PointAccessorType point_accessor)
+    typename viennagrid::result_of::point<FacetType>::type
+    unit_outer_normal(FacetType const & facet, viennagrid::element<viennagrid::tetrahedron_tag, WrappedConfigType> const & cell, PointAccessorType const & point_accessor)
     {
       return detail::unit_outer_normal_3d(facet, cell, point_accessor);
     }
 
     // interface for hexahedra
     template <typename FacetType, typename WrappedConfigType, typename PointAccessorType>
-    typename viennagrid::result_of::point<PointAccessorType>::type
-    unit_outer_normal(FacetType const & facet, viennagrid::element_t<viennagrid::hexahedron_tag, WrappedConfigType> const & cell, PointAccessorType point_accessor)
+    typename viennagrid::result_of::point<FacetType>::type
+    unit_outer_normal(FacetType const & facet, viennagrid::element<viennagrid::hexahedron_tag, WrappedConfigType> const & cell, PointAccessorType const & point_accessor)
     {
       return detail::unit_outer_normal_3d(facet, cell, point_accessor);
     }

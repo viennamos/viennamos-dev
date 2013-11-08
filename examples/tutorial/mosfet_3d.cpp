@@ -30,7 +30,7 @@
 #include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
@@ -117,8 +117,8 @@ void init_quantities(SegmentationType const & segmentation, StorageType & storag
   //
   // Init permittivity
   //
-  viennafvm::set_quantity_region(segmentation.domain(), storage, permittivity_key(), true);               // permittivity is (for simplicity) defined everywhere
-  viennafvm::set_quantity_value(segmentation.domain(),  storage, permittivity_key(), 11.7 * 8.854e-12);   // permittivity of silicon
+  viennafvm::set_quantity_region(segmentation.mesh(), storage, permittivity_key(), true);               // permittivity is (for simplicity) defined everywhere
+  viennafvm::set_quantity_value(segmentation.mesh(),  storage, permittivity_key(), 11.7 * 8.854e-12);   // permittivity of silicon
   viennafvm::set_quantity_value(segmentation(Oxide),    storage, permittivity_key(), 15.6 * 8.854e-12);   // permittivty of HfO2
 
   //
@@ -152,7 +152,7 @@ void init_quantities(SegmentationType const & segmentation, StorageType & storag
   viennafvm::set_quantity_value(segmentation(Channel),     storage, acceptor_doping_key(),  1e14);  // channel
 
   // built-in potential:
-  viennafvm::set_quantity_region(segmentation.domain(), storage, builtin_potential_key(), true);   // defined everywhere
+  viennafvm::set_quantity_region(segmentation.mesh(), storage, builtin_potential_key(), true);   // defined everywhere
 
   viennafvm::set_quantity_value(segmentation(Gate),          storage, builtin_potential_key(), built_in_potential(300, 1e24, 1e8)); // gate
   viennafvm::set_quantity_value(segmentation(SourceContact), storage, builtin_potential_key(), built_in_potential(300, 1e24, 1e8)); // source contact
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 
   typedef double   numeric_type;
 
-  typedef viennagrid::tetrahedral_3d_domain                       DomainType;
+  typedef viennagrid::tetrahedral_3d_mesh                       DomainType;
   typedef viennagrid::result_of::segmentation<DomainType>::type   SegmentationType;
 
   typedef viennagrid::result_of::cell_tag<DomainType>::type            CellTag;
@@ -314,14 +314,14 @@ int main(int argc, char* argv[])
   viennafvm::set_initial_guess(domain, storage, p,   acceptor_doping_key());
 
 
-  //  
+  //
   // Smooth initial guesses
   //
   for(int si = 0; si < 5; si++)
   {
     viennafvm::smooth_initial_guess(domain, storage, viennafvm::arithmetic_mean_smoother(), psi);
-//    viennafvm::smooth_initial_guess(domain, storage, viennafvm::geometric_mean_smoother(), n); // counterproductive .. 
-//    viennafvm::smooth_initial_guess(domain, storage, viennafvm::geometric_mean_smoother(), p); // counterproductive .. 
+//    viennafvm::smooth_initial_guess(domain, storage, viennafvm::geometric_mean_smoother(), n); // counterproductive ..
+//    viennafvm::smooth_initial_guess(domain, storage, viennafvm::geometric_mean_smoother(), p); // counterproductive ..
     viennafvm::smooth_initial_guess(domain, storage, viennafvm::arithmetic_mean_smoother(), n);
     viennafvm::smooth_initial_guess(domain, storage, viennafvm::arithmetic_mean_smoother(), p);
   }
@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
   pde_solver.set_nonlinear_iterations(100);
   pde_solver.set_nonlinear_breaktol(1.0E-2);
 
-  pde_solver(pde_system, domain, storage, linear_solver); 
+  pde_solver(pde_system, domain, storage, linear_solver);
 
 
   //

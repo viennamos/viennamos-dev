@@ -30,7 +30,7 @@
 #include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
@@ -104,8 +104,8 @@ void init_quantities(SegmentationType const & segmentation, StorageType & storag
   //
   // Init permittivity
   //
-  viennafvm::set_quantity_region(segmentation.domain(), storage, permittivity_key(), true);               // permittivity is (for simplicity) defined everywhere
-  viennafvm::set_quantity_value(segmentation.domain(),  storage, permittivity_key(), 11.7 * 8.854e-12);   // permittivity of silicon
+  viennafvm::set_quantity_region(segmentation.mesh(), storage, permittivity_key(), true);               // permittivity is (for simplicity) defined everywhere
+  viennafvm::set_quantity_value(segmentation.mesh(),  storage, permittivity_key(), 11.7 * 8.854e-12);   // permittivity of silicon
   viennafvm::set_quantity_value(segmentation(3),        storage, permittivity_key(), 15.6 * 8.854e-12);   // permittivty of HfO2
 
   //
@@ -135,7 +135,7 @@ void init_quantities(SegmentationType const & segmentation, StorageType & storag
   viennafvm::set_quantity_value(segmentation(8), storage, acceptor_doping_key(), p_plus);      // body contact (floating body)
 
   // built-in potential:
-  viennafvm::set_quantity_region(segmentation.domain(), storage, builtin_potential_key(), true);   // defined everywhere
+  viennafvm::set_quantity_region(segmentation.mesh(), storage, builtin_potential_key(), true);   // defined everywhere
 
   viennafvm::set_quantity_value(segmentation(1), storage, builtin_potential_key(), built_in_potential(300, n_plus, 1e32/n_plus)); // gate
   viennafvm::set_quantity_value(segmentation(2), storage, builtin_potential_key(), built_in_potential(300, n_plus, 1e32/n_plus)); // source contact
@@ -204,7 +204,7 @@ int main()
 {
   typedef double   numeric_type;
 
-  typedef viennagrid::triangular_2d_domain                         DomainType;
+  typedef viennagrid::triangular_2d_mesh                          DomainType;
   typedef viennagrid::result_of::segmentation<DomainType>::type    SegmentationType;
 
   typedef viennagrid::result_of::cell_tag<DomainType>::type            CellTag;

@@ -27,7 +27,7 @@
 #include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
@@ -51,7 +51,7 @@ int main()
 {
   typedef double   numeric_type;
 
-  typedef viennagrid::line_1d_domain   DomainType;
+  typedef viennagrid::line_1d_mesh   DomainType;
   typedef viennagrid::result_of::segmentation<DomainType>::type SegmentationType;
 
   typedef viennagrid::result_of::cell_tag<DomainType>::type CellTag;
