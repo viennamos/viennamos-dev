@@ -20,74 +20,47 @@
 
 namespace viennamini {
 
-
-
 struct config
 {
-  typedef double Numeric;
-  typedef int Index;
-  typedef std::vector<Numeric> Values;
-  typedef std::map<std::size_t, Numeric > SegmentValues;
+  typedef double                              NumericType;
+  typedef int                                 IndexType;
+  typedef std::vector<NumericType>            ValuesType;
+  typedef std::map<std::size_t, NumericType>  SegmentValuesType;
 
-  config()
-  {
-    local_temperature = 300.0; // K
-    local_nonlinear_iterations = 100;
-    local_nonlinear_breaktol = 1.E-3;
-    local_linear_breaktol = 1.E-14;
-    local_linear_iterations = 1000;
-    local_damping = 1.0;
-    local_initial_guess_smoothing_iterations = 0;
+  typedef NumericType       numeric_type;
+  typedef IndexType         index_type;
+  typedef ValuesType        values_type;
+  typedef SegmentValuesType segmentvalues_type;
 
-    model_drift_diffusion_state = true; // on by default ..
-  }
+  config();
 
-  Numeric&  temperature()                         { return local_temperature; }
-  Index&    nonlinear_iterations()                { return local_nonlinear_iterations; }
-  Numeric&  nonlinear_breaktol()                  { return local_nonlinear_breaktol; }
-  Index&    linear_iterations()                   { return local_linear_iterations; }
-  Numeric&  linear_breaktol()                     { return local_linear_breaktol; }
-  Numeric&  damping()                             { return local_damping; }
-  Index&    initial_guess_smoothing_iterations()  { return local_initial_guess_smoothing_iterations; }
+  NumericType&  temperature();
+  IndexType&    nonlinear_iterations();
+  NumericType&  nonlinear_breaktol();
+  IndexType&    linear_iterations();
+  NumericType&  linear_breaktol();
+  NumericType&  damping();
+  IndexType&    initial_guess_smoothing_iterations();
 
-  void assign_contact(std::size_t segment_index, Numeric value, Numeric workfunction)
-  {
-    segment_contact_values[segment_index] = value;
-    segment_contact_workfunctions[segment_index] = workfunction;
-  }
+  void assign_contact(std::size_t segment_index, NumericType value, NumericType workfunction);
 
-  Numeric get_contact_value(std::size_t segment_index)
-  {
-    return segment_contact_values[segment_index];
-  }
+  NumericType& contact_value(std::size_t segment_index);
 
-  Numeric get_workfunction(std::size_t segment_index)
-  {
-      return segment_contact_workfunctions[segment_index];
-  }
+  NumericType& workfunction(std::size_t segment_index);
 
-  void enable_drift_diffusion(bool state = true)
-  {
-    model_drift_diffusion_state = state;
-  }
-
-  bool has_drift_diffusion() { return model_drift_diffusion_state; }
+  bool& drift_diffusion_state();
 
 private:
-  Numeric local_temperature;
-
-  Index       local_nonlinear_iterations;
-  Numeric     local_nonlinear_breaktol;
-  Index       local_linear_iterations;
-  Numeric     local_linear_breaktol;
-  Numeric     local_damping;
-
-  Index       local_initial_guess_smoothing_iterations;
-
-  SegmentValues segment_contact_values;
-  SegmentValues segment_contact_workfunctions;
-
-  bool        model_drift_diffusion_state;
+  IndexType         nonlinear_iterations_;
+  IndexType         linear_iterations_;
+  IndexType         initial_guess_smoothing_iterations_;
+  NumericType       temperature_;
+  NumericType       nonlinear_breaktol_;
+  NumericType       linear_breaktol_;
+  NumericType       damping_;
+  SegmentValuesType segment_contact_values_;
+  SegmentValuesType segment_contact_workfunctions_;
+  bool              model_drift_diffusion_state_;
 };
 
 

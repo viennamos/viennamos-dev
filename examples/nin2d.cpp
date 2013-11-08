@@ -11,12 +11,6 @@
    license:    To be discussed, see file LICENSE in the ViennaFVM base directory
 ======================================================================= */
 
-//#define VIENNAFVM_DEBUG
-
-// Define NDEBUG to get any reasonable performance with ublas:
-#define NDEBUG
-
-#define VIENNAMINI_DEBUG
 
 // include necessary system headers
 #include <iostream>
@@ -28,18 +22,18 @@
 #include "viennamaterials/library.hpp"
 #include "viennamaterials/kernels/pugixml.hpp"
 
+const int left_contact    = 1;
+const int left_n          = 2;
+const int intrinsic       = 3;
+const int right_n         = 4;
+const int right_contact   = 5;
+
+
 /** @brief Structure the device by assigning 'roles', such as 'Oxide' to a segment.
     Also, assign a doping to the semiconductor regions */
-template<typename Domain, typename Segmentation, typename Storage>
-void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
+template<typename MeshT, typename SegmentationT, typename StorageT>
+void prepare(viennamini::device<MeshT, SegmentationT, StorageT>& device)
 {
-  const int left_contact    = 0;
-  const int left_n          = 1;
-  const int intrinsic       = 2;
-  const int right_n         = 3;
-  const int right_contact   = 4;
-
-
   // Segment 0:
   device.assign_name          (left_contact, "left_contact");
   device.assign_material      (left_contact, "Cu");
@@ -69,9 +63,6 @@ void prepare(viennamini::device<Domain, Segmentation, Storage>& device)
 /** @brief Assign actual values to the dirichlet contacts */
 void prepare_boundary_conditions(viennamini::config& config)
 {
-  const int left_contact    = 0;
-  const int right_contact   = 4;
-
   // Segment 0:
   config.assign_contact(left_contact, 0.0, 0.0);  // segment id, contact potential, workfunction
 
@@ -79,42 +70,20 @@ void prepare_boundary_conditions(viennamini::config& config)
   config.assign_contact(right_contact, 0.5, 0.0);
 }
 
-/** @brief Scales the entire simulation domain (device) by the provided factor. This is accomplished by multiplying all point coordinates with this factor. */
-template <typename DomainType>
-void scale_domain(DomainType & domain, double factor)
-{
-  typedef typename viennagrid::result_of::element<DomainType, viennagrid::vertex_tag>::type         VertexType;
-  typedef typename viennagrid::result_of::element_range<DomainType, viennagrid::vertex_tag>::type   VertexContainer;
-  typedef typename viennagrid::result_of::iterator<VertexContainer>::type                           VertexIterator;
-
-  VertexContainer vertices = viennagrid::elements<VertexType>(domain);
-  for ( VertexIterator vit = vertices.begin();
-        vit != vertices.end();
-        ++vit )
-  {
-    viennagrid::point(domain, *vit) *= factor;
-  }
-}
-
 int main()
 {
-  typedef double                                                       numeric_type;
-  typedef viennagrid::domain_t< viennagrid::config::triangular_2d >    domain_type;
-  typedef viennagrid::result_of::segmentation<domain_type>::type       segmentation_type;
-  typedef segmentation_type::segment_type                              segment_type;
-  typedef viennadata::storage<>                                        storage_type;
-
   //
   // Create a domain from file
   //
-  domain_type         domain;
-  segmentation_type   segments(domain);
-  storage_type        storage;
+  viennamini::MeshTriangular2DType           mesh;
+  viennamini::SegmentationTriangular2DType   segments(mesh);
+  viennamini::StorageType                    storage;
 
   try
   {
     viennagrid::io::netgen_reader my_reader;
-    my_reader(domain, segments,  "../examples/data/nin2d.mesh");
+//    my_reader(mesh, segments, "../external/ViennaDeviceCollection/nin2d/nin2d.mesh");
+    my_reader(mesh, segments, "/home/weinbub/git/ViennaMini/external/ViennaDeviceCollection/nin2d/nin2d.mesh");
   }
   catch (...)
   {
@@ -125,20 +94,18 @@ int main()
   //
   // scale to nanometer
   //
-  scale_domain(domain, 1e-9);
+  viennagrid::scale(mesh, 1e-9);
 
   //
   // Prepare material library
   //
-  typedef vmat::Library<vmat::tag::pugixml>::type  material_library_type;
-  material_library_type matlib;
-  matlib.load("../external/ViennaMaterials/database/materials.xml");
+  viennamini::MatLibPugixmlType matlib;
+  matlib.load("/home/weinbub/git/ViennaMini/external/ViennaMaterials/database/materials.xml");
 
   //
   // Create a device and a config object
   //
-  typedef viennamini::device<domain_type, segmentation_type, storage_type>   device_type;
-  device_type device(domain, segments, storage);
+  viennamini::DeviceTriangular2DType device(mesh, segments, storage);
   viennamini::config config;
 
   //
@@ -166,20 +133,19 @@ int main()
   //
   // Create a simulator object
   //
-  typedef viennamini::simulator<device_type, material_library_type>     simulator_type;
-  simulator_type simulator(device, matlib, config);
+  viennamini::SimulatorTriangular2DType sim(device, matlib, config);
 
   //
   // Run the simulation
   //
-  simulator();
+  sim();
 
   // Write results to vtk files
-  simulator.write_result();
+  sim.write_result("nin2d");
 
 
   std::cout << "********************************************" << std::endl;
-  std::cout << "* MOSFET simulation finished successfully! *" << std::endl;
+  std::cout << "* NIN2D simulation finished successfully! *" << std::endl;
   std::cout << "********************************************" << std::endl;
   return EXIT_SUCCESS;
 }
