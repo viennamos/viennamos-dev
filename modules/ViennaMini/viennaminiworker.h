@@ -79,7 +79,7 @@ private:
     // create a ViennaMini simulator object
     //
     typedef viennamini::simulator<VMiniDevice, MatLib>     Simulator;
-    typedef typename Simulator::Vector                     ResultVector;
+    typedef typename Simulator::VectorType                 ResultVector;
     Simulator simulator(vmini_device, matlib_, config);
 
     // run the simulation
@@ -94,9 +94,9 @@ private:
     typedef typename viennagrid::result_of::element<Domain, viennagrid::vertex_tag>::type   VertexType;
     typedef viennamini::result_accessor<CellType, QuanComplex, ResultVector>                ResultAccessor;
 
-    ResultAccessor source_pot_acc(vmini_device.get_storage(), simulator.result(), simulator.quantity_potential().id());
-    ResultAccessor source_n_acc  (vmini_device.get_storage(), simulator.result(), simulator.quantity_electron_density().id());
-    ResultAccessor source_p_acc  (vmini_device.get_storage(), simulator.result(), simulator.quantity_hole_density().id());
+    ResultAccessor source_pot_acc(vmini_device.storage(), simulator.result(), simulator.quantity_potential().id());
+    ResultAccessor source_n_acc  (vmini_device.storage(), simulator.result(), simulator.quantity_electron_density().id());
+    ResultAccessor source_p_acc  (vmini_device.storage(), simulator.result(), simulator.quantity_hole_density().id());
 
     typedef typename viennadata::result_of::accessor<QuanComplex, Quantity, double, VertexType>::type TargetVertexAccessor;
     TargetVertexAccessor target_pot_vertex_acc = viennadata::make_accessor(device.getQuantityComplex(), target_pot_quan_vertex_);

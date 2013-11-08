@@ -36,11 +36,11 @@
 
 namespace viennamos {
 
-typedef viennagrid::domain_t<viennagrid::config::line_1d>            CellComplex1u;
-typedef viennagrid::domain_t<viennagrid::config::triangular_2d>      CellComplex2u;
-typedef viennagrid::domain_t<viennagrid::config::quadrilateral_2d>   CellComplex2s;
-typedef viennagrid::domain_t<viennagrid::config::tetrahedral_3d>     CellComplex3u;
-typedef viennagrid::domain_t<viennagrid::config::hexahedral_3d>      CellComplex3s;
+typedef viennagrid::mesh<viennagrid::config::line_1d>            CellComplex1u;
+typedef viennagrid::mesh<viennagrid::config::triangular_2d>      CellComplex2u;
+typedef viennagrid::mesh<viennagrid::config::quadrilateral_2d>   CellComplex2s;
+typedef viennagrid::mesh<viennagrid::config::tetrahedral_3d>     CellComplex3u;
+typedef viennagrid::mesh<viennagrid::config::hexahedral_3d>      CellComplex3s;
 
 typedef viennagrid::result_of::segmentation<CellComplex1u>::type     Segmentation1u;
 typedef viennagrid::result_of::segmentation<CellComplex2u>::type     Segmentation2u;

@@ -150,11 +150,11 @@ struct viennagrid_domain {};
 template<typename DeviceT>
 inline void copy(DeviceT& device, Quantity const& quantity, MultiView* multiview)
 {
-  typedef typename DeviceT::CellComplex                DomainType;
-  typedef typename DeviceT::Segmentation               SegmentationType;
-  typedef typename DeviceT::QuantityComplex            QuantityComplexType;
-  typedef typename SegmentationType::iterator          SegmentationIteratorType;
-  typedef typename SegmentationType::segment_type      SegmentType;
+  typedef typename DeviceT::CellComplex                   DomainType;
+  typedef typename DeviceT::Segmentation                  SegmentationType;
+  typedef typename DeviceT::QuantityComplex               QuantityComplexType;
+  typedef typename SegmentationType::iterator             SegmentationIteratorType;
+  typedef typename SegmentationType::segment_handle_type  SegmentType;
 
   typedef typename viennagrid::result_of::cell_tag<DomainType>::type                                  CellTag;
   typedef typename viennagrid::result_of::element<DomainType, CellTag>::type                          CellType;
@@ -230,11 +230,11 @@ inline void copy(DeviceT& device, Quantity const& quantity, MultiView* multiview
 template<typename DeviceT>
 inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, int VTK_CELL_TYPE)
 {
-  typedef typename DeviceT::CellComplex                DomainType;
-  typedef typename DeviceT::Segmentation               SegmentationType;
-  typedef typename DeviceT::QuantityComplex            QuantityComplexType;
-  typedef typename SegmentationType::iterator          SegmentationIteratorType;
-  typedef typename SegmentationType::segment_type      SegmentType;
+  typedef typename DeviceT::CellComplex                     DomainType;
+  typedef typename DeviceT::Segmentation                    SegmentationType;
+  typedef typename DeviceT::QuantityComplex                 QuantityComplexType;
+  typedef typename SegmentationType::iterator               SegmentationIteratorType;
+  typedef typename SegmentationType::segment_handle_type    SegmentType;
 
   typedef typename viennagrid::result_of::cell_tag<DomainType>::type                                  CellTag;
   typedef typename viennagrid::result_of::element<DomainType, CellTag>::type                          CellType;
