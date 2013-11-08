@@ -238,6 +238,8 @@ namespace viennadata
     reference       operator()(AccessType const & element)       { return access(element); }
     const_reference operator()(AccessType const & element) const { return access(element); }
 
+    reference       at(AccessType const & element)       { return access(element); }
+    const_reference at(AccessType const & element) const { return access(element); }
 
     void erase(AccessType const & element)
     {
