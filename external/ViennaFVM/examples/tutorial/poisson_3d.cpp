@@ -26,7 +26,7 @@
 #include "viennafvm/linear_solvers/viennacl.hpp"
 
 // ViennaGrid includes:
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include "viennagrid/config/default_configs.hpp"
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
@@ -55,7 +55,7 @@ int main()
 {
   typedef double   numeric_type;
 
-  typedef viennagrid::tetrahedral_3d_domain   DomainType;
+  typedef viennagrid::tetrahedral_3d_mesh   DomainType;
   typedef viennagrid::result_of::segmentation<DomainType>::type SegmentationType;
 
   typedef viennagrid::result_of::cell_tag<DomainType>::type CellTag;
@@ -112,7 +112,7 @@ int main()
   viennadata::result_of::accessor<StorageType, BoundaryKey, bool, CellType>::type boundary_accessor =
       viennadata::make_accessor(storage, BoundaryKey( u.id() ));
 
-  CellContainer cells = viennagrid::elements(domain);
+  CellContainer cells(domain);
   for (CellIterator cit  = cells.begin();
                     cit != cells.end();
                   ++cit)
@@ -122,7 +122,7 @@ int main()
     // write dummy permittivity to cells:
     permittivity_accessor(*cit) = 1.0;
 
-    VertexOnCellContainer vertices = viennagrid::elements(*cit);
+    VertexOnCellContainer vertices(*cit);
     for (VertexOnCellIterator vit  = vertices.begin();
                               vit != vertices.end();
                             ++vit)

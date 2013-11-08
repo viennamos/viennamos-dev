@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include "viennagrid/point.hpp"
 
 #include "viennamath/runtime/function_symbol.hpp"
@@ -40,7 +40,7 @@ namespace viennafvm
     typedef typename viennagrid::result_of::const_element_range<DomainSegmentType, CellTag>::type  CellContainer;
     typedef typename viennagrid::result_of::iterator<CellContainer>::type                       CellIterator;
 
-    CellContainer cells = viennagrid::elements(domseg);
+    CellContainer cells(domseg);
     for (CellIterator cit  = cells.begin();
                       cit != cells.end();
                     ++cit)

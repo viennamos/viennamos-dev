@@ -27,7 +27,7 @@
 // *** vienna includes:
 //
 #include "viennadata/api.hpp"
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include "viennamath/expression.hpp"
 
 namespace viennafvm

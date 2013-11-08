@@ -72,7 +72,7 @@ namespace viennafvm
 
         typename viennadata::result_of::accessor<const StorageType, viennafvm::mapping_key, long, CellType>::type cell_mapping_accessor =
           viennadata::make_accessor(storage, map_key);
-        
+
         typename viennadata::result_of::accessor<const StorageType, BoundaryKeyType, double, CellType>::type boundary_accessor =
           viennadata::make_accessor(storage, bnd_key);
 
@@ -82,7 +82,7 @@ namespace viennafvm
 
         typename viennagrid::result_of::accessor< std::deque<double>, CellType >::type output_value_accessor( output_values[result_string] );
 
-        CellContainer cells = viennagrid::elements(domain);
+        CellContainer cells(domain);
         for (CellIterator cit = cells.begin();
                           cit != cells.end();
                         ++cit)

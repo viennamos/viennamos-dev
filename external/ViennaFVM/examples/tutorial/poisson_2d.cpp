@@ -26,7 +26,7 @@
 
 
 // ViennaGrid includes:
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 #include <viennagrid/config/default_configs.hpp>
 #include "viennagrid/io/netgen_reader.hpp"
 #include "viennagrid/io/vtk_writer.hpp"
@@ -48,7 +48,7 @@ int main()
 {
   typedef double   numeric_type;
 
-  typedef viennagrid::triangular_2d_domain   DomainType;
+  typedef viennagrid::triangular_2d_mesh   DomainType;
   typedef viennagrid::result_of::segmentation<DomainType>::type SegmentationType;
 
   typedef viennagrid::result_of::cell_tag<DomainType>::type CellTag;
@@ -61,7 +61,7 @@ int main()
   typedef viennadata::storage<> StorageType;
 
 
-  
+
 
   typedef viennagrid::result_of::element_range<DomainType, CellTag>::type     CellContainer;
   typedef viennagrid::result_of::iterator<CellContainer>::type                CellIterator;
@@ -111,25 +111,25 @@ int main()
 
   viennadata::result_of::accessor<StorageType, viennafvm::boundary_key, bool, CellType>::type boundary_u_accessor =
       viennadata::make_accessor(storage, viennafvm::boundary_key( u.id() ));
-      
+
   viennadata::result_of::accessor<StorageType, viennafvm::boundary_key, double, CellType>::type boundary_u_value_accessor =
       viennadata::make_accessor(storage, viennafvm::boundary_key( u.id() ));
 
-      
+
   viennadata::result_of::accessor<StorageType, viennafvm::boundary_key, bool, CellType>::type boundary_v_accessor =
       viennadata::make_accessor(storage, viennafvm::boundary_key( v.id() ));
 
   viennadata::result_of::accessor<StorageType, viennafvm::boundary_key, double, CellType>::type boundary_v_value_accessor =
       viennadata::make_accessor(storage, viennafvm::boundary_key( v.id() ));
 
-      
+
   //setting some boundary flags:
-  CellContainer cells = viennagrid::elements(domain);
+  CellContainer cells(domain);
   for (CellIterator cit  = cells.begin();
                     cit != cells.end();
                   ++cit)
   {
-    VertexOnCellContainer vertices = viennagrid::elements(*cit);
+    VertexOnCellContainer vertices(*cit);
     for (VertexOnCellIterator vit  = vertices.begin();
                               vit != vertices.end();
                             ++vit)

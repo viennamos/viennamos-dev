@@ -32,16 +32,16 @@ template <typename EntityType>
 struct extract_domain
 {
    typedef EntityType  type;
-   static EntityType       & apply(EntityType       & domain) { return domain; }
-   static EntityType const & apply(EntityType const & domain) { return domain; }
+   static EntityType       & apply(EntityType       & mesh) { return mesh; }
+   static EntityType const & apply(EntityType const & mesh) { return mesh; }
 };
 
 template <typename ConfigType>
-struct extract_domain<viennagrid::segment_t<ConfigType> >
+struct extract_domain<viennagrid::segmentation<ConfigType> >
 {
-   typedef typename viennagrid::result_of::domain<ConfigType>::type    type;
-   static type       & apply(viennagrid::segment_t<ConfigType>       & seg) { return seg.domain(); }
-   static type const & apply(viennagrid::segment_t<ConfigType> const & seg) { return seg.domain(); }
+   typedef typename viennagrid::result_of::mesh<ConfigType>::type    type;
+   static type       & apply(viennagrid::segment_handle<ConfigType>       & seg) { return seg.mesh(); }
+   static type const & apply(viennagrid::segment_handle<ConfigType> const & seg) { return seg.mesh(); }
 };
 
 
@@ -91,7 +91,7 @@ long create_mapping(LinPdeSysT & pde_system,
     typedef typename viennagrid::result_of::const_element_range<TrueDomainType, CellTag>::type  DomainCellContainer;
     typedef typename viennagrid::result_of::iterator<DomainCellContainer>::type                    DomainCellIterator;
 
-    DomainCellContainer cells = viennagrid::elements(extract_domain<DomainType>::apply(domain));
+    DomainCellContainer cells(extract_domain<DomainType>::apply(domain));
     for (DomainCellIterator cit  = cells.begin();
                             cit != cells.end();
                           ++cit)
@@ -101,7 +101,7 @@ long create_mapping(LinPdeSysT & pde_system,
     viennadata::access<MappingKeyType, bool>(storage, map_key, extract_domain<DomainType>::apply(domain)) = true;
   }
 
-  CellContainer cells = viennagrid::elements(domain);
+  CellContainer cells(domain);
   for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
   {
     if (boundary_accessor(*cit))  // boundary cell

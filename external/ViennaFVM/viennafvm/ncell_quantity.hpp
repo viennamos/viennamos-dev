@@ -22,7 +22,7 @@
 #include "viennadata/api.hpp"
 
 #include "viennagrid/forwards.hpp"
-#include "viennagrid/domain/segmentation.hpp"
+#include "viennagrid/mesh/segmentation.hpp"
 
 /** @file  ncell_quantity.hpp
     @brief Defines ViennaMath extensions: Piecewise constants (constants on each cell) and flux evaluators on interfaces
@@ -301,7 +301,7 @@ namespace viennafvm
       typedef typename viennagrid::result_of::const_element_range<DomainSegmentType, CellTag>::type  CellContainer;
       typedef typename viennagrid::result_of::iterator<CellContainer>::type                       CellIterator;
 
-      CellContainer cells = viennagrid::elements(seg);
+      CellContainer cells(seg);
       for (CellIterator cit  = cells.begin();
                         cit != cells.end();
                       ++cit)
@@ -348,7 +348,7 @@ namespace viennafvm
       typedef typename viennagrid::result_of::const_element_range<DomSegType, CellTag>::type  CellContainer;
       typedef typename viennagrid::result_of::iterator<CellContainer>::type                       CellIterator;
 
-      CellContainer cells = viennagrid::elements(seg);
+      CellContainer cells(seg);
       for (CellIterator cit  = cells.begin();
                         cit != cells.end();
                       ++cit)

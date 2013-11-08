@@ -22,7 +22,7 @@
 
 #ifdef VIENNAFVM_VERBOSE
 #include "viennafvm/timer.hpp"
-#endif 
+#endif
 #include "viennafvm/forwards.h"
 #include "viennafvm/linear_assembler.hpp"
 #include "viennafvm/linear_solvers/viennacl.hpp"
@@ -71,7 +71,7 @@ namespace viennafvm
     typename viennadata::result_of::accessor<StorageType, viennafvm::disable_quantity_key, bool, CellType>::type disable_quantity_accessor =
         viennadata::make_accessor(storage, viennafvm::disable_quantity_key(unknown_id));
 
-    CellContainer cells = viennagrid::elements(domain);
+    CellContainer cells(domain);
 
     // get damping term
     numeric_type A_n = 0.0;
@@ -159,7 +159,7 @@ namespace viennafvm
     typename viennadata::result_of::accessor<StorageType, viennafvm::disable_quantity_key, bool, CellType>::type disable_quantity_accessor =
         viennadata::make_accessor(storage, viennafvm::disable_quantity_key(unknown_id));
 
-      CellContainer cells = viennagrid::elements(domain);
+      CellContainer cells(domain);
       for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
       {
         if (boundary_accessor(*cit))  // boundary cell
@@ -208,7 +208,7 @@ namespace viennafvm
             timer.start();
             std::cout << " * Quantity " << pde_index << " : " << std::endl;
             std::cout << " ------------------------------------------" << std::endl;
-          #endif 
+          #endif
 
             MatrixType system_matrix;
             VectorType load_vector;
@@ -216,36 +216,36 @@ namespace viennafvm
           #ifdef VIENNAFVM_VERBOSE
             viennafvm::Timer subtimer;
             subtimer.start();
-          #endif 
+          #endif
             viennafvm::linear_assembler fvm_assembler;
             fvm_assembler(pde_system, domain, storage, system_matrix, load_vector);
           #ifdef VIENNAFVM_VERBOSE
             std::cout.precision(3);
             subtimer.get();
             std::cout << "   Assembly time : " << std::fixed << subtimer.get() << " s" << std::endl;
-          #endif 
+          #endif
 
             VectorType update;
             linear_solver(system_matrix, load_vector, update);
           #ifdef VIENNAFVM_VERBOSE
             std::cout << "   Precond time  : " << std::fixed << linear_solver.last_pc_time() << " s" << std::endl;
             std::cout << "   Solver time   : " << std::fixed << linear_solver.last_solver_time() << " s" << std::endl;
-          #endif 
+          #endif
 
           #ifdef VIENNAFVM_VERBOSE
             subtimer.start();
             numeric_type update_norm = apply_update(pde_system, pde_index, domain, storage, update, damping);
-          #else 
+          #else
             apply_update(pde_system, pde_index, domain, storage, update, damping);
-          #endif 
+          #endif
 
           #ifdef VIENNAFVM_VERBOSE
             subtimer.get();
             std::cout << "   Update time   : " << std::fixed << subtimer.get() << " s" << std::endl;
-          #endif 
+          #endif
 
           #ifdef VIENNAFVM_VERBOSE
-            timer.get(); 
+            timer.get();
             std::cout << "   Total time    : " << std::fixed << timer.get() << " s" << std::endl;
 
             std::cout.precision(cout_precision);
@@ -261,7 +261,7 @@ namespace viennafvm
             std::cout << "   Update norm   : "  << update_norm << std::endl;
 
             std::cout << std::endl;
-          #endif 
+          #endif
           }
           std::size_t map_index = create_mapping(pde_system, domain, storage);
           result_.resize(map_index);
@@ -293,7 +293,7 @@ namespace viennafvm
                 timer.start();
                 std::cout << " * Quantity " << pde_index << " : " << std::endl;
                 std::cout << "   ------------------------------------" << std::endl;
-              #endif 
+              #endif
 
 
                 MatrixType system_matrix;
@@ -302,7 +302,7 @@ namespace viennafvm
               #ifdef VIENNAFVM_VERBOSE
                 viennafvm::Timer subtimer;
                 subtimer.start();
-              #endif 
+              #endif
                 // assemble linearized systems
                 viennafvm::linear_assembler fvm_assembler;
                 fvm_assembler(pde_system, pde_index, domain, storage, system_matrix, load_vector);
@@ -310,26 +310,26 @@ namespace viennafvm
                 std::cout.precision(3);
                 subtimer.get();
                 std::cout << "   Assembly time : " << std::fixed << subtimer.get() << " s" << std::endl;
-              #endif 
+              #endif
 
                 VectorType update;
                 linear_solver(system_matrix, load_vector, update);
               #ifdef VIENNAFVM_VERBOSE
                 std::cout << "   Precond time  : " << std::fixed << linear_solver.last_pc_time() << " s" << std::endl;
                 std::cout << "   Solver time   : " << std::fixed << linear_solver.last_solver_time() << " s" << std::endl;
-              #endif 
+              #endif
 
               #ifdef VIENNAFVM_VERBOSE
                 subtimer.start();
-              #endif 
+              #endif
                 numeric_type update_norm = apply_update(pde_system, pde_index, domain, storage, update, damping);
               #ifdef VIENNAFVM_VERBOSE
                 subtimer.get();
                 std::cout << "   Update time   : " << std::fixed << subtimer.get() << " s" << std::endl;
-              #endif 
+              #endif
 
               #ifdef VIENNAFVM_VERBOSE
-                timer.get(); 
+                timer.get();
                 std::cout << "   Total time    : " << std::fixed << timer.get() << " s" << std::endl;
 
                 std::cout.precision(cout_precision);
@@ -352,7 +352,7 @@ namespace viennafvm
                 {
                   if(update_norm > previous_update_norms[pde_index])
                     norm_tendency_indicator = "<up>";
-                  else 
+                  else
                   if(update_norm < previous_update_norms[pde_index])
                     norm_tendency_indicator = "<down>";
                   else
@@ -365,9 +365,9 @@ namespace viennafvm
                   std::cout << " ( **** )" << std::endl;
                 else
                   std::cout << std::endl;
-    
+
                 std::cout << std::endl;
-              #endif 
+              #endif
 
                 if(pde_index == break_pde) // check if the potential update has converged ..
                 {

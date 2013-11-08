@@ -31,7 +31,7 @@
 #include "viennagrid/algorithm/voronoi.hpp"
 #include "viennagrid/algorithm/volume.hpp"
 #include "viennagrid/algorithm/centroid.hpp"
-#include "viennagrid/domain/coboundary_iteration.hpp"
+#include "viennagrid/mesh/coboundary_iteration.hpp"
 
 #include "viennamath/manipulation/eval.hpp"
 #include "viennamath/manipulation/diff.hpp"
@@ -239,7 +239,7 @@ namespace viennafvm
         //
         // Actual assembly:
         //
-        CellContainer cells = viennagrid::elements(segment);
+        CellContainer cells(segment);
         for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
         {
           long row_index = cell_mapping_accessor(*cit);
@@ -262,7 +262,7 @@ namespace viennafvm
           //
           // Boundary integral terms:
           //
-          FacetOnCellContainer facets_on_cell = viennagrid::elements(*cit);
+          FacetOnCellContainer facets_on_cell(*cit);
           for (FacetOnCellIterator focit  = facets_on_cell.begin();
                                    focit != facets_on_cell.end();
                                  ++focit)
@@ -355,7 +355,7 @@ namespace viennafvm
             viennadata::make_accessor(storage, viennafvm::facet_distance_key());
 
 
-        FacetContainer facets = viennagrid::elements(segment);
+        FacetContainer facets(segment);
         for (FacetIterator fit  = facets.begin();
                            fit != facets.end();
                          ++fit)

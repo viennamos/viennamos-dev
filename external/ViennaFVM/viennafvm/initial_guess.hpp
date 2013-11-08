@@ -23,7 +23,7 @@
 #include "viennafvm/util.hpp"
 #include "viennafvm/boundary.hpp"
 
-#include "viennagrid/domain/domain.hpp"
+#include "viennagrid/mesh/mesh.hpp"
 
 #include "viennadata/api.hpp"
 
@@ -78,7 +78,7 @@ namespace viennafvm
     typedef typename viennagrid::result_of::const_element_range<DomainSegmentType, CellTag>::type   CellContainer;
     typedef typename viennagrid::result_of::iterator<CellContainer>::type                       CellIterator;
 
-    CellContainer cells = viennagrid::elements(domain);
+    CellContainer cells(domain);
     for (CellIterator cit  = cells.begin();
                       cit != cells.end();
                     ++cit)
@@ -151,7 +151,7 @@ namespace viennafvm
     //
     // Phase 1: Gather neighboring values:
     //
-    CellContainer cells = viennagrid::elements(domseg);
+    CellContainer cells(domseg);
     for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
     {
       if (quantity_disabled_accessor(*cit))
@@ -162,7 +162,7 @@ namespace viennafvm
       if (boundary_accessor(*cit)) // Dirichlet boundaries should not be smoothed
         continue;
 
-      FacetOnCellContainer facets_on_cell = viennagrid::elements(*cit);
+      FacetOnCellContainer facets_on_cell(*cit);
       for (FacetOnCellIterator focit  = facets_on_cell.begin();
                                focit != facets_on_cell.end();
                              ++focit)
