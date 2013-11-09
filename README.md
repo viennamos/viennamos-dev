@@ -2,6 +2,10 @@ ViennaMOS
 --------------------------
 
 This is the developer repository of [ViennaMOS](http://viennamos.sourceforge.net/). 
+ViennaMOS is currently in a prototype state. If you are interested in contributing
+to this project, please leave comments to share your views on the most urgent tasks to
+advance ViennaMOS in a productive state.
+The source code is available under the GNU GPL.
 Git snapshot packages and releases are available at [sourceforge](https://sourceforge.net/projects/viennamos/).
 
 
