@@ -43,16 +43,13 @@ class ViennaMiniForm : public QWidget
     Q_OBJECT
 
 public:
-
     explicit ViennaMiniForm(QWidget *parent = 0);
     ~ViennaMiniForm();
     QString getMeshType();
     double getScaling();
     double getTemperature();
-    void setupDevice(int number_of_segments);
+    void setupDevice(std::vector<int> const& segment_indices);
     DeviceParameters& getParameters();
-
-
 signals:
     void meshFileEntered(QString const& filename);
 
@@ -90,12 +87,12 @@ private slots:
 
 private:
     Ui::ViennaMiniForm *ui;
-    DeviceParameters device_parameters;
-    QString      meshfile;
-    QStringList  list_oxides;
-    QStringList  list_metals;
-    QStringList  list_semiconductors;
-    bool         resize_device_parameters;
+    DeviceParameters    device_parameters;
+    QString             meshfile;
+    QStringList         list_oxides;
+    QStringList         list_metals;
+    QStringList         list_semiconductors;
+    bool                resize_device_parameters;
 };
 
 #endif // VIENNAMINIFORM_H

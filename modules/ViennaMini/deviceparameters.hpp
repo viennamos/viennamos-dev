@@ -1,7 +1,7 @@
 #ifndef DEVICEPARAMETERS_HPP
 #define DEVICEPARAMETERS_HPP
 
-#include <vector>
+#include <map>
 #include "segmentparameters.hpp"
 
 #include "viennamini/config.hpp"
@@ -9,12 +9,12 @@
 struct DeviceParameters
 {
     typedef double Numeric;
-    typedef std::vector<SegmentParameters>  DomainParameters;
+    typedef std::map<int, SegmentParameters>  DomainParameters;
     typedef viennamini::config      SimConfig;
 
     typedef DomainParameters::iterator iterator;
 
-    SegmentParameters& operator[](std::size_t i)
+    SegmentParameters& operator[](int i)
     {
         return domain_paras[i];
     }
@@ -31,7 +31,7 @@ struct DeviceParameters
         this->reset();
     }
     std::size_t size()  { return domain_paras.size(); }
-    void resize(std::size_t const& size) { domain_paras.resize(size); }
+//    void resize(std::size_t const& size) { domain_paras.resize(size); }
     iterator begin() { return domain_paras.begin(); }
     iterator end()   { return domain_paras.end(); }
 

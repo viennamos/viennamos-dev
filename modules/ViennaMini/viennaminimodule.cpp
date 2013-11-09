@@ -269,7 +269,15 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
                 viennagrid::scale(device.getCellComplex(), widget->getScaling());
                 viennamos::copy(device, multiview);
                 device_id = viennamos::Device2u::ID();
-                device_segments = device.getSegmentation().size();
+//                device_segments = device.getSegmentation().size();
+
+                std::vector<int> segment_indices;
+                for (typename viennamos::Device2u::Segmentation::iterator it = device.getSegmentation().begin();
+                     it != device.getSegmentation().end(); ++it)
+                {
+                    segment_indices.push_back(it->id());
+                }
+                widget->setupDevice(segment_indices);
             }
             catch(std::exception& e) {
                 QMessageBox::critical(0, QString("Error"), QString(e.what()));
@@ -286,7 +294,14 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
                 viennagrid::scale(device.getCellComplex(), widget->getScaling());
                 viennamos::copy(device, multiview);
                 device_id = viennamos::Device3u::ID();
-                device_segments = device.getSegmentation().size();
+//                device_segments = device.getSegmentation().size();
+                std::vector<int> segment_indices;
+                for (typename viennamos::Device3u::Segmentation::iterator it = device.getSegmentation().begin();
+                     it != device.getSegmentation().end(); ++it)
+                {
+                    segment_indices.push_back(it->id());
+                }
+                widget->setupDevice(segment_indices);
             }
             catch(std::exception& e) {
                 QMessageBox::critical(0, QString("Error"), QString(e.what()));
@@ -306,7 +321,7 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
 
 
     //
-    widget->setupDevice(device_segments);
+//    widget->setupDevice(device_segments);
 
     // show the loaded device in the current render window
     multiview->show_current_grid();

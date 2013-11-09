@@ -192,19 +192,20 @@ void ViennaMiniForm::on_pushButtonLoadMesh_clicked()
     }
 }
 
-void ViennaMiniForm::setupDevice(int number_of_segments)
+void ViennaMiniForm::setupDevice(std::vector<int> const& segment_indices)
 {
     if(resize_device_parameters)
     {
-        device_parameters.resize(number_of_segments);
+        device_parameters.clear();
     }
 
     ui->tableWidget->clearContents();
-    ui->tableWidget->setRowCount(number_of_segments);
-    for(int i = 0; i < number_of_segments; i++)
+    ui->tableWidget->setRowCount(segment_indices.size());
+    for(int i = 0; i < segment_indices.size(); i++)
     {
-        QTableWidgetItem *item = new QTableWidgetItem(QString::number(i));
+        QTableWidgetItem *item = new QTableWidgetItem(QString::number(segment_indices[i]));
         item->setFlags(item->flags() ^ Qt::ItemIsEditable); // make the table not editable
+        item->setData(Qt::UserRole, segment_indices[i]);
         ui->tableWidget->setItem(i, 0, item);
     }
 
@@ -216,7 +217,7 @@ void ViennaMiniForm::setupDevice(int number_of_segments)
     ui->tabWidget->setTabEnabled(1, true);
 
     // select the first segment by default
-    ui->tableWidget->setCurrentCell(0, 0);
+    ui->tableWidget->setCurrentCell(segment_indices[0], 0);
 //    this->toggleParameters(true);
 //    this->showSegmentParameters(0,0); //show default parameters for the initial selection
 }
@@ -225,48 +226,51 @@ void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second
 {
     if(row < 0) return;
 
+    QTableWidgetItem* widgetItem = ui->tableWidget->item(row, 0);
+    int segment_id = widgetItem->data(Qt::UserRole).toInt();
+
     // deactivating autoexclusive enabls to unselect all radio buttons
     ui->radioButtonContactSingle->setAutoExclusive(false);
     ui->radioButtonContactRange->setAutoExclusive(false);
 
-    ui->lineEditSegmentName->setText(device_parameters[row].name);
-    ui->checkBoxContact->setChecked(device_parameters[row].isContact);
-    ui->radioButtonContactSingle->setChecked(device_parameters[row].isContactSingle);
-    ui->lineEditContactSingle->setText(QString::number(device_parameters[row].contact));
-    ui->radioButtonContactRange->setChecked(device_parameters[row].isContactRange);
-    ui->lineEditContactRangeFrom->setText(QString::number(device_parameters[row].contactFrom));
-    ui->lineEditContactRangeTo->setText(QString::number(device_parameters[row].contactTo));
-    ui->lineEditWorkfunction->setText(QString::number(device_parameters[row].workfunction));
-    ui->checkBoxOxide->setChecked(device_parameters[row].isOxide);
-    ui->checkBoxSemiconductor->setChecked(device_parameters[row].isSemiconductor);
-    ui->lineEditSemiconductorDonors->setText(QString::number(device_parameters[row].donors));
-    ui->lineEditSemiconductorAcceptors->setText(QString::number(device_parameters[row].acceptors));
+    ui->lineEditSegmentName->setText(device_parameters[segment_id].name);
+    ui->checkBoxContact->setChecked(device_parameters[segment_id].isContact);
+    ui->radioButtonContactSingle->setChecked(device_parameters[segment_id].isContactSingle);
+    ui->lineEditContactSingle->setText(QString::number(device_parameters[segment_id].contact));
+    ui->radioButtonContactRange->setChecked(device_parameters[segment_id].isContactRange);
+    ui->lineEditContactRangeFrom->setText(QString::number(device_parameters[segment_id].contactFrom));
+    ui->lineEditContactRangeTo->setText(QString::number(device_parameters[segment_id].contactTo));
+    ui->lineEditWorkfunction->setText(QString::number(device_parameters[segment_id].workfunction));
+    ui->checkBoxOxide->setChecked(device_parameters[segment_id].isOxide);
+    ui->checkBoxSemiconductor->setChecked(device_parameters[segment_id].isSemiconductor);
+    ui->lineEditSemiconductorDonors->setText(QString::number(device_parameters[segment_id].donors));
+    ui->lineEditSemiconductorAcceptors->setText(QString::number(device_parameters[segment_id].acceptors));
 
     // make sure that only one of the available radios can be selected
     ui->radioButtonContactSingle->setAutoExclusive(true);
     ui->radioButtonContactRange->setAutoExclusive(true);
 
     // based on is{contact,oxide,semiconductor} deactivate/activate the corresponding parameter ui elements
-    if(device_parameters[row].isContact)
+    if(device_parameters[segment_id].isContact)
     {
         this->toggleSegmentContact(true);
-        ui->comboBoxContactMaterial->setCurrentIndex(ui->comboBoxContactMaterial->findText(device_parameters[row].material));
+        ui->comboBoxContactMaterial->setCurrentIndex(ui->comboBoxContactMaterial->findText(device_parameters[segment_id].material));
     }
     else
         this->toggleSegmentContact(false);
 
-    if(device_parameters[row].isOxide)
+    if(device_parameters[segment_id].isOxide)
     {
         this->toggleSegmentOxide(true);
-        ui->comboBoxOxideMaterial->setCurrentIndex(ui->comboBoxOxideMaterial->findText(device_parameters[row].material));
+        ui->comboBoxOxideMaterial->setCurrentIndex(ui->comboBoxOxideMaterial->findText(device_parameters[segment_id].material));
     }
     else
         this->toggleSegmentOxide(false);
 
-    if(device_parameters[row].isSemiconductor)
+    if(device_parameters[segment_id].isSemiconductor)
     {
         this->toggleSegmentSemiconductor(true);
-        ui->comboBoxSemiconductorMaterial->setCurrentIndex(ui->comboBoxSemiconductorMaterial->findText(device_parameters[row].material));
+        ui->comboBoxSemiconductorMaterial->setCurrentIndex(ui->comboBoxSemiconductorMaterial->findText(device_parameters[segment_id].material));
     }
     else
         this->toggleSegmentSemiconductor(false);
@@ -304,57 +308,57 @@ void ViennaMiniForm::setNonLinearDamping(QString const& value_str)
 
 void ViennaMiniForm::setSegmentName(QString const& name)
 {
-    device_parameters[ui->tableWidget->currentRow()].name = name;
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].name = name;
 }
 
 void ViennaMiniForm::setSegmentMaterial(QString const& name)
 {
-    device_parameters[ui->tableWidget->currentRow()].material = name;
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].material = name;
 }
 
 void ViennaMiniForm::setSegmentContactIsSingle(bool state)
 {
-    device_parameters[ui->tableWidget->currentRow()].isContactSingle = state;
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isContactSingle = state;
 }
 
 void ViennaMiniForm::setSegmentContactContactValue(QString const& value_str)
 {
-    device_parameters[ui->tableWidget->currentRow()].contact = value_str.toDouble();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].contact = value_str.toDouble();
 }
 
 void ViennaMiniForm::setSegmentContactIsRange(bool state)
 {
-    device_parameters[ui->tableWidget->currentRow()].isContactRange = state;
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isContactRange = state;
 }
 
 void ViennaMiniForm::setSegmentContactContactFrom(QString const& value_str)
 {
-    device_parameters[ui->tableWidget->currentRow()].contactFrom = value_str.toDouble();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].contactFrom = value_str.toDouble();
 }
 
 void ViennaMiniForm::setSegmentContactContactTo(QString const& value_str)
 {
-    device_parameters[ui->tableWidget->currentRow()].contactTo = value_str.toDouble();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].contactTo = value_str.toDouble();
 }
 
 void ViennaMiniForm::setSegmentContactWorkfunction(QString const& value_str)
 {
-    device_parameters[ui->tableWidget->currentRow()].workfunction = value_str.toDouble();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].workfunction = value_str.toDouble();
 }
 
 void ViennaMiniForm::setSegmentSCAcceptors(QString const& value_str)
 {
-    device_parameters[ui->tableWidget->currentRow()].acceptors = value_str.toDouble();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].acceptors = value_str.toDouble();
 }
 
 void ViennaMiniForm::setSegmentSCDonors(QString const& value_str)
 {
-    device_parameters[ui->tableWidget->currentRow()].donors = value_str.toDouble();
+  device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].donors = value_str.toDouble();
 }
 
 void ViennaMiniForm::makeCurrentSegmentContact(bool state)
 {
-    device_parameters[ui->tableWidget->currentRow()].isContact = ui->checkBoxContact->isChecked();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isContact = ui->checkBoxContact->isChecked();
     if(state)
     {
         this->toggleSegmentContact(true);
@@ -368,7 +372,7 @@ void ViennaMiniForm::makeCurrentSegmentContact(bool state)
 
 void ViennaMiniForm::makeCurrentSegmentOxide(bool state)
 {
-    device_parameters[ui->tableWidget->currentRow()].isOxide = ui->checkBoxOxide->isChecked();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isOxide = ui->checkBoxOxide->isChecked();
     if(state)
     {
         this->toggleSegmentOxide(true);
@@ -381,7 +385,7 @@ void ViennaMiniForm::makeCurrentSegmentOxide(bool state)
 
 void ViennaMiniForm::makeCurrentSegmentSemiconductor(bool state)
 {
-    device_parameters[ui->tableWidget->currentRow()].isSemiconductor = ui->checkBoxSemiconductor->isChecked();
+    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isSemiconductor = ui->checkBoxSemiconductor->isChecked();
     if(state)
     {
         this->toggleSegmentSemiconductor(true);
@@ -450,25 +454,31 @@ void ViennaMiniForm::saveState(QSettings& settings)
 
     settings.beginGroup("device");
     settings.setValue("segmentsize", int(device_parameters.size()));
-    for(unsigned int si = 0; si < device_parameters.size(); si++)
+
+    int si = 0;
+    for(DeviceParameters::iterator iter = device_parameters.begin();
+        iter != device_parameters.end(); iter++)
     {
-        settings.beginGroup("segment"+QString::number(si));
-        settings.setValue("name", device_parameters[si].name);
-        settings.setValue("material", device_parameters[si].material);
+        int segment_index = iter->first;
+        SegmentParameters& segpara = iter->second;
+        settings.beginGroup("segment"+QString::number(si++));
+        settings.setValue("id", segment_index);
+        settings.setValue("name", segpara.name);
+        settings.setValue("material", segpara.material);
 
-        settings.setValue("iscontact", device_parameters[si].isContact);
-        settings.setValue("iscontactsingle", device_parameters[si].isContactSingle);
-        settings.setValue("contact", device_parameters[si].contact);
-        settings.setValue("iscontactrange", device_parameters[si].isContactRange);
-        settings.setValue("contactfrom", device_parameters[si].contactFrom);
-        settings.setValue("contactto", device_parameters[si].contactTo);
-        settings.setValue("workfunction", device_parameters[si].workfunction);
+        settings.setValue("iscontact", segpara.isContact);
+        settings.setValue("iscontactsingle", segpara.isContactSingle);
+        settings.setValue("contact", segpara.contact);
+        settings.setValue("iscontactrange", segpara.isContactRange);
+        settings.setValue("contactfrom", segpara.contactFrom);
+        settings.setValue("contactto", segpara.contactTo);
+        settings.setValue("workfunction", segpara.workfunction);
 
-        settings.setValue("isoxide", device_parameters[si].isOxide);
+        settings.setValue("isoxide", segpara.isOxide);
 
-        settings.setValue("issemiconductor", device_parameters[si].isSemiconductor);
-        settings.setValue("donors", device_parameters[si].donors);
-        settings.setValue("acceptors", device_parameters[si].acceptors);
+        settings.setValue("issemiconductor", segpara.isSemiconductor);
+        settings.setValue("donors", segpara.donors);
+        settings.setValue("acceptors", segpara.acceptors);
         settings.endGroup();
     }
     settings.endGroup();
@@ -504,24 +514,25 @@ void ViennaMiniForm::loadState(QSettings& settings)
     settings.beginGroup("device");
     int segment_size = settings.value("segmentsize").toInt();
 
-    device_parameters.resize(segment_size);
+    //device_parameters.resize(segment_size);
 
     for(int si = 0; si < segment_size; si++)
     {
         settings.beginGroup("segment"+QString::number(si));
-        device_parameters[si].name = settings.value("name").toString();
-        device_parameters[si].material = settings.value("material").toString();
-        device_parameters[si].isContact = settings.value("iscontact").toBool();
-        device_parameters[si].isContactSingle = settings.value("iscontactsingle").toBool();
-        device_parameters[si].contact = settings.value("contact").toDouble();
-        device_parameters[si].isContactRange = settings.value("iscontactrange").toBool();
-        device_parameters[si].contactFrom = settings.value("contactfrom").toDouble();
-        device_parameters[si].contactTo = settings.value("contactto").toDouble();
-        device_parameters[si].workfunction = settings.value("workfunction").toDouble();
-        device_parameters[si].isOxide = settings.value("isoxide").toBool();
-        device_parameters[si].isSemiconductor = settings.value("issemiconductor").toBool();
-        device_parameters[si].donors = settings.value("donors").toDouble();
-        device_parameters[si].acceptors = settings.value("acceptors").toDouble();
+        int segment_index = settings.value("id").toInt();
+        device_parameters[segment_index].name = settings.value("name").toString();
+        device_parameters[segment_index].material = settings.value("material").toString();
+        device_parameters[segment_index].isContact = settings.value("iscontact").toBool();
+        device_parameters[segment_index].isContactSingle = settings.value("iscontactsingle").toBool();
+        device_parameters[segment_index].contact = settings.value("contact").toDouble();
+        device_parameters[segment_index].isContactRange = settings.value("iscontactrange").toBool();
+        device_parameters[segment_index].contactFrom = settings.value("contactfrom").toDouble();
+        device_parameters[segment_index].contactTo = settings.value("contactto").toDouble();
+        device_parameters[segment_index].workfunction = settings.value("workfunction").toDouble();
+        device_parameters[segment_index].isOxide = settings.value("isoxide").toBool();
+        device_parameters[segment_index].isSemiconductor = settings.value("issemiconductor").toBool();
+        device_parameters[segment_index].donors = settings.value("donors").toDouble();
+        device_parameters[segment_index].acceptors = settings.value("acceptors").toDouble();
         settings.endGroup();
     }
     settings.endGroup();

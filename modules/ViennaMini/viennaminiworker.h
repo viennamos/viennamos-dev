@@ -50,30 +50,31 @@ private:
     VMiniDevice vmini_device(device.getCellComplex(), device.getSegmentation(), device.getQuantityComplex());
     viennamini::config & config = parameters_.config();
 
-    std::size_t si = 0;
-    for(typename DeviceParameters::iterator siter = parameters_.begin(); siter != parameters_.end(); siter++)
+    for(typename DeviceParameters::iterator siter = parameters_.begin();
+        siter != parameters_.end(); siter++)
     {
-        vmini_device.assign_name(si, siter->name.toStdString());
-        vmini_device.assign_material(si, siter->material.toStdString());
+        std::size_t si = siter->first;
+        SegmentParameters& segpara = siter->second;
+        vmini_device.assign_name(si, segpara.name.toStdString());
+        vmini_device.assign_material(si, segpara.material.toStdString());
 
-        if(siter->isContact)
+        if(segpara.isContact)
         {
             vmini_device.assign_contact(si);
-            config.assign_contact(si, siter->contact, siter->workfunction);
+            config.assign_contact(si, segpara.contact, segpara.workfunction);
         }
         else
-        if(siter->isOxide)
+        if(segpara.isOxide)
         {
             vmini_device.assign_oxide(si);
         }
         else
-        if(siter->isSemiconductor)
+        if(segpara.isSemiconductor)
         {
-            vmini_device.assign_semiconductor(si, siter->donors, siter->acceptors);
+            vmini_device.assign_semiconductor(si, segpara.donors, segpara.acceptors);
         }
         else {
         }
-        si++;
     }
 
     // create a ViennaMini simulator object
