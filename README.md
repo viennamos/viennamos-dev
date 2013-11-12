@@ -21,15 +21,25 @@ System requirements
 Building instructions 
 --------------------------
 
-To build the developer version of ViennaMOS, simply clone the repository and issue the following commands (the following steps are for Unix-based systems):
+To build the developer version of ViennaMOS, simply clone the repository and issue the following suggested commands (the following steps are for Unix-based systems):
 
 <pre>
-$> cd viennamos-dev
-$> mkdir build
-$> cmake ..
-$> make -j4
-$> make install
+$> cd viennamos-dev  # the checked-out GIT folder 
+$> mkdir build       # the build folder
 </pre>
 
+Configure the build, default build type is the 'optimized/release' mode:
+<pre>
+$> cmake ..  
+</pre>
 
+or for configuring a build with debugging symbols use:
+<pre>
+$> cmake -DCMAKE_BUILD_TYPE=DEBUG ..  
+</pre>
 
+Now build and install the executable and libraries (install folder is a subfolder of the build folder):
+<pre>
+$> make -j4  # adjust to your CPU core count for efficient parallel building
+$> make install
+</pre>
