@@ -1,1 +1,0 @@
-vector_multi_inner_prod.cpp

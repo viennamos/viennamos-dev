@@ -203,14 +203,14 @@ MESSAGE(STATUS "Libraries to be linked: "${LIBRARIES})
 # ------------------------------------------------------------------------------
 INCLUDE_DIRECTORIES(framework)
 INCLUDE_DIRECTORIES(framework/include)
-INCLUDE_DIRECTORIES(external/ViennaGrid)
-INCLUDE_DIRECTORIES(external/ViennaData)
-INCLUDE_DIRECTORIES(external/ViennaMaterials)
-INCLUDE_DIRECTORIES(external/ViennaUtils)
-INCLUDE_DIRECTORIES(external/ViennaMini)
-INCLUDE_DIRECTORIES(external/ViennaMath)
-INCLUDE_DIRECTORIES(external/ViennaFVM)
-INCLUDE_DIRECTORIES(external/ViennaCL)
+#INCLUDE_DIRECTORIES(external/ViennaGrid)
+#INCLUDE_DIRECTORIES(external/ViennaData)
+#INCLUDE_DIRECTORIES(external/ViennaMaterials)
+#INCLUDE_DIRECTORIES(external/ViennaUtils)
+#INCLUDE_DIRECTORIES(external/ViennaMini)
+#INCLUDE_DIRECTORIES(external/ViennaMath)
+#INCLUDE_DIRECTORIES(external/ViennaFVM)
+#INCLUDE_DIRECTORIES(external/ViennaCL)
 
 # ------------------------------------------------------------------------------
 #
