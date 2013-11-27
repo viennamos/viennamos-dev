@@ -27,6 +27,7 @@ SET(SOURCES
   src/screenshot.cpp
   src/quantity.cpp
   src/stream_emitter.cpp
+  src/device.cpp
   )
 
 SET(SOURCES ${SOURCES}

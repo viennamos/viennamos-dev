@@ -35,67 +35,67 @@ class DataBase
 
 public:
 
-    typedef int                     Key;
-    typedef std::map<Key, void*>    Storage;
+  typedef int                     Key;
+  typedef std::map<Key, void*>    Storage;
 
 
-    DataBase()
+  DataBase()
+  {
+
+  }
+
+  template<typename T>
+  T insert(Key key, T value)
+  {
+    if(this->has_entry(key))
     {
-
+      std::cerr << "[DataBase][Error] Could not insert new element as it's already stored" << std::endl;
+      return value;
     }
+    storage.insert(std::pair<Key, T>(key, value));
+    return this->value<T>(key);
+  }
 
-    template<typename T>
-    T insert(Key key, T value)
+  template<typename T>
+  T value(Key key)
+  {
+    if(!this->has_entry(key))
     {
-        if(this->has_entry(key))
-        {
-            std::cerr << "[DataBase][Error] Could not insert new element as it's already stored" << std::endl;
-            return value;
-        }
-        storage.insert(std::pair<Key, T>(key, value));
-        return this->value<T>(key);
+      std::cerr << "[DataBase][Error] Could find element" << std::endl;
+      return NULL;
     }
+    return static_cast<T>(storage.at(key));
+  }
 
-    template<typename T>
-    T value(Key key)
+  template<typename T>
+  void delete_entry(Key key)
+  {
+    if(this->has_entry(key))
     {
-        if(!this->has_entry(key))
-        {
-            std::cerr << "[DataBase][Error] Could find element" << std::endl;
-            return NULL;
-        }
-        return static_cast<T>(storage.at(key));
+      delete this->value<T>(key);
+      storage.erase(key);
     }
+  }
 
-    template<typename T>
-    void delete_entry(Key key)
-    {
-        if(this->has_entry(key))
-        {
-            delete this->value<T>(key);
-            storage.erase(key);
-        }
-    }
+  bool has_entry(Key key)
+  {
+    if(storage.find(key) == storage.end()) return false;
+    else return true;
+  }
 
-    bool has_entry(Key key)
-    {
-        if(storage.find(key) == storage.end()) return false;
-        else return true;
-    }
+  std::size_t size()
+  {
+    return storage.size();
+  }
 
-    std::size_t size()
-    {
-        return storage.size();
-    }
-
-    bool empty()
-    {
-        return storage.empty();
-    }
+  bool empty()
+  {
+    return storage.empty();
+  }
 
 
 private:
-    Storage    storage;
+  Storage    storage;
 
 };
 

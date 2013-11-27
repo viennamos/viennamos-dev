@@ -86,14 +86,6 @@ inline QString getRelativePath(QString absolute_path)
 
 namespace key {
 
-//static const QString vgdomain1u = "Line1D";
-//static const QString vgdomain2u = "Triangular2D";
-//static const QString vgdomain2s = "Quadrilateral2D";
-//static const QString vgdomain3u = "Tetrahedral3D";
-//static const QString vgdomain3s = "Hexahedral3D";
-
-
-
 static const QString surface      = "Surface";
 static const QString surfaceEdges = "SurfaceWithEdges";
 static const QString points       = "Points";
@@ -117,15 +109,6 @@ struct vdomain {};
 
 } // namespace tag
 
-
-
-
-
-//typedef viennashe::device<VGDomain1u>                                               VDevice1u;
-//typedef viennashe::device<VGDomain2u>                                               VDevice2u;
-//typedef viennashe::device<VGDomain2s>                                               VDevice2s;
-//typedef viennashe::device<VGDomain3u>                                               VDevice3u;
-//typedef viennashe::device<VGDomain3s>                                               VDevice3s;
 
 
 #endif // COMMON_HPP

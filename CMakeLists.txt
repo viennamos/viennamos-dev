@@ -17,7 +17,8 @@ set(VERSION_MINOR 0)
 set(VERSION_PATCH 0)
 
 
-option(USE_STATIC "Consider a static link towards external libraries" OFF)
+OPTION(DOWNLOAD     "Download external dependencies automatically"      OFF)
+OPTION(USE_STATIC   "Consider a static link towards external libraries" OFF)
 
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -82,8 +83,6 @@ ENDIF(DEFINED CXX11_FLAG)
 # FIND QT4
 #
 # ------------------------------------------------------------------------------
-#SET(QT_MIN_VERSION 4.8.4)
-#FIND_PACKAGE(Qt4 ${QT_MIN_VERSION} REQUIRED QtCore QtGui)
 FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtXml)
 INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
@@ -134,42 +133,6 @@ IF(VTK_FOUND)
       MESSAGE(FATAL_ERROR "VTK Qt-Kit not found - recompile VTK with GUI/Qt support!")
     ENDIF(QTVTK_FOUND)
   ENDIF(${VTK_MAJOR_VERSION} GREATER 5)
-
-  
-#  SET(QVTKLIB "")
-#  IF(${VTK_MAJOR_VERSION} GREATER 5)
-#    SET(QVTKLIB "vtkGUISupportQt")
-#  ELSE(${VTK_MAJOR_VERSION} GREATER 5)
-#    SET(QVTKLIB "QVTK")
-#  ENDIF(${VTK_MAJOR_VERSION} GREATER 5)
-#  
-#  # Look for QtVTK Kit, requires VTK to be compiled with Qt/GUI support
-#  SET(QTVTK_FOUND FALSE)
-#  FOREACH(KIT ${VTK_KITS}) # look for the "qvtk" string in the kits-list
-#    IF(${KIT} STREQUAL ${QVTKLIB})
-#      SET(QTVTK_FOUND TRUE)
-#    ENDIF(${KIT} STREQUAL ${QVTKLIB})
-#  ENDFOREACH(KIT)
-#  IF(QTVTK_FOUND)
-#    MESSAGE(STATUS "VTK Qt-Kit found")
-#    INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
-#    LINK_DIRECTORIES(${VTK_LIBRARY_DIRS})
-#    #SET(LIBRARIES ${LIBRARIES} ${VTK_LIBRARIES})
-#    SET(LIBRARIES ${LIBRARIES} vtkCommon vtkFiltering vtkCharts)
-#    # Test if the actual libqvtk has been added by the VTK cmake script
-#    # if not, add it manually to the general library list ..
-#    SET(QTVTKLIB_FOUND FALSE)
-#    FOREACH(LIB ${VTK_LIBRARIES})
-#      SET(QTVTKLIB_FOUND TRUE)
-#    ENDFOREACH(LIB)
-#    IF(QTVTKLIB_FOUND)
-#      SET(LIBRARIES ${LIBRARIES} ${QVTKLIB})
-#    ENDIF(QTVTKLIB_FOUND)
-#  ELSE(QTVTK_FOUND) # give a hint what to do ..
-#    MESSAGE(FATAL_ERROR "VTK Qt-Kit not found - recompile VTK with GUI/Qt support!")
-#  ENDIF(QTVTK_FOUND)
-#ELSE(VTK_FOUND)
-#  MESSAGE(STATUS "VTK not found")
 ENDIF(VTK_FOUND)
 
 # ------------------------------------------------------------------------------
@@ -194,7 +157,7 @@ MESSAGE(STATUS "Boost Library Path: "${Boost_LIBRARY_DIRS})
 # Print the list of libraries to be linked against ViennaMOS
 #
 # ------------------------------------------------------------------------------
-MESSAGE(STATUS "Libraries to be linked: "${LIBRARIES})
+#MESSAGE(STATUS "Libraries to be linked: "${LIBRARIES})
 
 # ------------------------------------------------------------------------------
 #
@@ -204,15 +167,39 @@ MESSAGE(STATUS "Libraries to be linked: "${LIBRARIES})
 INCLUDE_DIRECTORIES(framework)
 INCLUDE_DIRECTORIES(framework/include)
 
-INCLUDE_DIRECTORIES(external/ViennaMaterials)
-INCLUDE_DIRECTORIES(external/ViennaGrid)
+# ------------------------------------------------------------------------------
+#
+# INCLUDE EXTERNAL PROJECTS
+#
+# ------------------------------------------------------------------------------
+IF(NOT DOWNLOAD)
+  MESSAGE(STATUS "Using local ViennaStar ..")
 
-#INCLUDE_DIRECTORIES(external/ViennaData)
-#INCLUDE_DIRECTORIES(external/ViennaUtils)
-#INCLUDE_DIRECTORIES(external/ViennaMini)
-#INCLUDE_DIRECTORIES(external/ViennaMath)
-#INCLUDE_DIRECTORIES(external/ViennaFVM)
-#INCLUDE_DIRECTORIES(external/ViennaCL)
+  FIND_PACKAGE(ViennaFVM REQUIRED)
+  IF(VIENNAFVM_FOUND)
+    INCLUDE_DIRECTORIES(${VIENNAFVM_INCLUDE_DIRS})
+  ENDIF(VIENNAFVM_FOUND)
+
+  FIND_PACKAGE(ViennaGrid REQUIRED)
+  IF(VIENNAGRID_FOUND)
+    INCLUDE_DIRECTORIES(${VIENNAGRID_INCLUDE_DIRS})
+  ENDIF(VIENNAGRID_FOUND)
+  
+  FIND_PACKAGE(ViennaData REQUIRED)
+  IF(VIENNADATA_FOUND)
+    INCLUDE_DIRECTORIES(${VIENNADATA_INCLUDE_DIRS})
+  ENDIF(VIENNADATA_FOUND)
+  
+  FIND_PACKAGE(ViennaMath REQUIRED)
+  IF(VIENNAMATH_FOUND)
+    INCLUDE_DIRECTORIES(${VIENNAMATH_INCLUDE_DIRS})
+  ENDIF(VIENNAMATH_FOUND)
+  
+  FIND_PACKAGE(ViennaCL REQUIRED)
+  IF(VIENNACL_FOUND)
+    INCLUDE_DIRECTORIES(${VIENNACL_INCLUDE_DIRS})
+  ENDIF(VIENNACL_FOUND)
+ENDIF(NOT DOWNLOAD)
 
 # ------------------------------------------------------------------------------
 #

@@ -45,11 +45,10 @@
 
 #include "messenger.h"
 #include "common.hpp"
-#include "device.hpp"
 #include "database.hpp"
+#include "device.h"
 #include "module_manager.h"
 #include "materialmanager.h"
-//#include "quantity_set.hpp"
 #include "multiview.h"
 #include "screenshot.h"
 #include "license.h"
