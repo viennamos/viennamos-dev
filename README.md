@@ -15,7 +15,19 @@ System requirements
 * [Qt](http://qt-project.org/) 4.8
 * [VTK](http://www.vtk.org/) 5.10.1 (with [Qt support](http://www.vtk.org/Wiki/VTK/Tutorials/QtSetup)!)
 * [Boost](http://www.boost.org/) >=1.47
+* [Git](http://git-scm.com/) optional, only required if the auto download feature is used (see below)
 
+The following requirements, being part of the so-called 'ViennaStar' collection, 
+can be automatically downloaded by the build system, see the building instructions at the end.
+
+* [ViennaFVM](https://github.com/viennafvm/viennafvm-dev)
+* [ViennaGrid](https://github.com/viennagrid/viennagrid-dev)
+* [ViennaData](https://github.com/viennadata/viennadata-dev)
+* [ViennaMath](https://github.com/viennamath/viennamath-dev)
+* [ViennaCL](https://github.com/viennacl/viennacl-dev)
+* [ViennaMaterials](https://github.com/viennamaterials/viennamaterials-dev)
+* [ViennaMesh](https://github.com/viennamesh/viennamesh-dev)
+* [ViennaMini](https://github.com/viennamini/viennamini-dev)
 
 
 Building instructions 
@@ -33,7 +45,20 @@ Configure the build, default build type is the 'optimized/release' mode:
 $> cmake ..  
 </pre>
 
-or for configuring a build with debugging symbols use:
+Note that this default configuration requires the paths to the above mentioned ViennaStar libraries 
+to be available via specific environment variables, i.e., 
+<pre>
+  VIENNAFVMPATH, VIENNAGRIDPATH, .. etc.
+</pre>
+
+If you do not have these libraries available, you can tell the build system
+to automatically download and build the tools from their respective sources:
+
+<pre>
+$> cmake -D DOWNLOAD=ON ..
+</pre>
+
+If you want to build in debug mode, use:
 <pre>
 $> cmake -DCMAKE_BUILD_TYPE=DEBUG ..  
 </pre>
