@@ -51,7 +51,7 @@ to be available via specific environment variables, i.e.,
   VIENNAFVMPATH, VIENNAGRIDPATH, .. etc.
 </pre>
 
-If you do not have these libraries available, you can tell the build system
+If you do not have these libraries available, you can order the build system
 to automatically download and build the tools from their respective sources:
 
 <pre>
