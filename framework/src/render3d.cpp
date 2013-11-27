@@ -207,7 +207,7 @@ void Render3D::update_render_domain()
         // color the segments by assigning the segment ID as cell quantity
         //
         vtkIntArray* segment_array = vtkIntArray::New();
-        segment_array->SetName(key::segment_index.toStdString().c_str());
+        segment_array->SetName(viennamos::key::segment_index.toStdString().c_str());
         segment_array->SetNumberOfValues(segment->GetNumberOfCells());
         for(int ci = 0; ci < segment->GetNumberOfCells(); ci++)
             segment_array->SetValue(ci, si);
@@ -267,9 +267,9 @@ void Render3D::color_quantity(std::string const& key, std::string const& display
     // make sure the visualizer, as of now, does not do a solid coloring ..
     state = QUANTITY;
 
-    if(cell_lvl == VERTEX) color_quantity_vertex();
+    if(cell_lvl == viennamos::VERTEX) color_quantity_vertex();
     else
-    if(cell_lvl == CELL)   color_quantity_cell();
+    if(cell_lvl == viennamos::CELL)   color_quantity_cell();
     else {
         QMessageBox::critical(0, QString("Error"), QString("Only vertex or cell quantity's are supported for rendering!"));
     }

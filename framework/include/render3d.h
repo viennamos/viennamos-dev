@@ -77,8 +77,7 @@
 #include "external/Paraview/vtkPVAxesWidget.h"
 #include "external/Paraview/vtkPVAxesActor.h"
 
-#include "common.hpp"
-//#include "quantity_set.hpp"
+#include "forwards.hpp"
 
 #include <boost/array.hpp>
 
@@ -107,7 +106,7 @@ public:
     void  print_current_statistics();
     void  update_render();
     void  color_current_quantity();
-    void  color_quantity(std::string const& key, std::string const& display_name, int cell_lvl = VERTEX);
+    void  color_quantity(std::string const& key, std::string const& display_name, int cell_lvl = viennamos::VERTEX);
     void  color_quantity_vertex();
     void  color_quantity_cell();
     void  color_segments();

@@ -37,6 +37,10 @@
 #include "viennafvm/forwards.h"
 #include "viennafvm/problem_description.hpp"
 
+// Qt includes
+//
+#include <QString>
+
 // Boost includes
 //
 #include "boost/shared_ptr.hpp"
@@ -46,7 +50,50 @@ namespace viennamos
   // Tags
   //
   class null {};
-  
+
+  // Global IDs
+  //
+  enum CELL_DATA {
+      VERTEX,
+      EDGE,
+      FACE,
+      CELL
+  };
+
+  enum DATA_TENSOR_LVL {
+      SCALAR,
+      VECTOR,
+      TENSOR
+  };
+
+  enum VCR {
+      FIRST,
+      PREVIOUS,
+      PLAY,
+      NEXT,
+      LAST,
+      LOOP
+  };
+
+  // Global keys
+  //
+  namespace key {
+
+  static const QString surface      = "Surface";
+  static const QString surfaceEdges = "SurfaceWithEdges";
+  static const QString points       = "Points";
+  static const QString wireframe    = "Wireframe";
+
+  static const QString solid_color = "Solid Color";
+  static const QString segment_index = "Segment ID";
+
+  static const QString state_suffix = "ini";
+  static const QString state_file_filter = "State files (*."+key::state_suffix+");;All files (*.*)";
+
+  static const QString png_suffix = "png";
+  static const QString png_filter = "PNG files (*."+key::png_suffix+")";
+
+  } // namespace key
 
   // Typedefs
   //

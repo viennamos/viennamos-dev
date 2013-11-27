@@ -21,7 +21,7 @@ void Screenshot::on_pushButtonBrowse_clicked()
 {
     QFileDialog dialog(NULL, "Save Screenshot to File");
     dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilter(key::png_filter);
+    dialog.setNameFilter(viennamos::key::png_filter);
     dialog.setDirectory(QDir::currentPath());
     dialog.exec();
 
@@ -35,9 +35,9 @@ void Screenshot::on_pushButtonBrowse_clicked()
 
         // if the user just entered a filename without a suffix,
         // use the chosen filter to add it automatically ..
-        if(suffix.isEmpty() && (filter == key::png_filter))
+        if(suffix.isEmpty() && (filter == viennamos::key::png_filter))
         {
-            filename += "." + key::png_suffix;
+            filename += "." + viennamos::key::png_suffix;
         }
 
         ui->lineEdit->setText(filename);

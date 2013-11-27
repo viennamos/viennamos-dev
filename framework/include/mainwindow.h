@@ -43,8 +43,8 @@
 #include <QElapsedTimer>
 #include <QSpinBox>
 
+#include "forwards.hpp"
 #include "messenger.h"
-#include "common.hpp"
 #include "database.hpp"
 #include "device.h"
 #include "module_manager.h"

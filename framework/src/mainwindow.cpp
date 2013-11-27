@@ -95,7 +95,7 @@ void MainWindow::create_widgets()
     output = new Messenger(this);
     dockOutput->setWidget(output);
 
-    meshreps << key::surface << key::surfaceEdges << key::points << key::wireframe;
+    meshreps << viennamos::key::surface << viennamos::key::surfaceEdges << viennamos::key::points << viennamos::key::wireframe;
 
     comboBoxMeshRepresentations = new QComboBox(this);
     comboBoxMeshRepresentations->setToolTip("Switch mesh representations");
@@ -390,8 +390,8 @@ void MainWindow::reset_comboBoxFieldViz()
 {
   comboBoxFieldViz->blockSignals(true);
   comboBoxFieldViz->clear();
-  comboBoxFieldViz->addItem(QIcon("://resources/icons/pqSolidColor16.png"), key::solid_color);
-  comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), key::segment_index);
+  comboBoxFieldViz->addItem(QIcon("://resources/icons/pqSolidColor16.png"), viennamos::key::solid_color);
+  comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), viennamos::key::segment_index);
   comboBoxFieldViz->blockSignals(false);
 }
 
@@ -408,11 +408,11 @@ void MainWindow::repopulate_quantity_selection(QuantitySet const& quantityset)
     QVariant var;
     var.setValue(quantity);
 
-    if(quantity.cell_level == VERTEX)
+    if(quantity.cell_level == viennamos::VERTEX)
     {
         comboBoxFieldViz->addItem(QIcon("://resources/icons/vertex_data.png"), QString::fromStdString(quantity.name), var);
     }
-    else if(quantity.cell_level == CELL)
+    else if(quantity.cell_level == viennamos::CELL)
     {
         comboBoxFieldViz->addItem(QIcon("://resources/icons/cell_data.png"), QString::fromStdString(quantity.name), var);
     }
@@ -442,27 +442,27 @@ void MainWindow::change_mesh_visualization(QString id)
     Render3D* current_render = multi_view->getCurrentRender3D();
     if(current_render)
     {
-        if(id == key::surfaceEdges)
+        if(id == viennamos::key::surfaceEdges)
         {
-            meshrep_views[current_view_index] = meshreps.indexOf(key::surfaceEdges);
+            meshrep_views[current_view_index] = meshreps.indexOf(viennamos::key::surfaceEdges);
             current_render->switch_to_surface_with_edges_representation();
         }
         else
-        if(id == key::points)
+        if(id == viennamos::key::points)
         {
-            meshrep_views[current_view_index] = meshreps.indexOf(key::points);
+            meshrep_views[current_view_index] = meshreps.indexOf(viennamos::key::points);
             current_render->switch_to_point_representation();
         }
         else
-        if(id == key::surface)
+        if(id == viennamos::key::surface)
         {
-            meshrep_views[current_view_index] = meshreps.indexOf(key::surface);
+            meshrep_views[current_view_index] = meshreps.indexOf(viennamos::key::surface);
             current_render->switch_to_surface_representation();
         }
         else
-        if(id == key::wireframe)
+        if(id == viennamos::key::wireframe)
         {
-            meshrep_views[current_view_index] = meshreps.indexOf(key::wireframe);
+            meshrep_views[current_view_index] = meshreps.indexOf(viennamos::key::wireframe);
             current_render->switch_to_wireframe_representation();
         }
         else return;

@@ -103,11 +103,11 @@ void  ModuleInterface::register_quantity(Quantity& quan)
 
 void ModuleInterface::on_pushButtonSave_clicked()
 {
-    QString filename = QFileDialog::getSaveFileName(NULL, tr("Save State to File"), QDir::currentPath(), key::state_file_filter);
+    QString filename = QFileDialog::getSaveFileName(NULL, tr("Save State to File"), QDir::currentPath(), viennamos::key::state_file_filter);
     if(filename == QString("")) return; // if the cancel button has been clicked ..
     else {
         QString suffix = QFileInfo(filename).suffix();
-        if(suffix != key::state_suffix) filename += "." + key::state_suffix;
+        if(suffix != viennamos::key::state_suffix) filename += "." + viennamos::key::state_suffix;
         QSettings           settings(filename, QSettings::IniFormat);
         emit state_saved(settings);
     }
@@ -115,7 +115,7 @@ void ModuleInterface::on_pushButtonSave_clicked()
 
 void ModuleInterface::on_pushButtonLoad_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(NULL, tr("Open State from File"), QDir::currentPath(), key::state_file_filter);
+    QString filename = QFileDialog::getOpenFileName(NULL, tr("Open State from File"), QDir::currentPath(), viennamos::key::state_file_filter);
     if(filename == QString("")) return; // if the cancel button has been clicked ..
     else {
         QSettings           settings(filename, QSettings::IniFormat);
