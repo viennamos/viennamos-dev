@@ -35,12 +35,12 @@
 #include <vtkCellData.h>
 #include <vtkTetra.h>
 
-#include "common.hpp"
-#include "device.hpp"
-#include "multiview.h"
-#include "quantity.h"
+//#include "common.hpp"
+//#include "device.hpp"
+//#include "multiview.h"
+//#include "quantity.h"
 
-#include "boost/lexical_cast.hpp"
+//#include "boost/lexical_cast.hpp"
 
 // remove me ?!
 //#include "vtkDoubleArray.h"
@@ -147,234 +147,234 @@ struct viennagrid_domain {};
 //    }
 //}
 
-template<typename DeviceT>
-inline void copy(DeviceT& device, Quantity const& quantity, MultiView* multiview)
-{
-  typedef typename DeviceT::CellComplex                   DomainType;
-  typedef typename DeviceT::Segmentation                  SegmentationType;
-  typedef typename DeviceT::QuantityComplex               QuantityComplexType;
-  typedef typename SegmentationType::iterator             SegmentationIteratorType;
-  typedef typename SegmentationType::segment_handle_type  SegmentType;
+//template<typename DeviceT>
+//inline void copy(DeviceT& device, Quantity const& quantity, MultiView* multiview)
+//{
+//  typedef typename DeviceT::CellComplex                   DomainType;
+//  typedef typename DeviceT::Segmentation                  SegmentationType;
+//  typedef typename DeviceT::QuantityComplex               QuantityComplexType;
+//  typedef typename SegmentationType::iterator             SegmentationIteratorType;
+//  typedef typename SegmentationType::segment_handle_type  SegmentType;
 
-  typedef typename viennagrid::result_of::cell_tag<DomainType>::type                                  CellTag;
-  typedef typename viennagrid::result_of::element<DomainType, CellTag>::type                          CellType;
-  typedef typename viennagrid::result_of::element<SegmentType, viennagrid::vertex_tag>::type          VertexType;
-  typedef typename viennagrid::result_of::element_range<SegmentType, viennagrid::vertex_tag>::type    VertexRange;
-  typedef typename viennagrid::result_of::iterator<VertexRange>::type                                 VertexIterator;
-  typedef typename viennagrid::result_of::element_range<SegmentType, CellTag>::type                   CellRange;
-  typedef typename viennagrid::result_of::iterator<CellRange>::type                                   CellIterator;
+//  typedef typename viennagrid::result_of::cell_tag<DomainType>::type                                  CellTag;
+//  typedef typename viennagrid::result_of::element<DomainType, CellTag>::type                          CellType;
+//  typedef typename viennagrid::result_of::element<SegmentType, viennagrid::vertex_tag>::type          VertexType;
+//  typedef typename viennagrid::result_of::element_range<SegmentType, viennagrid::vertex_tag>::type    VertexRange;
+//  typedef typename viennagrid::result_of::iterator<VertexRange>::type                                 VertexIterator;
+//  typedef typename viennagrid::result_of::element_range<SegmentType, CellTag>::type                   CellRange;
+//  typedef typename viennagrid::result_of::iterator<CellRange>::type                                   CellIterator;
 
-  MultiView::MultiGrid   multigrid = multiview->getGrid();
-  SegmentationType     & segments  = device.getSegmentation();
+//  MultiView::MultiGrid   multigrid = multiview->getGrid();
+//  SegmentationType     & segments  = device.getSegmentation();
 
 
-  if((quantity.cell_level == VERTEX) && (quantity.tensor_level == SCALAR))
-  {
-    typedef typename viennadata::result_of::accessor<QuantityComplexType, Quantity, double, VertexType>::type TargetAccessorType;
-    TargetAccessorType accessor = viennadata::make_accessor(device.getQuantityComplex(), quantity);
+//  if((quantity.cell_level == VERTEX) && (quantity.tensor_level == SCALAR))
+//  {
+//    typedef typename viennadata::result_of::accessor<QuantityComplexType, Quantity, double, VertexType>::type TargetAccessorType;
+//    TargetAccessorType accessor = viennadata::make_accessor(device.getQuantityComplex(), quantity);
 
-    std::size_t si = 0;
-    for(SegmentationIteratorType sit = segments.begin(); sit != segments.end(); sit++)
-    {
-      VertexRange vertices = viennagrid::elements<VertexType>(*sit);
-      vtkSmartPointer<vtkDoubleArray> render_data = vtkSmartPointer<vtkDoubleArray>::New();
-      render_data->SetName(quantity.name.c_str());
-      render_data->SetNumberOfValues(vertices.size());
+//    std::size_t si = 0;
+//    for(SegmentationIteratorType sit = segments.begin(); sit != segments.end(); sit++)
+//    {
+//      VertexRange vertices = viennagrid::elements<VertexType>(*sit);
+//      vtkSmartPointer<vtkDoubleArray> render_data = vtkSmartPointer<vtkDoubleArray>::New();
+//      render_data->SetName(quantity.name.c_str());
+//      render_data->SetNumberOfValues(vertices.size());
 
-      std::size_t i = 0;
-      for(VertexIterator vit = vertices.begin(); vit != vertices.end(); vit++)
-      {
-        render_data->SetValue(i++, accessor(*vit));
-      }
+//      std::size_t i = 0;
+//      for(VertexIterator vit = vertices.begin(); vit != vertices.end(); vit++)
+//      {
+//        render_data->SetValue(i++, accessor(*vit));
+//      }
 
-      vtkPointSet* generic_segment = vtkPointSet::SafeDownCast(multigrid->GetBlock(si));
+//      vtkPointSet* generic_segment = vtkPointSet::SafeDownCast(multigrid->GetBlock(si));
 
-      if(generic_segment->GetPointData()->HasArray(quantity.name.c_str()))
-          generic_segment->GetPointData()->RemoveArray(quantity.name.c_str());
-      generic_segment->GetPointData()->AddArray(render_data);
+//      if(generic_segment->GetPointData()->HasArray(quantity.name.c_str()))
+//          generic_segment->GetPointData()->RemoveArray(quantity.name.c_str());
+//      generic_segment->GetPointData()->AddArray(render_data);
 
-      si++;
-    }
-  }
-  else
-  if((quantity.cell_level == CELL) && (quantity.tensor_level == SCALAR))
-  {
-    typedef typename viennadata::result_of::accessor<QuantityComplexType, Quantity, double, CellType>::type TargetAccessorType;
-    TargetAccessorType accessor = viennadata::make_accessor(device.getQuantityComplex(), quantity);
+//      si++;
+//    }
+//  }
+//  else
+//  if((quantity.cell_level == CELL) && (quantity.tensor_level == SCALAR))
+//  {
+//    typedef typename viennadata::result_of::accessor<QuantityComplexType, Quantity, double, CellType>::type TargetAccessorType;
+//    TargetAccessorType accessor = viennadata::make_accessor(device.getQuantityComplex(), quantity);
 
-    std::size_t si = 0;
-    for(SegmentationIteratorType sit = segments.begin(); sit != segments.end(); sit++)
-    {
-      CellRange cells = viennagrid::elements<CellType>(*sit);
-      vtkSmartPointer<vtkDoubleArray> render_data = vtkSmartPointer<vtkDoubleArray>::New();
-      render_data->SetName(quantity.name.c_str());
-      render_data->SetNumberOfValues(cells.size());
+//    std::size_t si = 0;
+//    for(SegmentationIteratorType sit = segments.begin(); sit != segments.end(); sit++)
+//    {
+//      CellRange cells = viennagrid::elements<CellType>(*sit);
+//      vtkSmartPointer<vtkDoubleArray> render_data = vtkSmartPointer<vtkDoubleArray>::New();
+//      render_data->SetName(quantity.name.c_str());
+//      render_data->SetNumberOfValues(cells.size());
 
-      std::size_t i = 0;
-      for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
-      {
-        render_data->SetValue(i++, accessor(*cit));
-      }
+//      std::size_t i = 0;
+//      for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
+//      {
+//        render_data->SetValue(i++, accessor(*cit));
+//      }
 
-      vtkPointSet* generic_segment = vtkPointSet::SafeDownCast(multigrid->GetBlock(si));
+//      vtkPointSet* generic_segment = vtkPointSet::SafeDownCast(multigrid->GetBlock(si));
 
-      if(generic_segment->GetCellData()->HasArray(quantity.name.c_str()))
-          generic_segment->GetCellData()->RemoveArray(quantity.name.c_str());
-      generic_segment->GetCellData()->AddArray(render_data);
+//      if(generic_segment->GetCellData()->HasArray(quantity.name.c_str()))
+//          generic_segment->GetCellData()->RemoveArray(quantity.name.c_str());
+//      generic_segment->GetCellData()->AddArray(render_data);
 
-      si++;
-    }
-  }
-}
+//      si++;
+//    }
+//  }
+//}
 
-template<typename DeviceT>
-inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, int VTK_CELL_TYPE)
-{
-  typedef typename DeviceT::CellComplex                     DomainType;
-  typedef typename DeviceT::Segmentation                    SegmentationType;
-  typedef typename DeviceT::QuantityComplex                 QuantityComplexType;
-  typedef typename SegmentationType::iterator               SegmentationIteratorType;
-  typedef typename SegmentationType::segment_handle_type    SegmentType;
+//template<typename DeviceT>
+//inline void copy(DeviceT& device, MultiView* multiview, tag::viennagrid_domain, int VTK_CELL_TYPE)
+//{
+//  typedef typename DeviceT::CellComplex                     DomainType;
+//  typedef typename DeviceT::Segmentation                    SegmentationType;
+//  typedef typename DeviceT::QuantityComplex                 QuantityComplexType;
+//  typedef typename SegmentationType::iterator               SegmentationIteratorType;
+//  typedef typename SegmentationType::segment_handle_type    SegmentType;
 
-  typedef typename viennagrid::result_of::cell_tag<DomainType>::type                                  CellTag;
-  typedef typename viennagrid::result_of::element<DomainType, CellTag>::type                          CellType;
-  typedef typename viennagrid::result_of::element<SegmentType, viennagrid::vertex_tag>::type          VertexType;
-  typedef typename viennagrid::result_of::element_range<SegmentType, viennagrid::vertex_tag>::type    VertexRange;
-  typedef typename viennagrid::result_of::iterator<VertexRange>::type                                 VertexIterator;
-  typedef typename viennagrid::result_of::point<DomainType>::type                                     PointType;
-  typedef typename viennagrid::result_of::default_point_accessor<DomainType>::type                    PointAccessorType;
-  typedef typename viennagrid::result_of::element_range<SegmentType, CellTag>::type                   CellRange;
-  typedef typename viennagrid::result_of::iterator<CellRange>::type                                   CellIterator;
-  typedef typename viennagrid::result_of::element_range<CellType, VertexType>::type                   VertexOnCellRange;
-  typedef typename viennagrid::result_of::iterator<VertexOnCellRange>::type                           VertexOnCellIterator;
+//  typedef typename viennagrid::result_of::cell_tag<DomainType>::type                                  CellTag;
+//  typedef typename viennagrid::result_of::element<DomainType, CellTag>::type                          CellType;
+//  typedef typename viennagrid::result_of::element<SegmentType, viennagrid::vertex_tag>::type          VertexType;
+//  typedef typename viennagrid::result_of::element_range<SegmentType, viennagrid::vertex_tag>::type    VertexRange;
+//  typedef typename viennagrid::result_of::iterator<VertexRange>::type                                 VertexIterator;
+//  typedef typename viennagrid::result_of::point<DomainType>::type                                     PointType;
+//  typedef typename viennagrid::result_of::default_point_accessor<DomainType>::type                    PointAccessorType;
+//  typedef typename viennagrid::result_of::element_range<SegmentType, CellTag>::type                   CellRange;
+//  typedef typename viennagrid::result_of::iterator<CellRange>::type                                   CellIterator;
+//  typedef typename viennagrid::result_of::element_range<CellType, VertexType>::type                   VertexOnCellRange;
+//  typedef typename viennagrid::result_of::iterator<VertexOnCellRange>::type                           VertexOnCellIterator;
 
-  static const int DIMG = PointType::dim;
+//  static const int DIMG = PointType::dim;
 
-  // TODO retrieve this info from viennagrid
-  //
-  int cell_size;
-  if(VTK_CELL_TYPE == VTK_TRIANGLE)
-      cell_size = 3;
-  else
-  if(VTK_CELL_TYPE == VTK_TETRA)
-      cell_size = 4;
-  else
-  if(VTK_CELL_TYPE == VTK_QUAD)
-      cell_size = 4;
-  else
-  if(VTK_CELL_TYPE == VTK_HEXAHEDRON)
-      cell_size = 8;
+//  // TODO retrieve this info from viennagrid
+//  //
+//  int cell_size;
+//  if(VTK_CELL_TYPE == VTK_TRIANGLE)
+//      cell_size = 3;
+//  else
+//  if(VTK_CELL_TYPE == VTK_TETRA)
+//      cell_size = 4;
+//  else
+//  if(VTK_CELL_TYPE == VTK_QUAD)
+//      cell_size = 4;
+//  else
+//  if(VTK_CELL_TYPE == VTK_HEXAHEDRON)
+//      cell_size = 8;
 
-  std::vector<vtkIdType>  temp_array(cell_size);
+//  std::vector<vtkIdType>  temp_array(cell_size);
 
-  SegmentationType & segments = device.getSegmentation();
+//  SegmentationType & segments = device.getSegmentation();
 
-  PointAccessorType pnt_acc = viennagrid::default_point_accessor(device.getCellComplex());
+//  PointAccessorType pnt_acc = viennagrid::default_point_accessor(device.getCellComplex());
 
-  multiview->resetGrid();
-  MultiView::MultiGrid multigrid = multiview->getGrid();
+//  multiview->resetGrid();
+//  MultiView::MultiGrid multigrid = multiview->getGrid();
 
-  vtkUnstructuredGrid*    usg;
-  vtkPoints*              points;
+//  vtkUnstructuredGrid*    usg;
+//  vtkPoints*              points;
 
-  std::size_t si = 0;
-  for(SegmentationIteratorType sit = segments.begin();
-      sit != segments.end(); sit++)
-  {
-    // for each segment, we shall setup an unstructured vtk grid
-    // and add it as a new block to the general, central multi-block datastructure
-    //
-    usg = vtkUnstructuredGrid::New();
+//  std::size_t si = 0;
+//  for(SegmentationIteratorType sit = segments.begin();
+//      sit != segments.end(); sit++)
+//  {
+//    // for each segment, we shall setup an unstructured vtk grid
+//    // and add it as a new block to the general, central multi-block datastructure
+//    //
+//    usg = vtkUnstructuredGrid::New();
 
-    // transfer the segment's geometry information
-    //
-    points = vtkPoints::New();
-    VertexRange vertices = viennagrid::elements<VertexType>(*sit);
-    std::map<std::size_t,std::size_t>   indexMap;
-    int i = 0;
-    double array[3];
-    array[0] = 0.0;
-    array[1] = 0.0;
-    array[2] = 0.0; // important for 2d case: the z-component has to be 0.0, to be sure ..
+//    // transfer the segment's geometry information
+//    //
+//    points = vtkPoints::New();
+//    VertexRange vertices = viennagrid::elements<VertexType>(*sit);
+//    std::map<std::size_t,std::size_t>   indexMap;
+//    int i = 0;
+//    double array[3];
+//    array[0] = 0.0;
+//    array[1] = 0.0;
+//    array[2] = 0.0; // important for 2d case: the z-component has to be 0.0, to be sure ..
 
-    for (VertexIterator vit = vertices.begin(); vit != vertices.end(); ++vit)
-    {
-      for(int dim = 0; dim < DIMG; dim++) // that should be automatically unrolled by the compiler as dimg is static ..
-          array[dim] = pnt_acc(*vit)[dim];
-      points->InsertNextPoint(array);
-      indexMap[vit->id().get()] = i++;
-      //indexMap[i++] = points->InsertNextPoint(array);
-    }
-    usg->SetPoints(points);
-    points->Delete();
+//    for (VertexIterator vit = vertices.begin(); vit != vertices.end(); ++vit)
+//    {
+//      for(int dim = 0; dim < DIMG; dim++) // that should be automatically unrolled by the compiler as dimg is static ..
+//          array[dim] = pnt_acc(*vit)[dim];
+//      points->InsertNextPoint(array);
+//      indexMap[vit->id().get()] = i++;
+//      //indexMap[i++] = points->InsertNextPoint(array);
+//    }
+//    usg->SetPoints(points);
+//    points->Delete();
 
-    // transfer the segment's topology information
-    //
-    CellRange cells = viennagrid::elements<CellType>(*sit);
+//    // transfer the segment's topology information
+//    //
+//    CellRange cells = viennagrid::elements<CellType>(*sit);
 
-    for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
-    {
-      vtkIdType cell_index = 0;
+//    for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
+//    {
+//      vtkIdType cell_index = 0;
 
-      for (VertexOnCellIterator vocit = viennagrid::elements<VertexType>(*cit).begin(); // TODO make this 'unroll'able' ..
-           vocit != viennagrid::elements<VertexType>(*cit).end();
-           ++vocit)
-      {
-          temp_array[cell_index++] = indexMap.at(vocit->id().get());
-      }
-      usg->InsertNextCell (VTK_CELL_TYPE , cell_size, &temp_array[0] );
-    }
+//      for (VertexOnCellIterator vocit = viennagrid::elements<VertexType>(*cit).begin(); // TODO make this 'unroll'able' ..
+//           vocit != viennagrid::elements<VertexType>(*cit).end();
+//           ++vocit)
+//      {
+//          temp_array[cell_index++] = indexMap.at(vocit->id().get());
+//      }
+//      usg->InsertNextCell (VTK_CELL_TYPE , cell_size, &temp_array[0] );
+//    }
 
-    // now, as the grid representing the segment has been set up,
-    // add it as a new block to the central multi-block datastructure
-    //
-    multigrid->SetBlock(si++, usg);
+//    // now, as the grid representing the segment has been set up,
+//    // add it as a new block to the central multi-block datastructure
+//    //
+//    multigrid->SetBlock(si++, usg);
 
-    // we don't need the usg anymore,
-    // delete everything, we'll start from scratch with the next segment ..
-    //
-    usg->Delete();
-  }
+//    // we don't need the usg anymore,
+//    // delete everything, we'll start from scratch with the next segment ..
+//    //
+//    usg->Delete();
+//  }
 
-  multiview->multigridModified();
-}
+//  multiview->multigridModified();
+//}
 
-inline void copy(Device2u& device, MultiView* multiview)
-{
-    copy(device, multiview, tag::viennagrid_domain(), VTK_TRIANGLE);
-}
+//inline void copy(Device2u& device, MultiView* multiview)
+//{
+//    copy(device, multiview, tag::viennagrid_domain(), VTK_TRIANGLE);
+//}
 
-inline void copy(Device2s& device, MultiView* multiview)
-{
-    copy(device, multiview, tag::viennagrid_domain(), VTK_QUAD);
-}
+//inline void copy(Device2s& device, MultiView* multiview)
+//{
+//    copy(device, multiview, tag::viennagrid_domain(), VTK_QUAD);
+//}
 
-inline void copy(Device3u& device, MultiView* multiview)
-{
-    copy(device, multiview, tag::viennagrid_domain(), VTK_TETRA);
-}
+//inline void copy(Device3u& device, MultiView* multiview)
+//{
+//    copy(device, multiview, tag::viennagrid_domain(), VTK_TETRA);
+//}
 
-inline void copy(Device3s& device, MultiView* multiview)
-{
-    copy(device, multiview, tag::viennagrid_domain(), VTK_HEXAHEDRON);
-}
+//inline void copy(Device3s& device, MultiView* multiview)
+//{
+//    copy(device, multiview, tag::viennagrid_domain(), VTK_HEXAHEDRON);
+//}
 
-template<typename DeviceT, typename SourceAccessorT, typename TargetAccessorT>
-inline void copy(DeviceT & device, SourceAccessorT source, TargetAccessorT target)
-{
-  typedef typename DeviceT::CellComplex                                                           CellComplexType;
-  typedef typename viennagrid::result_of::cell_tag<CellComplexType>::type                         CellTag;
-  typedef typename viennagrid::result_of::element<CellComplexType, CellTag>::type                 CellType;
-  typedef typename viennagrid::result_of::element_range<CellComplexType, CellTag>::type           CellRange;
-  typedef typename viennagrid::result_of::iterator<CellRange>::type                               CellIterator;
+//template<typename DeviceT, typename SourceAccessorT, typename TargetAccessorT>
+//inline void copy(DeviceT & device, SourceAccessorT source, TargetAccessorT target)
+//{
+//  typedef typename DeviceT::CellComplex                                                           CellComplexType;
+//  typedef typename viennagrid::result_of::cell_tag<CellComplexType>::type                         CellTag;
+//  typedef typename viennagrid::result_of::element<CellComplexType, CellTag>::type                 CellType;
+//  typedef typename viennagrid::result_of::element_range<CellComplexType, CellTag>::type           CellRange;
+//  typedef typename viennagrid::result_of::iterator<CellRange>::type                               CellIterator;
 
-  CellRange cells = viennagrid::elements<CellType>(device.getCellComplex());
-  for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
-  {
-    target(*cit) = source(*cit);
-  }
+//  CellRange cells = viennagrid::elements<CellType>(device.getCellComplex());
+//  for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
+//  {
+//    target(*cit) = source(*cit);
+//  }
 
-}
+//}
 
 //template<typename DomainT, typename AccessorT>
 //inline void copy(DomainT     & domain,     AccessorT & acc,

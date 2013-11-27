@@ -26,7 +26,7 @@
 
 
 #include "copy.hpp"
-#include "device.hpp"
+#include "device.h"
 #include "offload_to_worker.hpp"
 #include "keys_quantities.hpp"
 #include "keys_units.hpp"
@@ -52,27 +52,27 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 
     // setup module specific mechanisms
     //
-    QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
-    QObject::connect(this, SIGNAL(materialsAvailable(MaterialManager::Library&)), widget, SLOT(setMaterialLibrary(MaterialManager::Library&)));
+//    QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
+//    QObject::connect(this, SIGNAL(materialsAvailable(MaterialManager::Library&)), widget, SLOT(setMaterialLibrary(MaterialManager::Library&)));
 
 
     // create output quantities of this module
     //
-    pot_quan_vertex("potential",            "Volt", this->name().toStdString(), VERTEX, SCALAR);
-    n_quan_vertex("electron_concentration", "1/m^3", this->name().toStdString(), VERTEX, SCALAR);
-    p_quan_vertex("hole_concentration",     "1/m^3", this->name().toStdString(), VERTEX, SCALAR);
-    pot_quan_cell("potential",            "Volt", this->name().toStdString(), CELL, SCALAR);
-    n_quan_cell("electron_concentration", "1/m^3", this->name().toStdString(), CELL, SCALAR);
-    p_quan_cell("hole_concentration",     "1/m^3", this->name().toStdString(), CELL, SCALAR);
+//    pot_quan_vertex("potential",            "Volt", this->name().toStdString(), VERTEX, SCALAR);
+//    n_quan_vertex("electron_concentration", "1/m^3", this->name().toStdString(), VERTEX, SCALAR);
+//    p_quan_vertex("hole_concentration",     "1/m^3", this->name().toStdString(), VERTEX, SCALAR);
+//    pot_quan_cell("potential",            "Volt", this->name().toStdString(), CELL, SCALAR);
+//    n_quan_cell("electron_concentration", "1/m^3", this->name().toStdString(), CELL, SCALAR);
+//    p_quan_cell("hole_concentration",     "1/m^3", this->name().toStdString(), CELL, SCALAR);
 
     // register output quantities of this module in the framework
     //
-    register_quantity(pot_quan_vertex);
-    register_quantity(n_quan_vertex);
-    register_quantity(p_quan_vertex);
-    register_quantity(pot_quan_cell);
-    register_quantity(n_quan_cell);
-    register_quantity(p_quan_cell);
+//    register_quantity(pot_quan_vertex);
+//    register_quantity(n_quan_vertex);
+//    register_quantity(p_quan_vertex);
+//    register_quantity(pot_quan_cell);
+//    register_quantity(n_quan_cell);
+//    register_quantity(p_quan_cell);
 }
 
 ViennaMiniModule::~ViennaMiniModule()
@@ -100,16 +100,16 @@ QString ViennaMiniModule::version()
 // material data is available
 //
 
-/**
- * @brief Function is after the framework forwarded
- * the base data to the module, e.g., material manager
- * so in this case we are lettings our UI know, that the
- * material data is available
- */
-void ViennaMiniModule::preprocess()
-{
-    emit materialsAvailable(material_manager->getLibrary());
-}
+///**
+// * @brief Function is after the framework forwarded
+// * the base data to the module, e.g., material manager
+// * so in this case we are lettings our UI know, that the
+// * material data is available
+// */
+//void ViennaMiniModule::preprocess()
+//{
+//    emit materialsAvailable(material_manager->getLibrary());
+//}
 
 /**
  * @brief Function orders the render3D view to visualize a
@@ -117,24 +117,24 @@ void ViennaMiniModule::preprocess()
  */
 void ViennaMiniModule::render(Quantity& quan, int step)
 {
-    // retrieve the 'current' render object from the framework
-    Render3D* render = multiview->getCurrentRender3D();
+//    // retrieve the 'current' render object from the framework
+//    Render3D* render = multiview->getCurrentRender3D();
 
-    // if current is actually a render view, and not a, for instance, chart view
-    if(render)
-    {
-        // make sure that the 'domain' is up-to-date
-        render->update_render_domain();
+//    // if current is actually a render view, and not a, for instance, chart view
+//    if(render)
+//    {
+//        // make sure that the 'domain' is up-to-date
+//        render->update_render_domain();
 
-        if((quan == pot_quan_vertex) || (quan == pot_quan_cell))
-          multiview->setCurrentLogScale(false);
-        else
-          multiview->setCurrentLogScale(true);
+//        if((quan == pot_quan_vertex) || (quan == pot_quan_cell))
+//          multiview->setCurrentLogScale(false);
+//        else
+//          multiview->setCurrentLogScale(true);
 
-        // order the renderer to overlay the mesh with a quantitiy distribution
-        render->color_quantity(quan.name, viennamos::generateDisplayName(quan.name, quan.unit), quan.cell_level);
-        render->update();
-    }
+//        // order the renderer to overlay the mesh with a quantitiy distribution
+//        render->color_quantity(quan.name, viennamos::generateDisplayName(quan.name, quan.unit), quan.cell_level);
+//        render->update();
+//    }
 }
 
 /**
@@ -192,25 +192,25 @@ void ViennaMiniModule::reset()
  */
 void ViennaMiniModule::execute()
 {
-    DeviceParameters& parameters = widget->getParameters();
+//    DeviceParameters& parameters = widget->getParameters();
 
-    if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
-    {
-        viennamos::Device2u& device = access<viennamos::Device2u>();
-        ViennaMiniWorker* worker = new ViennaMiniWorker(&device, material_manager->getLibrary(), parameters,
-                                                        pot_quan_vertex, n_quan_vertex, p_quan_vertex,
-                                                        pot_quan_cell, n_quan_cell, p_quan_cell);
-        viennamos::offload(worker, messenger, SIGNAL(finished()), this, SLOT(transferResult()));
-    }
-    else
-    if((device_id == viennamos::Device3u::ID()) && (has<viennamos::Device3u>()))
-    {
-        viennamos::Device3u& device = access<viennamos::Device3u>();
-        ViennaMiniWorker* worker = new ViennaMiniWorker(&device, material_manager->getLibrary(), parameters,
-                                                        pot_quan_vertex, n_quan_vertex, p_quan_vertex,
-                                                        pot_quan_cell, n_quan_cell, p_quan_cell);
-        viennamos::offload(worker, messenger, SIGNAL(finished()), this, SLOT(transferResult()));
-    }
+//    if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
+//    {
+//        viennamos::Device2u& device = access<viennamos::Device2u>();
+//        ViennaMiniWorker* worker = new ViennaMiniWorker(&device, material_manager->getLibrary(), parameters,
+//                                                        pot_quan_vertex, n_quan_vertex, p_quan_vertex,
+//                                                        pot_quan_cell, n_quan_cell, p_quan_cell);
+//        viennamos::offload(worker, messenger, SIGNAL(finished()), this, SLOT(transferResult()));
+//    }
+//    else
+//    if((device_id == viennamos::Device3u::ID()) && (has<viennamos::Device3u>()))
+//    {
+//        viennamos::Device3u& device = access<viennamos::Device3u>();
+//        ViennaMiniWorker* worker = new ViennaMiniWorker(&device, material_manager->getLibrary(), parameters,
+//                                                        pot_quan_vertex, n_quan_vertex, p_quan_vertex,
+//                                                        pot_quan_cell, n_quan_cell, p_quan_cell);
+//        viennamos::offload(worker, messenger, SIGNAL(finished()), this, SLOT(transferResult()));
+//    }
 }
 
 /**
@@ -220,28 +220,28 @@ void ViennaMiniModule::execute()
  */
 void ViennaMiniModule::transferResult()
 {
-  if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
-  {
-    viennamos::Device2u& device = access<viennamos::Device2u>();
-    viennamos::copy(device, pot_quan_vertex, multiview);
-    viennamos::copy(device, n_quan_vertex,   multiview);
-    viennamos::copy(device, p_quan_vertex,   multiview);
-    viennamos::copy(device, pot_quan_cell,   multiview);
-    viennamos::copy(device, n_quan_cell,     multiview);
-    viennamos::copy(device, p_quan_cell,     multiview);
-  }
-  else
-  if((device_id == viennamos::Device3u::ID()) && (has<viennamos::Device3u>()))
-  {
-    viennamos::Device3u& device = access<viennamos::Device3u>();
-    viennamos::copy(device, pot_quan_vertex, multiview);
-    viennamos::copy(device, n_quan_vertex,   multiview);
-    viennamos::copy(device, p_quan_vertex,   multiview);
-    viennamos::copy(device, pot_quan_cell,   multiview);
-    viennamos::copy(device, n_quan_cell,     multiview);
-    viennamos::copy(device, p_quan_cell,     multiview);
-  }
-  emit finished();
+//  if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
+//  {
+//    viennamos::Device2u& device = access<viennamos::Device2u>();
+//    viennamos::copy(device, pot_quan_vertex, multiview);
+//    viennamos::copy(device, n_quan_vertex,   multiview);
+//    viennamos::copy(device, p_quan_vertex,   multiview);
+//    viennamos::copy(device, pot_quan_cell,   multiview);
+//    viennamos::copy(device, n_quan_cell,     multiview);
+//    viennamos::copy(device, p_quan_cell,     multiview);
+//  }
+//  else
+//  if((device_id == viennamos::Device3u::ID()) && (has<viennamos::Device3u>()))
+//  {
+//    viennamos::Device3u& device = access<viennamos::Device3u>();
+//    viennamos::copy(device, pot_quan_vertex, multiview);
+//    viennamos::copy(device, n_quan_vertex,   multiview);
+//    viennamos::copy(device, p_quan_vertex,   multiview);
+//    viennamos::copy(device, pot_quan_cell,   multiview);
+//    viennamos::copy(device, n_quan_cell,     multiview);
+//    viennamos::copy(device, p_quan_cell,     multiview);
+//  }
+//  emit finished();
 }
 
 
@@ -251,82 +251,82 @@ void ViennaMiniModule::transferResult()
  */
 void ViennaMiniModule::loadMeshFile(QString const& filename)
 {
-    meshfile = filename;
+//    meshfile = filename;
 
-    QString suffix = QFileInfo(filename).suffix();
+//    QString suffix = QFileInfo(filename).suffix();
 
-    if(suffix == "mesh")
-    {
-        QString type = widget->getMeshType();
+//    if(suffix == "mesh")
+//    {
+//        QString type = widget->getMeshType();
 
-        if(type == viennamos::key::vdevice2u)
-        {
-            try {
-                if(has<viennamos::Device2u>()) remove<viennamos::Device2u>();
-                viennamos::Device2u& device = make<viennamos::Device2u>();
-                viennagrid::io::netgen_reader  reader;
-                reader(device.getCellComplex(), device.getSegmentation(), filename.toStdString());
-                viennagrid::scale(device.getCellComplex(), widget->getScaling());
-                viennamos::copy(device, multiview);
-                device_id = viennamos::Device2u::ID();
-//                device_segments = device.getSegmentation().size();
+//        if(type == viennamos::key::vdevice2u)
+//        {
+//            try {
+//                if(has<viennamos::Device2u>()) remove<viennamos::Device2u>();
+//                viennamos::Device2u& device = make<viennamos::Device2u>();
+//                viennagrid::io::netgen_reader  reader;
+//                reader(device.getCellComplex(), device.getSegmentation(), filename.toStdString());
+//                viennagrid::scale(device.getCellComplex(), widget->getScaling());
+//                viennamos::copy(device, multiview);
+//                device_id = viennamos::Device2u::ID();
+////                device_segments = device.getSegmentation().size();
 
-                std::vector<int> segment_indices;
-                for (typename viennamos::Device2u::Segmentation::iterator it = device.getSegmentation().begin();
-                     it != device.getSegmentation().end(); ++it)
-                {
-                    segment_indices.push_back(it->id());
-                }
-                widget->setupDevice(segment_indices);
-            }
-            catch(std::exception& e) {
-                QMessageBox::critical(0, QString("Error"), QString(e.what()));
-            }
-        }
-        else
-        if(type == viennamos::key::vdevice3u)
-        {
-            try {
-                if(has<viennamos::Device3u>()) remove<viennamos::Device3u>();
-                viennamos::Device3u& device = make<viennamos::Device3u>();
-                viennagrid::io::netgen_reader  reader;
-                reader(device.getCellComplex(), device.getSegmentation(), filename.toStdString());
-                viennagrid::scale(device.getCellComplex(), widget->getScaling());
-                viennamos::copy(device, multiview);
-                device_id = viennamos::Device3u::ID();
-//                device_segments = device.getSegmentation().size();
-                std::vector<int> segment_indices;
-                for (typename viennamos::Device3u::Segmentation::iterator it = device.getSegmentation().begin();
-                     it != device.getSegmentation().end(); ++it)
-                {
-                    segment_indices.push_back(it->id());
-                }
-                widget->setupDevice(segment_indices);
-            }
-            catch(std::exception& e) {
-                QMessageBox::critical(0, QString("Error"), QString(e.what()));
-            }
-        }
-        else
-        {
-            QMessageBox::critical(0, QString("Error"), QString("Mesh dimension/type not yet supported!"));
-            return;
-        }
-    }
-    else
-    {
-        QMessageBox::critical(0, QString("Error"), "Mesh File format is not supported!");
-        return;
-    }
+//                std::vector<int> segment_indices;
+//                for (typename viennamos::Device2u::Segmentation::iterator it = device.getSegmentation().begin();
+//                     it != device.getSegmentation().end(); ++it)
+//                {
+//                    segment_indices.push_back(it->id());
+//                }
+//                widget->setupDevice(segment_indices);
+//            }
+//            catch(std::exception& e) {
+//                QMessageBox::critical(0, QString("Error"), QString(e.what()));
+//            }
+//        }
+//        else
+//        if(type == viennamos::key::vdevice3u)
+//        {
+//            try {
+//                if(has<viennamos::Device3u>()) remove<viennamos::Device3u>();
+//                viennamos::Device3u& device = make<viennamos::Device3u>();
+//                viennagrid::io::netgen_reader  reader;
+//                reader(device.getCellComplex(), device.getSegmentation(), filename.toStdString());
+//                viennagrid::scale(device.getCellComplex(), widget->getScaling());
+//                viennamos::copy(device, multiview);
+//                device_id = viennamos::Device3u::ID();
+////                device_segments = device.getSegmentation().size();
+//                std::vector<int> segment_indices;
+//                for (typename viennamos::Device3u::Segmentation::iterator it = device.getSegmentation().begin();
+//                     it != device.getSegmentation().end(); ++it)
+//                {
+//                    segment_indices.push_back(it->id());
+//                }
+//                widget->setupDevice(segment_indices);
+//            }
+//            catch(std::exception& e) {
+//                QMessageBox::critical(0, QString("Error"), QString(e.what()));
+//            }
+//        }
+//        else
+//        {
+//            QMessageBox::critical(0, QString("Error"), QString("Mesh dimension/type not yet supported!"));
+//            return;
+//        }
+//    }
+//    else
+//    {
+//        QMessageBox::critical(0, QString("Error"), "Mesh File format is not supported!");
+//        return;
+//    }
 
 
-    //
-//    widget->setupDevice(device_segments);
+//    //
+////    widget->setupDevice(device_segments);
 
-    // show the loaded device in the current render window
-    multiview->show_current_grid();
+//    // show the loaded device in the current render window
+//    multiview->show_current_grid();
 
-    multiview->resetAllViews();
+//    multiview->resetAllViews();
 }
 
 

@@ -55,7 +55,7 @@ public:
     virtual void            preprocess          ();
 
 signals:
-    void materialsAvailable(MaterialManager::Library& lib);
+//    void materialsAvailable(MaterialManager::Library& lib);
 
 private slots:
     void loadMeshFile(QString const& filename);

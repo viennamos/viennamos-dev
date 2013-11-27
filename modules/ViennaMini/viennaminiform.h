@@ -49,14 +49,14 @@ public:
     double getScaling();
     double getTemperature();
     void setupDevice(std::vector<int> const& segment_indices);
-    DeviceParameters& getParameters();
+//    DeviceParameters& getParameters();
 signals:
     void meshFileEntered(QString const& filename);
 
 public slots:
     void saveState(QSettings& settings);
     void loadState(QSettings& settings);
-    void setMaterialLibrary(MaterialManager::Library& lib);
+//    void setMaterialLibrary(MaterialManager::Library& lib);
 
 private slots:
     void on_pushButtonLoadMesh_clicked();
@@ -67,27 +67,27 @@ private slots:
     void setNonLinearIterations(QString const& value_str);
     void setNonLinearDamping(QString const& value_str);
     void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
-    void setSegmentName(QString const& name);
-    void setSegmentMaterial(QString const& name);
-    void setSegmentContactIsSingle(bool state);
-    void setSegmentContactContactValue(QString const& value_str);
-    void setSegmentContactIsRange(bool state);
-    void setSegmentContactContactFrom(QString const& value_str);
-    void setSegmentContactContactTo(QString const& value_str);
-    void setSegmentContactWorkfunction(QString const& value_str);
-    void setSegmentSCAcceptors(QString const& value_str);
-    void setSegmentSCDonors(QString const& value_str);
-    void makeCurrentSegmentContact(bool state);
-    void makeCurrentSegmentOxide(bool state);
-    void makeCurrentSegmentSemiconductor(bool state);
-    void toggleSegmentContact(bool state);
-    void toggleSegmentOxide(bool state);
-    void toggleSegmentSemiconductor(bool state);
-    void toggleParameters(bool state);
+//    void setSegmentName(QString const& name);
+//    void setSegmentMaterial(QString const& name);
+//    void setSegmentContactIsSingle(bool state);
+//    void setSegmentContactContactValue(QString const& value_str);
+//    void setSegmentContactIsRange(bool state);
+//    void setSegmentContactContactFrom(QString const& value_str);
+//    void setSegmentContactContactTo(QString const& value_str);
+//    void setSegmentContactWorkfunction(QString const& value_str);
+//    void setSegmentSCAcceptors(QString const& value_str);
+//    void setSegmentSCDonors(QString const& value_str);
+//    void makeCurrentSegmentContact(bool state);
+//    void makeCurrentSegmentOxide(bool state);
+//    void makeCurrentSegmentSemiconductor(bool state);
+//    void toggleSegmentContact(bool state);
+//    void toggleSegmentOxide(bool state);
+//    void toggleSegmentSemiconductor(bool state);
+//    void toggleParameters(bool state);
 
 private:
     Ui::ViennaMiniForm *ui;
-    DeviceParameters    device_parameters;
+//    DeviceParameters    device_parameters;
     QString             meshfile;
     QStringList         list_oxides;
     QStringList         list_metals;

@@ -12,16 +12,17 @@ PROJECT(ViennaMOS)
 # PROJECT VERSION
 #
 # ------------------------------------------------------------------------------
-set(VERSION_MAJOR 1)
-set(VERSION_MINOR 0)
-set(VERSION_PATCH 0)
+SET(VERSION_MAJOR 1)
+SET(VERSION_MINOR 0)
+SET(VERSION_PATCH 0)
 
 
 OPTION(DOWNLOAD     "Download external dependencies automatically"      OFF)
-OPTION(USE_STATIC   "Consider a static link towards external libraries" OFF)
 
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+INCLUDE(ExternalProject)
+INCLUDE(FindPackageHandleStandardArgs)
 
 # ------------------------------------------------------------------------------
 #
@@ -172,34 +173,33 @@ INCLUDE_DIRECTORIES(framework/include)
 # INCLUDE EXTERNAL PROJECTS
 #
 # ------------------------------------------------------------------------------
-IF(NOT DOWNLOAD)
-  MESSAGE(STATUS "Using local ViennaStar ..")
+IF(DOWNLOAD)
+  MESSAGE(STATUS "Downloading ViennaStar during the build step ..")
+ELSE(DOWNLOAD)
+  MESSAGE(STATUS "Using local ViennaStar via VIENNA*PATH environment variables ..")
+ENDIF(DOWNLOAD)
 
-  FIND_PACKAGE(ViennaFVM REQUIRED)
-  IF(VIENNAFVM_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAFVM_INCLUDE_DIRS})
-  ENDIF(VIENNAFVM_FOUND)
+SET(BUILD_VIENNASTAR_SHARED OFF)
 
-  FIND_PACKAGE(ViennaGrid REQUIRED)
-  IF(VIENNAGRID_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAGRID_INCLUDE_DIRS})
-  ENDIF(VIENNAGRID_FOUND)
-  
-  FIND_PACKAGE(ViennaData REQUIRED)
-  IF(VIENNADATA_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNADATA_INCLUDE_DIRS})
-  ENDIF(VIENNADATA_FOUND)
-  
-  FIND_PACKAGE(ViennaMath REQUIRED)
-  IF(VIENNAMATH_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNAMATH_INCLUDE_DIRS})
-  ENDIF(VIENNAMATH_FOUND)
-  
-  FIND_PACKAGE(ViennaCL REQUIRED)
-  IF(VIENNACL_FOUND)
-    INCLUDE_DIRECTORIES(${VIENNACL_INCLUDE_DIRS})
-  ENDIF(VIENNACL_FOUND)
-ENDIF(NOT DOWNLOAD)
+INCLUDE(cmake/GetViennaFVM.cmake)
+MESSAGE(STATUS "ViennaFVM Include Path: " ${VIENNAFVM_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNAFVM_INCLUDE_DIRS})
+
+INCLUDE(cmake/GetViennaGrid.cmake)
+MESSAGE(STATUS "ViennaGrid Include Path: " ${VIENNAGRID_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNAGRID_INCLUDE_DIRS})
+
+INCLUDE(cmake/GetViennaData.cmake)
+MESSAGE(STATUS "ViennaData Include Path: " ${VIENNADATA_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNADATA_INCLUDE_DIRS})
+
+INCLUDE(cmake/GetViennaMath.cmake)
+MESSAGE(STATUS "ViennaMath Include Path: " ${VIENNAMATH_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNAMATH_INCLUDE_DIRS})
+
+INCLUDE(cmake/GetViennaCL.cmake)
+MESSAGE(STATUS "ViennaCL Include Path: " ${VIENNACL_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${VIENNACL_INCLUDE_DIRS})
 
 # ------------------------------------------------------------------------------
 #
@@ -238,5 +238,5 @@ ADD_SUBDIRECTORY(framework/)
 # CONFIGURE MODULES
 #
 # ------------------------------------------------------------------------------
-#ADD_SUBDIRECTORY(modules/)
+ADD_SUBDIRECTORY(modules/)
 
