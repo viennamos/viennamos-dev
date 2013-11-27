@@ -27,132 +27,132 @@
  */
 
 
-#include "viennagrid/forwards.hpp"
-#include "viennagrid/config/default_configs.hpp"
+//#include "viennagrid/forwards.hpp"
+//#include "viennagrid/config/default_configs.hpp"
 
-#include "viennadata/api.hpp"
+//#include "viennadata/api.hpp"
 
-#include "common.hpp"
+//#include "common.hpp"
 
-namespace viennamos {
+//namespace viennamos {
 
-typedef viennagrid::mesh<viennagrid::config::line_1d>            CellComplex1u;
-typedef viennagrid::mesh<viennagrid::config::triangular_2d>      CellComplex2u;
-typedef viennagrid::mesh<viennagrid::config::quadrilateral_2d>   CellComplex2s;
-typedef viennagrid::mesh<viennagrid::config::tetrahedral_3d>     CellComplex3u;
-typedef viennagrid::mesh<viennagrid::config::hexahedral_3d>      CellComplex3s;
+//typedef viennagrid::mesh<viennagrid::config::line_1d>            CellComplex1u;
+//typedef viennagrid::mesh<viennagrid::config::triangular_2d>      CellComplex2u;
+//typedef viennagrid::mesh<viennagrid::config::quadrilateral_2d>   CellComplex2s;
+//typedef viennagrid::mesh<viennagrid::config::tetrahedral_3d>     CellComplex3u;
+//typedef viennagrid::mesh<viennagrid::config::hexahedral_3d>      CellComplex3s;
 
-typedef viennagrid::result_of::segmentation<CellComplex1u>::type     Segmentation1u;
-typedef viennagrid::result_of::segmentation<CellComplex2u>::type     Segmentation2u;
-typedef viennagrid::result_of::segmentation<CellComplex2s>::type     Segmentation2s;
-typedef viennagrid::result_of::segmentation<CellComplex3u>::type     Segmentation3u;
-typedef viennagrid::result_of::segmentation<CellComplex3s>::type     Segmentation3s;
+//typedef viennagrid::result_of::segmentation<CellComplex1u>::type     Segmentation1u;
+//typedef viennagrid::result_of::segmentation<CellComplex2u>::type     Segmentation2u;
+//typedef viennagrid::result_of::segmentation<CellComplex2s>::type     Segmentation2s;
+//typedef viennagrid::result_of::segmentation<CellComplex3u>::type     Segmentation3u;
+//typedef viennagrid::result_of::segmentation<CellComplex3s>::type     Segmentation3s;
 
-typedef viennadata::storage<>                                        QuanComplex;
-
-
-namespace key {
-static const QString vdevice1u = "Line1D";
-static const QString vdevice2u = "Triangular2D";
-static const QString vdevice2s = "Quadrilateral2D";
-static const QString vdevice3u = "Tetrahedral3D";
-static const QString vdevice3s = "Hexahedral3D";
-} // key
+//typedef viennadata::storage<>                                        QuanComplex;
 
 
-enum DEVICES_ID {
-    DEVICE_2U,
-    DEVICE_2S,
-    DEVICE_3U,
-    DEVICE_3S
-};
+//namespace key {
+//static const QString vdevice1u = "Line1D";
+//static const QString vdevice2u = "Triangular2D";
+//static const QString vdevice2s = "Quadrilateral2D";
+//static const QString vdevice3u = "Tetrahedral3D";
+//static const QString vdevice3s = "Hexahedral3D";
+//} // key
 
 
-struct Device2u
-{
-public:
-    typedef viennamos::QuanComplex        QuantityComplex;
-    typedef viennamos::CellComplex2u      CellComplex;
-    typedef viennamos::Segmentation2u     Segmentation;
+//enum DEVICES_ID {
+//    DEVICE_2U,
+//    DEVICE_2S,
+//    DEVICE_3U,
+//    DEVICE_3S
+//};
 
-    Device2u() : segmentation_(domain_) {};
-    static int         ID()  { return DEVICE_2U; }
-    static std::string KEY() { return key::vdevice2u.toStdString(); }
 
-    QuantityComplex& getQuantityComplex() { return quantities_;}
-    CellComplex&     getCellComplex    () { return domain_;    }
-    Segmentation&    getSegmentation   () { return segmentation_; }
+//struct Device2u
+//{
+//public:
+//    typedef viennamos::QuanComplex        QuantityComplex;
+//    typedef viennamos::CellComplex2u      CellComplex;
+//    typedef viennamos::Segmentation2u     Segmentation;
 
-private:
-    QuantityComplex      quantities_;
-    CellComplex          domain_;
-    Segmentation         segmentation_;
-};
+//    Device2u() : segmentation_(domain_) {};
+//    static int         ID()  { return DEVICE_2U; }
+//    static std::string KEY() { return key::vdevice2u.toStdString(); }
 
-struct Device2s
-{
-public:
-    typedef viennamos::QuanComplex        QuantityComplex;
-    typedef viennamos::CellComplex2s      CellComplex;
-    typedef viennamos::Segmentation2s     Segmentation;
+//    QuantityComplex& getQuantityComplex() { return quantities_;}
+//    CellComplex&     getCellComplex    () { return domain_;    }
+//    Segmentation&    getSegmentation   () { return segmentation_; }
 
-    Device2s() : segmentation_(domain_) {};
-    static int         ID()  { return DEVICE_2S; }
-    static std::string KEY() { return key::vdevice2s.toStdString(); }
+//private:
+//    QuantityComplex      quantities_;
+//    CellComplex          domain_;
+//    Segmentation         segmentation_;
+//};
 
-    QuantityComplex& getQuantityComplex() { return quantities_;}
-    CellComplex&     getCellComplex    () { return domain_;    }
-    Segmentation&    getSegmentation   () { return segmentation_; }
+//struct Device2s
+//{
+//public:
+//    typedef viennamos::QuanComplex        QuantityComplex;
+//    typedef viennamos::CellComplex2s      CellComplex;
+//    typedef viennamos::Segmentation2s     Segmentation;
 
-private:
-    QuantityComplex      quantities_;
-    CellComplex          domain_;
-    Segmentation         segmentation_;
-};
+//    Device2s() : segmentation_(domain_) {};
+//    static int         ID()  { return DEVICE_2S; }
+//    static std::string KEY() { return key::vdevice2s.toStdString(); }
 
-struct Device3u
-{
-public:
-    typedef viennamos::QuanComplex        QuantityComplex;
-    typedef viennamos::CellComplex3u      CellComplex;
-    typedef viennamos::Segmentation3u     Segmentation;
+//    QuantityComplex& getQuantityComplex() { return quantities_;}
+//    CellComplex&     getCellComplex    () { return domain_;    }
+//    Segmentation&    getSegmentation   () { return segmentation_; }
 
-    Device3u() : segmentation_(domain_) {};
-    static int         ID()  { return DEVICE_3U; }
-    static std::string KEY() { return key::vdevice3u.toStdString(); }
+//private:
+//    QuantityComplex      quantities_;
+//    CellComplex          domain_;
+//    Segmentation         segmentation_;
+//};
 
-    QuantityComplex& getQuantityComplex() { return quantities_;}
-    CellComplex&     getCellComplex    () { return domain_;    }
-    Segmentation&    getSegmentation   () { return segmentation_; }
+//struct Device3u
+//{
+//public:
+//    typedef viennamos::QuanComplex        QuantityComplex;
+//    typedef viennamos::CellComplex3u      CellComplex;
+//    typedef viennamos::Segmentation3u     Segmentation;
 
-private:
-    QuantityComplex      quantities_;
-    CellComplex          domain_;
-    Segmentation         segmentation_;
-};
+//    Device3u() : segmentation_(domain_) {};
+//    static int         ID()  { return DEVICE_3U; }
+//    static std::string KEY() { return key::vdevice3u.toStdString(); }
 
-struct Device3s
-{
-public:
-    typedef viennamos::QuanComplex        QuantityComplex;
-    typedef viennamos::CellComplex3s      CellComplex;
-    typedef viennamos::Segmentation3s     Segmentation;
+//    QuantityComplex& getQuantityComplex() { return quantities_;}
+//    CellComplex&     getCellComplex    () { return domain_;    }
+//    Segmentation&    getSegmentation   () { return segmentation_; }
 
-    Device3s() : segmentation_(domain_) {};
-    static int         ID()  { return DEVICE_3S; }
-    static std::string KEY() { return key::vdevice3s.toStdString(); }
+//private:
+//    QuantityComplex      quantities_;
+//    CellComplex          domain_;
+//    Segmentation         segmentation_;
+//};
 
-    QuantityComplex& getQuantityComplex() { return quantities_;}
-    CellComplex&     getCellComplex    () { return domain_;    }
-    Segmentation&    getSegmentation   () { return segmentation_; }
+//struct Device3s
+//{
+//public:
+//    typedef viennamos::QuanComplex        QuantityComplex;
+//    typedef viennamos::CellComplex3s      CellComplex;
+//    typedef viennamos::Segmentation3s     Segmentation;
 
-private:
-    QuantityComplex      quantities_;
-    CellComplex          domain_;
-    Segmentation         segmentation_;
-};
+//    Device3s() : segmentation_(domain_) {};
+//    static int         ID()  { return DEVICE_3S; }
+//    static std::string KEY() { return key::vdevice3s.toStdString(); }
 
-} // viennamos
+//    QuantityComplex& getQuantityComplex() { return quantities_;}
+//    CellComplex&     getCellComplex    () { return domain_;    }
+//    Segmentation&    getSegmentation   () { return segmentation_; }
+
+//private:
+//    QuantityComplex      quantities_;
+//    CellComplex          domain_;
+//    Segmentation         segmentation_;
+//};
+
+//} // viennamos
 
 #endif // DEVICE_HPP
 

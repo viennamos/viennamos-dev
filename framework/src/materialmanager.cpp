@@ -53,8 +53,8 @@ void MaterialManager::readXMLFile(QString const& filename)
 
     // load the viennamaterial library
     //
-    std::stringstream stream(result.toStdString());
-    library.load(stream);
+//    std::stringstream stream(result.toStdString());
+//    library.load(stream);
 }
 
 void MaterialManager::saveXMLFile(QString const& filename)
@@ -83,7 +83,7 @@ void MaterialManager::on_pushButtonSave_clicked()
 
 }
 
-MaterialManager::Library& MaterialManager::getLibrary()
-{
-    return library;
-}
+//MaterialManager::Library& MaterialManager::getLibrary()
+//{
+//    return library;
+//}
