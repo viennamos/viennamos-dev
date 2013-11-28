@@ -87,27 +87,27 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    ui->lineEditNonLinSolveTol->setText(QString::number(device_parameters.config().nonlinear_breaktol()));
 //    ui->lineEditNonLinSolveDamping->setText(QString::number(device_parameters.config().damping()));
 
-    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
+//    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
 
-    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
-    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
-    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
-    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
-    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
-    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
-    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
-    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
-    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
-    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
-    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
-    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
-    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
-    QObject::connect(ui->lineEditSemiconductorAcceptors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCAcceptors(QString)));
-    QObject::connect(ui->lineEditSemiconductorDonors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCDonors(QString)));
+//    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
+//    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
+//    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
+//    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
+//    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
+//    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
+//    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
+//    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
+//    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
+//    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
+//    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
+//    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
+//    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
+//    QObject::connect(ui->lineEditSemiconductorAcceptors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCAcceptors(QString)));
+//    QObject::connect(ui->lineEditSemiconductorDonors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCDonors(QString)));
 
-    QObject::connect(ui->checkBoxContact, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentContact(bool)));
-    QObject::connect(ui->checkBoxOxide, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentOxide(bool)));
-    QObject::connect(ui->checkBoxSemiconductor, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentSemiconductor(bool)));
+//    QObject::connect(ui->checkBoxContact, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentContact(bool)));
+//    QObject::connect(ui->checkBoxOxide, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentOxide(bool)));
+//    QObject::connect(ui->checkBoxSemiconductor, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentSemiconductor(bool)));
 
 //    this->toggleSegmentContact(false);
 //    this->toggleSegmentOxide(false);
@@ -191,32 +191,29 @@ void ViennaMiniForm::on_pushButtonLoadMesh_clicked()
   else emit meshFileEntered(meshfile);
 }
 
-void ViennaMiniForm::setupDevice(std::vector<int> const& segment_indices)
+void ViennaMiniForm::process(viennamini::simulator* vmini_simulator)
 {
-//    if(resize_device_parameters)
-//    {
-//        device_parameters.clear();
-//    }
 
-//    ui->tableWidget->clearContents();
-//    ui->tableWidget->setRowCount(segment_indices.size());
-//    for(int i = 0; i < segment_indices.size(); i++)
-//    {
-//        QTableWidgetItem *item = new QTableWidgetItem(QString::number(segment_indices[i]));
-//        item->setFlags(item->flags() ^ Qt::ItemIsEditable); // make the table not editable
-//        item->setData(Qt::UserRole, segment_indices[i]);
-//        ui->tableWidget->setItem(i, 0, item);
-//    }
+    viennamini::device::IndicesType& segment_indices = vmini_simulator->device().segment_indices();
+    ui->tableWidget->clearContents();
+    ui->tableWidget->setRowCount(segment_indices.size());
+    for(int i = 0; i < segment_indices.size(); i++)
+    {
+        QTableWidgetItem *item = new QTableWidgetItem(QString::number(segment_indices[i]));
+        item->setFlags(item->flags() ^ Qt::ItemIsEditable); // make the table not editable
+        item->setData(Qt::UserRole, qint32(segment_indices[i]));
+        ui->tableWidget->setItem(i, 0, item);
+    }
 
-//    ui->tableWidget->resizeColumnsToContents();
-//    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-//    //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
+    ui->tableWidget->resizeColumnsToContents();
+    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+    //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
-//    // now, activate the device tab!
-//    ui->tabWidget->setTabEnabled(1, true);
+    // now, activate the device tab!
+    ui->tabWidget->setTabEnabled(1, true);
 
-//    // select the first segment by default
-//    ui->tableWidget->setCurrentCell(segment_indices[0], 0);
+    // select the first segment by default
+    ui->tableWidget->setCurrentCell(segment_indices[0], 0);
 ////    this->toggleParameters(true);
 ////    this->showSegmentParameters(0,0); //show default parameters for the initial selection
 }

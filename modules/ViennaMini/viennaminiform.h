@@ -31,8 +31,11 @@
 
 #include <vector>
 
-#include "deviceparameters.hpp"
-#include "materialmanager.h"
+//#include "deviceparameters.hpp"
+//#include "materialmanager.h"
+
+#include "viennamini/simulator.hpp"
+
 
 namespace Ui {
 class ViennaMiniForm;
@@ -48,7 +51,7 @@ public:
     QString getMeshType();
     double getScaling();
     double getTemperature();
-    void setupDevice(std::vector<int> const& segment_indices);
+    void process(viennamini::simulator* vmini_simulator);
 //    DeviceParameters& getParameters();
 signals:
     void meshFileEntered(QString const& filename);

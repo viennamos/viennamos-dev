@@ -47,7 +47,7 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 {
     // setup a new UI widget and register it with this module
     //
-    widget    = new ViennaMiniForm;
+    widget    = new ViennaMiniForm();
     register_module_widget(widget); // takes ownership of the widget - no deleting required
 
     // setup module specific mechanisms
@@ -261,6 +261,8 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
   if(vmini_simulator) delete vmini_simulator;
   vmini_simulator = new viennamini::simulator;
 
+  std::vector<int> segment_ids;
+
   if(suffix == "mesh")
   {
     QString type = widget->getMeshType();
@@ -285,7 +287,7 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
         vmini_simulator->device().read(filename.toStdString(), viennamini::tetrahedral_3d());
         vmini_simulator->device().scale(widget->getScaling());
         viennamos::copy(vmini_simulator->device().get_segmesh_tetrahedral_3d(), multiview);
-      }
+        }
       catch(std::exception& e) {
         QMessageBox::critical(0, QString("Error"), QString(e.what()));
       }
@@ -302,7 +304,14 @@ void ViennaMiniModule::loadMeshFile(QString const& filename)
     return;
   }
 
+  // forward the device handle, i.e., a smart pointer, to the
+  // widget. also setup the GUI elements accordingly
+  //
+  vmini_simulator->device().update();
+  widget->process(vmini_simulator);
+
   // show the loaded device in the current render window
+  //
   multiview->show_current_grid();
 
   multiview->resetAllViews();
