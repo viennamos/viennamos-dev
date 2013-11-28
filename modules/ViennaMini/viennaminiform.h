@@ -70,7 +70,7 @@ private slots:
     void setNonLinearIterations(QString const& value_str);
     void setNonLinearDamping(QString const& value_str);
     void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
-//    void setSegmentName(QString const& name);
+    void setSegmentName(QString const& name);
 //    void setSegmentMaterial(QString const& name);
 //    void setSegmentContactIsSingle(bool state);
 //    void setSegmentContactContactValue(QString const& value_str);
@@ -96,6 +96,7 @@ private:
     QStringList         list_metals;
     QStringList         list_semiconductors;
     bool                resize_device_parameters;
+    viennamini::simulator* vmini_simulator_;
 };
 
 #endif // VIENNAMINIFORM_H

@@ -43,6 +43,8 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    vmini_simulator_ = NULL;
+
     ui->tabWidget->setTabText(0, "General");
     ui->tabWidget->setTabText(1, "Device");
 
@@ -87,7 +89,7 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    ui->lineEditNonLinSolveTol->setText(QString::number(device_parameters.config().nonlinear_breaktol()));
 //    ui->lineEditNonLinSolveDamping->setText(QString::number(device_parameters.config().damping()));
 
-//    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
+    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
 
 //    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
 //    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
@@ -95,7 +97,7 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
 //    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
 //    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
-//    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
+    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
 //    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
 //    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
 //    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
@@ -193,7 +195,7 @@ void ViennaMiniForm::on_pushButtonLoadMesh_clicked()
 
 void ViennaMiniForm::process(viennamini::simulator* vmini_simulator)
 {
-
+    vmini_simulator_ = vmini_simulator;
     viennamini::device::IndicesType& segment_indices = vmini_simulator->device().segment_indices();
     ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(segment_indices.size());
@@ -220,16 +222,17 @@ void ViennaMiniForm::process(viennamini::simulator* vmini_simulator)
 
 void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
 {
-//    if(row < 0) return;
+    if(row < 0) return;
+    if(!vmini_simulator_) return;
 
-//    QTableWidgetItem* widgetItem = ui->tableWidget->item(row, 0);
-//    int segment_id = widgetItem->data(Qt::UserRole).toInt();
+    QTableWidgetItem* widgetItem = ui->tableWidget->item(row, 0);
+    int sid = widgetItem->data(Qt::UserRole).toInt();
 
-//    // deactivating autoexclusive enabls to unselect all radio buttons
-//    ui->radioButtonContactSingle->setAutoExclusive(false);
-//    ui->radioButtonContactRange->setAutoExclusive(false);
-
-//    ui->lineEditSegmentName->setText(device_parameters[segment_id].name);
+    // deactivating autoexclusive enabls to unselect all radio buttons
+    ui->radioButtonContactSingle->setAutoExclusive(false);
+    ui->radioButtonContactRange->setAutoExclusive(false);
+    qDebug() << "showing segment parameters " << sid;
+    ui->lineEditSegmentName->setText(QString::fromStdString(vmini_simulator_->device().get_name(sid)));
 //    ui->checkBoxContact->setChecked(device_parameters[segment_id].isContact);
 //    ui->radioButtonContactSingle->setChecked(device_parameters[segment_id].isContactSingle);
 //    ui->lineEditContactSingle->setText(QString::number(device_parameters[segment_id].contact));
@@ -302,10 +305,16 @@ void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second
 //    device_parameters.config().damping() = value_str.toDouble();
 //}
 
-//void ViennaMiniForm::setSegmentName(QString const& name)
-//{
+void ViennaMiniForm::setSegmentName(QString const& name)
+{
+  qDebug() << "setting segment name " << ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt() << " name " << name;
 //    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].name = name;
-//}
+    if(vmini_simulator_)
+      vmini_simulator_->device().set_name(
+        ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt(),
+        name.toStdString()
+      );
+}
 
 //void ViennaMiniForm::setSegmentMaterial(QString const& name)
 //{
