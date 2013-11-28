@@ -45,7 +45,7 @@
 //
 #include "boost/shared_ptr.hpp"
 
-namespace viennamos 
+namespace viennamos
 {
   // Tags
   //
@@ -92,6 +92,9 @@ namespace viennamos
 
   static const QString png_suffix = "png";
   static const QString png_filter = "PNG files (*."+key::png_suffix+")";
+
+  static const QString triangular2d = "2D Triangle";
+  static const QString tetrahedral3d = "3D Tetradron";
 
   } // namespace key
 

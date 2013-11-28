@@ -201,6 +201,12 @@ INCLUDE(cmake/GetViennaCL.cmake)
 MESSAGE(STATUS "ViennaCL Include Path: " ${VIENNACL_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${VIENNACL_INCLUDE_DIRS})
 
+INCLUDE(cmake/GetViennaMaterials.cmake)
+MESSAGE(STATUS "ViennaMaterials Include Path: " ${VIENNAMATERIALS_INCLUDE_DIRS})
+MESSAGE(STATUS "ViennaMaterials Libraries: " ${VIENNAMATERIALS_LIBRARIES})
+INCLUDE_DIRECTORIES(${VIENNAMATERIALS_INCLUDE_DIRS})
+SET(LIBRARIES ${LIBRARIES} ${VIENNAMATERIALS_LIBRARIES})
+
 # ------------------------------------------------------------------------------
 #
 # SET INSTALL PATH
@@ -238,5 +244,6 @@ ADD_SUBDIRECTORY(framework/)
 # CONFIGURE MODULES
 #
 # ------------------------------------------------------------------------------
+SET(VMOS_MODULE_PREFIX "vmos_module_")
 ADD_SUBDIRECTORY(modules/)
 

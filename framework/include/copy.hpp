@@ -35,9 +35,11 @@
 #include <vtkCellData.h>
 #include <vtkTetra.h>
 
+#include "forwards.hpp"
+
 //#include "common.hpp"
 //#include "device.hpp"
-//#include "multiview.h"
+#include "multiview.h"
 //#include "quantity.h"
 
 //#include "boost/lexical_cast.hpp"
@@ -52,11 +54,115 @@
 
 namespace viennamos {
 
-namespace tag {
+  class copy_exception : public std::runtime_error {
+  public:
+    copy_exception(std::string const & str) : std::runtime_error(str) {}
+  };
 
-struct viennagrid_domain {};
+  template<typename MeshT, typename SegmentationT>
+  void copy(viennagrid::segmented_mesh<MeshT, SegmentationT>& segmesh, MultiView* multiview)
+  {
+    typedef MeshT                                                             MeshType;
+    typedef SegmentationT                                                     SegmentationType;
+    typedef typename SegmentationType::segment_handle_type                    SegmentType;
+    typedef typename viennagrid::result_of::vertex<MeshType>::type            VertexType;
+    typedef typename viennagrid::result_of::vertex_range<SegmentType>::type   VertexRange;
+    typedef typename viennagrid::result_of::iterator<VertexRange>::type       VertexIterator;
+    typedef typename viennagrid::result_of::cell_range<SegmentType>::type     CellRange;
+    typedef typename viennagrid::result_of::iterator<CellRange>::type         CellIterator;
+    typedef typename viennagrid::result_of::cell<MeshType>::type              CellType;
+    typedef typename viennagrid::result_of::cell_tag<MeshType>::type          CellTagType;
+    typedef typename viennagrid::result_of::vertex_range<CellType>::type  VertexOnCellRange;
+    typedef typename viennagrid::result_of::iterator<VertexOnCellRange>::type                                   VertexOnCellIterator;
 
-} // end tag
+    MeshType         & mesh         = segmesh.mesh;
+    SegmentationType & segmentation = segmesh.segmentation;
+
+    std::string cell_type = CellTagType::name();
+    static int DIMG       = typename viennagrid::result_of::point<MeshT>::type().size();
+    static int CELL_SIZE  = viennagrid::boundary_elements<CellTagType, viennagrid::vertex_tag>::num;
+
+    int VTK_CELL_TYPE;
+    if(cell_type == "2-simplex")
+      VTK_CELL_TYPE = VTK_TRIANGLE;
+    else
+    if(cell_type == "3-simplex")
+        VTK_CELL_TYPE = VTK_TETRA;
+    else throw copy_exception("ViennaGrid device not supported!");
+
+    multiview->resetGrid();
+    MultiView::MultiGrid multigrid = multiview->getGrid();
+
+    std::size_t segment_index = 0;
+    for(typename SegmentationType::iterator sit = segmentation.begin();
+        sit != segmentation.end(); sit++)
+    {
+      // for each segment, setup an unstructured vtk grid
+      // and add it as a new block to the central multi-block datastructure
+      //
+      vtkUnstructuredGrid* usg = vtkUnstructuredGrid::New();
+
+      // transfer the segment's geometry information
+      //
+      vtkPoints* points = vtkPoints::New();
+      std::map<std::size_t,std::size_t>   indexMap;
+      double temp_point[3];
+      temp_point[0] = 0.0;
+      temp_point[1] = 0.0;
+      temp_point[2] = 0.0;
+      int i = 0;
+      VertexRange vertices = viennagrid::elements<VertexType>(*sit);
+      for (VertexIterator vit = vertices.begin(); vit != vertices.end(); ++vit)
+      {
+        for(int i = 0; i < DIMG; i++)
+          temp_point[i] = viennagrid::point(*vit)[i];
+        points->InsertNextPoint(temp_point);
+        indexMap[vit->id().get()] = i++;
+      }
+      usg->SetPoints(points);
+      std::cout << "added points: " << points->GetReferenceCount() << std::endl;
+      points->Delete();
+
+      // transfer the segment's topology information
+      //
+      int cnt = 0;
+      CellRange cells = viennagrid::elements<CellType>(*sit);
+      for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
+      {
+        vtkIdType temp_cell[CELL_SIZE];
+        for(int ci = 0; ci < CELL_SIZE; ci++)
+        {
+            temp_cell[ci] = indexMap.at( viennagrid::vertices(*cit)[ci].id().get() );
+        }
+        cnt++;
+        usg->InsertNextCell (VTK_CELL_TYPE , CELL_SIZE, temp_cell );
+      }
+      std::cout << "added cells: " << cnt << std::endl;
+      // now, as the grid representing the segment has been set up,
+      // add it as a new block to the central multi-block datastructure
+      //
+      multigrid->SetBlock(segment_index++, usg);
+
+      // we don't need the usg anymore,
+      // delete everything, we'll start from scratch with the next segment ..
+      //
+      usg->Delete();
+    }
+    multiview->multigridModified();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //template<typename PostfixT>

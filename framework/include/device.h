@@ -52,6 +52,13 @@ public:
   device();
   ~device();
 
+  /*! \brief Returns a static string identification for this class
+  *
+  * Required to model ViennaMOS's database concept, i.e., this class
+  * can be stored in the database
+  */
+  static const std::string ID() { return "vmos_device"; }
+
   void make_line1d();
   void make_triangular2d();
   void make_tetrahedral3d();
@@ -67,7 +74,7 @@ public:
   problem_description_line_1d&        get_problem_description_line_1d        (std::size_t id = 0);
   problem_description_triangular_2d&  get_problem_description_triangular_2d  (std::size_t id = 0);
   problem_description_tetrahedral_3d& get_problem_description_tetrahedral_3d (std::size_t id = 0);
-  
+
   problem_description_line_1d_set&        get_problem_description_line_1d_set        ();
   problem_description_triangular_2d_set&  get_problem_description_triangular_2d_set  ();
   problem_description_tetrahedral_3d_set& get_problem_description_tetrahedral_3d_set ();

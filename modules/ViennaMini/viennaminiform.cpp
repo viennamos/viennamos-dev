@@ -41,45 +41,45 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ViennaMiniForm)
 {
-//    ui->setupUi(this);
+    ui->setupUi(this);
 
-//    ui->tabWidget->setTabText(0, "General");
-//    ui->tabWidget->setTabText(1, "Device");
+    ui->tabWidget->setTabText(0, "General");
+    ui->tabWidget->setTabText(1, "Device");
 
-//    // deactivate the device tab for now:
-//    // note: it makes only sense to enable it, when a mesh has been loaded
-//    // and the number of segments is available ...
-//    ui->tabWidget->setTabEnabled(1, false);
+    // deactivate the device tab for now:
+    // note: it makes only sense to enable it, when a mesh has been loaded
+    // and the number of segments is available ...
+    ui->tabWidget->setTabEnabled(1, false);
 
-////    // for now, disable all segment parameters, as we don't have the number of segments right now ...
-////    this->toggleParameters(false);
+//    // for now, disable all segment parameters, as we don't have the number of segments right now ...
+//    this->toggleParameters(false);
 
-//    ui->comboBoxMeshType->addItem(viennamos::key::vdevice2u);
-//    ui->comboBoxMeshType->addItem(viennamos::key::vdevice3u);
-//    ui->comboBoxMeshType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->comboBoxMeshType->addItem(viennamos::key::triangular2d);
+    ui->comboBoxMeshType->addItem(viennamos::key::tetrahedral3d);
+    ui->comboBoxMeshType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-//    QDoubleValidator* double_validator = new QDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 10, this);
-//    QIntValidator*    integer_validator = new QIntValidator(this);
+    QDoubleValidator* double_validator = new QDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 10, this);
+    QIntValidator*    integer_validator = new QIntValidator(this);
 
-//    ui->lineEditScalingFactor->setValidator(double_validator);
-//    ui->lineEditTemp->setValidator(double_validator);
-//    ui->lineEditContactSingle->setValidator(double_validator);
-//    ui->lineEditContactRangeFrom->setValidator(double_validator);
-//    ui->lineEditContactRangeTo->setValidator(double_validator);
-//    ui->lineEditWorkfunction->setValidator(double_validator);
-//    ui->lineEditSemiconductorAcceptors->setValidator(double_validator);
-//    ui->lineEditSemiconductorDonors->setValidator(double_validator);
-//    ui->lineEditLinSolveIterations->setValidator(integer_validator);
-//    ui->lineEditNonLinSolveIterations->setValidator(integer_validator);
-//    ui->lineEditLinSolveTol->setValidator(double_validator);
-//    ui->lineEditNonLinSolveTol->setValidator(double_validator);
-//    ui->lineEditNonLinSolveDamping->setValidator(double_validator);
+    ui->lineEditScalingFactor->setValidator(double_validator);
+    ui->lineEditTemp->setValidator(double_validator);
+    ui->lineEditContactSingle->setValidator(double_validator);
+    ui->lineEditContactRangeFrom->setValidator(double_validator);
+    ui->lineEditContactRangeTo->setValidator(double_validator);
+    ui->lineEditWorkfunction->setValidator(double_validator);
+    ui->lineEditSemiconductorAcceptors->setValidator(double_validator);
+    ui->lineEditSemiconductorDonors->setValidator(double_validator);
+    ui->lineEditLinSolveIterations->setValidator(integer_validator);
+    ui->lineEditNonLinSolveIterations->setValidator(integer_validator);
+    ui->lineEditLinSolveTol->setValidator(double_validator);
+    ui->lineEditNonLinSolveTol->setValidator(double_validator);
+    ui->lineEditNonLinSolveDamping->setValidator(double_validator);
 
-//    ui->tableWidget->verticalHeader()->setVisible(false);
+    ui->tableWidget->verticalHeader()->setVisible(false);
 
-//    // setup initial values for the UI elements
-//    //
-//    ui->lineEditScalingFactor->setText("1.0e-9");
+    // setup initial values for the UI elements
+    //
+    ui->lineEditScalingFactor->setText("1.0e-9");
 //    ui->lineEditTemp->setText(QString::number(device_parameters.config().temperature()));
 //    ui->lineEditLinSolveIterations->setText(QString::number(device_parameters.config().linear_iterations()));
 //    ui->lineEditLinSolveTol->setText(QString::number(device_parameters.config().linear_breaktol()));
@@ -87,38 +87,38 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    ui->lineEditNonLinSolveTol->setText(QString::number(device_parameters.config().nonlinear_breaktol()));
 //    ui->lineEditNonLinSolveDamping->setText(QString::number(device_parameters.config().damping()));
 
-//    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
+    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
 
-//    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
-//    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
-//    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
-//    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
-//    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
-//    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
-//    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
-//    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
-//    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
-//    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
-//    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
-//    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
-//    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
-//    QObject::connect(ui->lineEditSemiconductorAcceptors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCAcceptors(QString)));
-//    QObject::connect(ui->lineEditSemiconductorDonors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCDonors(QString)));
+    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
+    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
+    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
+    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
+    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
+    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
+    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
+    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
+    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
+    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
+    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
+    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
+    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
+    QObject::connect(ui->lineEditSemiconductorAcceptors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCAcceptors(QString)));
+    QObject::connect(ui->lineEditSemiconductorDonors, SIGNAL(textChanged(QString)), this, SLOT(setSegmentSCDonors(QString)));
 
-//    QObject::connect(ui->checkBoxContact, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentContact(bool)));
-//    QObject::connect(ui->checkBoxOxide, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentOxide(bool)));
-//    QObject::connect(ui->checkBoxSemiconductor, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentSemiconductor(bool)));
+    QObject::connect(ui->checkBoxContact, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentContact(bool)));
+    QObject::connect(ui->checkBoxOxide, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentOxide(bool)));
+    QObject::connect(ui->checkBoxSemiconductor, SIGNAL(toggled(bool)), this, SLOT(makeCurrentSegmentSemiconductor(bool)));
 
 //    this->toggleSegmentContact(false);
 //    this->toggleSegmentOxide(false);
 //    this->toggleSegmentSemiconductor(false);
 
-//    resize_device_parameters = false;
+    resize_device_parameters = false;
 
-//    ui->tableWidget->setColumnCount(1);
-//    QStringList header;
-//    header << "Index";
-//    ui->tableWidget->setHorizontalHeaderLabels(header);
+    ui->tableWidget->setColumnCount(1);
+    QStringList header;
+    header << "Index";
+    ui->tableWidget->setHorizontalHeaderLabels(header);
 
 }
 
@@ -178,18 +178,21 @@ void ViennaMiniForm::on_pushButtonLoadMesh_clicked()
 //    device_parameters.clear();
 //    resize_device_parameters = true;
 
-//    // store the relative path
-//    // to allow shipping the INI files (which also hold the meshinputfile) to colleagues ..
-//    meshfile =
-//        viennamos::getRelativePath(
-//            QFileDialog::getOpenFileName(this, tr("Open Mesh File"), QDir::currentPath(),
-//                                         "All files (*.*);;VTK files (*.vtk,*.vtu);;ParaView files (*.pvd);;MESH files (*.mesh)")
-//        );
+    // store the relative path
+    // to allow shipping the INI files (which also hold the meshinputfile) to colleagues ..
+  QDir dir(QCoreApplication::applicationDirPath());
 
-//    if(meshfile.isEmpty()) return; // if the cancel button has been clicked ..
-//    else {
-//        emit meshFileEntered(meshfile);
-//    }
+  meshfile = dir.relativeFilePath(
+        QFileDialog::getOpenFileName(this, tr("Open Mesh File"), QDir::currentPath(),
+                                    "All files (*.*);;VTK files (*.vtk,*.vtu);;ParaView files (*.pvd);;MESH files (*.mesh)")
+  );
+
+
+
+  if(meshfile.isEmpty()) return; // if the cancel button has been clicked ..
+  else {
+  emit meshFileEntered(meshfile);
+  }
 }
 
 void ViennaMiniForm::setupDevice(std::vector<int> const& segment_indices)

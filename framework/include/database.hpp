@@ -35,7 +35,7 @@ class DataBase
 
 public:
 
-  typedef int                     Key;
+  typedef std::string             Key;
   typedef std::map<Key, void*>    Storage;
 
 

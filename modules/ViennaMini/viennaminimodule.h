@@ -38,44 +38,36 @@
 
 class ViennaMiniModule : public ModuleInterface
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    ViennaMiniModule                            ();
-    ~ViennaMiniModule                           ();
-    virtual QString         name                ();
-    virtual QString         description         ();
-    virtual QString         version             ();
-    virtual void            render              (Quantity& quan, int step);
-    virtual bool            is_ready            ();
-    virtual void            update              ();
-    virtual void            reset               ();
-    virtual std::size_t     quantity_sequence_size  (std::string quankey);
-    virtual void            execute             ();
-    virtual void            preprocess          ();
+  ViennaMiniModule                            ();
+  ~ViennaMiniModule                           ();
+  virtual QString         name                ();
+  virtual QString         description         ();
+  virtual QString         version             ();
+  virtual void            render              (Quantity& quan, int step);
+  virtual bool            is_ready            ();
+  virtual void            update              ();
+  virtual void            reset               ();
+  virtual std::size_t     quantity_sequence_size  (std::string quankey);
+  virtual void            execute             ();
+  virtual void            preprocess          ();
 
 signals:
 //    void materialsAvailable(MaterialManager::Library& lib);
 
 private slots:
-    void loadMeshFile(QString const& filename);
+  void loadMeshFile(QString const& filename);
 
 public slots:
-    void transferResult();
+  void transferResult();
 
 private:
-    ViennaMiniForm*     widget;
-    QString             meshfile;
-    int                 device_id;
-    int                 device_segments;
+  ViennaMiniForm*     widget;
+//  int                 device_segments;
 
-    Quantity pot_quan_vertex;
-    Quantity n_quan_vertex;
-    Quantity p_quan_vertex;
-    Quantity pot_quan_cell;
-    Quantity n_quan_cell;
-    Quantity p_quan_cell;
-
+  viennamini::simulator*  vmini_simulator;
 };
 
 #endif // VIENNAMINIMODULE_H

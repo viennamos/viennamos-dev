@@ -52,9 +52,10 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 
     // setup module specific mechanisms
     //
-//    QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
+    QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
 //    QObject::connect(this, SIGNAL(materialsAvailable(MaterialManager::Library&)), widget, SLOT(setMaterialLibrary(MaterialManager::Library&)));
 
+    vmini_simulator = NULL;
 
     // create output quantities of this module
     //
@@ -77,6 +78,7 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 
 ViennaMiniModule::~ViennaMiniModule()
 {
+  if(vmini_simulator) delete vmini_simulator;
 }
 
 QString ViennaMiniModule::name()
@@ -100,16 +102,16 @@ QString ViennaMiniModule::version()
 // material data is available
 //
 
-///**
-// * @brief Function is after the framework forwarded
-// * the base data to the module, e.g., material manager
-// * so in this case we are lettings our UI know, that the
-// * material data is available
-// */
-//void ViennaMiniModule::preprocess()
-//{
-//    emit materialsAvailable(material_manager->getLibrary());
-//}
+/**
+ * @brief Function is after the framework forwarded
+ * the base data to the module, e.g., material manager
+ * so in this case we are lettings our UI know, that the
+ * material data is available
+ */
+void ViennaMiniModule::preprocess()
+{
+ //   emit materialsAvailable(material_manager->getLibrary());
+}
 
 /**
  * @brief Function orders the render3D view to visualize a
@@ -251,82 +253,59 @@ void ViennaMiniModule::transferResult()
  */
 void ViennaMiniModule::loadMeshFile(QString const& filename)
 {
-//    meshfile = filename;
+  QString suffix = QFileInfo(filename).suffix();
 
-//    QString suffix = QFileInfo(filename).suffix();
+  // completly reset the simulator object, as a new device
+  // forces us to reset everything and begin from scratch
+  //
+  if(vmini_simulator) delete vmini_simulator;
+  vmini_simulator = new viennamini::simulator;
 
-//    if(suffix == "mesh")
-//    {
-//        QString type = widget->getMeshType();
+  if(suffix == "mesh")
+  {
+    QString type = widget->getMeshType();
 
-//        if(type == viennamos::key::vdevice2u)
-//        {
-//            try {
-//                if(has<viennamos::Device2u>()) remove<viennamos::Device2u>();
-//                viennamos::Device2u& device = make<viennamos::Device2u>();
-//                viennagrid::io::netgen_reader  reader;
-//                reader(device.getCellComplex(), device.getSegmentation(), filename.toStdString());
-//                viennagrid::scale(device.getCellComplex(), widget->getScaling());
-//                viennamos::copy(device, multiview);
-//                device_id = viennamos::Device2u::ID();
-////                device_segments = device.getSegmentation().size();
+    if(type == viennamos::key::triangular2d)
+    {
+      try
+      {
+        vmini_simulator->device().read(filename.toStdString(), viennamini::triangular_2d());
+        vmini_simulator->device().scale(widget->getScaling());
+        viennamos::copy(vmini_simulator->device().get_segmesh_triangular_2d(), multiview);
+      }
+      catch(std::exception& e) {
+        QMessageBox::critical(0, QString("Error"), QString(e.what()));
+      }
+    }
+    else
+    if(type == viennamos::key::tetrahedral3d)
+    {
+      try
+      {
+        vmini_simulator->device().read(filename.toStdString(), viennamini::tetrahedral_3d());
+        vmini_simulator->device().scale(widget->getScaling());
+        viennamos::copy(vmini_simulator->device().get_segmesh_tetrahedral_3d(), multiview);
+      }
+      catch(std::exception& e) {
+        QMessageBox::critical(0, QString("Error"), QString(e.what()));
+      }
+    }
+    else
+    {
+      QMessageBox::critical(0, QString("Error"), QString("Mesh dimension/type not supported!"));
+      return;
+    }
+  }
+  else
+  {
+    QMessageBox::critical(0, QString("Error"), "Mesh File format not supported!");
+    return;
+  }
 
-//                std::vector<int> segment_indices;
-//                for (typename viennamos::Device2u::Segmentation::iterator it = device.getSegmentation().begin();
-//                     it != device.getSegmentation().end(); ++it)
-//                {
-//                    segment_indices.push_back(it->id());
-//                }
-//                widget->setupDevice(segment_indices);
-//            }
-//            catch(std::exception& e) {
-//                QMessageBox::critical(0, QString("Error"), QString(e.what()));
-//            }
-//        }
-//        else
-//        if(type == viennamos::key::vdevice3u)
-//        {
-//            try {
-//                if(has<viennamos::Device3u>()) remove<viennamos::Device3u>();
-//                viennamos::Device3u& device = make<viennamos::Device3u>();
-//                viennagrid::io::netgen_reader  reader;
-//                reader(device.getCellComplex(), device.getSegmentation(), filename.toStdString());
-//                viennagrid::scale(device.getCellComplex(), widget->getScaling());
-//                viennamos::copy(device, multiview);
-//                device_id = viennamos::Device3u::ID();
-////                device_segments = device.getSegmentation().size();
-//                std::vector<int> segment_indices;
-//                for (typename viennamos::Device3u::Segmentation::iterator it = device.getSegmentation().begin();
-//                     it != device.getSegmentation().end(); ++it)
-//                {
-//                    segment_indices.push_back(it->id());
-//                }
-//                widget->setupDevice(segment_indices);
-//            }
-//            catch(std::exception& e) {
-//                QMessageBox::critical(0, QString("Error"), QString(e.what()));
-//            }
-//        }
-//        else
-//        {
-//            QMessageBox::critical(0, QString("Error"), QString("Mesh dimension/type not yet supported!"));
-//            return;
-//        }
-//    }
-//    else
-//    {
-//        QMessageBox::critical(0, QString("Error"), "Mesh File format is not supported!");
-//        return;
-//    }
+  // show the loaded device in the current render window
+  multiview->show_current_grid();
 
-
-//    //
-////    widget->setupDevice(device_segments);
-
-//    // show the loaded device in the current render window
-//    multiview->show_current_grid();
-
-//    multiview->resetAllViews();
+  multiview->resetAllViews();
 }
 
 
