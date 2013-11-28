@@ -120,12 +120,10 @@ namespace viennamos {
         indexMap[vit->id().get()] = i++;
       }
       usg->SetPoints(points);
-      std::cout << "added points: " << points->GetReferenceCount() << std::endl;
       points->Delete();
 
       // transfer the segment's topology information
       //
-      int cnt = 0;
       CellRange cells = viennagrid::elements<CellType>(*sit);
       for (CellIterator cit = cells.begin(); cit != cells.end(); ++cit)
       {
@@ -134,10 +132,8 @@ namespace viennamos {
         {
             temp_cell[ci] = indexMap.at( viennagrid::vertices(*cit)[ci].id().get() );
         }
-        cnt++;
         usg->InsertNextCell (VTK_CELL_TYPE , CELL_SIZE, temp_cell );
       }
-      std::cout << "added cells: " << cnt << std::endl;
       // now, as the grid representing the segment has been set up,
       // add it as a new block to the central multi-block datastructure
       //

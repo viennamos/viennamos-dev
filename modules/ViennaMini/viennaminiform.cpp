@@ -187,12 +187,8 @@ void ViennaMiniForm::on_pushButtonLoadMesh_clicked()
                                     "All files (*.*);;VTK files (*.vtk,*.vtu);;ParaView files (*.pvd);;MESH files (*.mesh)")
   );
 
-
-
   if(meshfile.isEmpty()) return; // if the cancel button has been clicked ..
-  else {
-  emit meshFileEntered(meshfile);
-  }
+  else emit meshFileEntered(meshfile);
 }
 
 void ViennaMiniForm::setupDevice(std::vector<int> const& segment_indices)
