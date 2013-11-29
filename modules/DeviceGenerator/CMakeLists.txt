@@ -8,22 +8,19 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 # Build the corresponding ViennaMOS module
 #
 SET(SOURCES
-  viennamini.cpp
-  viennaminimodule.cpp
-  viennaminiform.cpp
-  viennaminiworker.cpp
-  ../../framework/src/stream_emitter.cpp
+  device_generator.cpp
+  device_generator_module.cpp
+  device_generator_form.cpp
   )
 
 SET(HEADERS
-  viennamini.h
-  viennaminimodule.h
-  viennaminiform.h
-  viennaminiworker.h
+  device_generator.h
+  device_generator_module.h
+  device_generator_form.h
   )
 
 SET(FORMS
-  viennaminiform.ui
+  device_generator_form.ui
   )
 
 SET(RESOURCES )
@@ -32,8 +29,8 @@ QT4_WRAP_CPP(HEADERS_MOC ${HEADERS} OPTIONS -I${CMAKE_SOURCE_DIR}/framework)
 QT4_WRAP_UI(FORMS_HEADERS ${FORMS})
 QT4_ADD_RESOURCES(RESOURCES_RCC ${RESOURCES})
 
-SET(TARGET ${VMOS_MODULE_PREFIX}viennamini)
-SET(TARGET_DEF VIENNAMINI_LIBRARY)
+SET(TARGET ${VMOS_MODULE_PREFIX}device_generator)
+SET(TARGET_DEF DEVICEGENERATORSHARED_LIBRARY)
 ADD_LIBRARY(${TARGET} SHARED ${SOURCES} ${HEADERS_MOC} ${FORMS_HEADERS} ${RESOURCES_RCC})
 TARGET_LINK_LIBRARIES(${TARGET} ${LIBRARIES} ${VIENNAMINI_LIBRARIES})
 SET_TARGET_PROPERTIES(${TARGET} PROPERTIES COMPILE_DEFINITIONS ${TARGET_DEF} PREFIX "")

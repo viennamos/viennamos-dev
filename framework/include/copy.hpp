@@ -114,8 +114,8 @@ namespace viennamos {
       VertexRange vertices = viennagrid::elements<VertexType>(*sit);
       for (VertexIterator vit = vertices.begin(); vit != vertices.end(); ++vit)
       {
-        for(int i = 0; i < DIMG; i++)
-          temp_point[i] = viennagrid::point(*vit)[i];
+        for(int dim = 0; dim < DIMG; dim++)
+          temp_point[dim] = viennagrid::point(*vit)[dim];
         points->InsertNextPoint(temp_point);
         indexMap[vit->id().get()] = i++;
       }
