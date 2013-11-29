@@ -267,7 +267,8 @@ void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_templat
     if(vmini_device_generator_)
     {
       vmini_device_generator_->device_handle()->set_material_library(material_manager->getLibrary());
-        // create the default device
+
+      // create the default device
       vmini_device_generator_->generate();
 
       vmini_device_.reset();

@@ -36,6 +36,9 @@
 #include "device_generator_form.h"
 #include "ui_device_generator_form.h"
 
+#include "viennamaterials/library.hpp"
+#include "viennamini/material_accessors.hpp"
+
 DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DeviceGeneratorForm)
@@ -147,6 +150,49 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device)
     ui->tableWidget->setCurrentCell(0, 0);
 //    this->toggleParameters(true);
 //    this->showSegmentParameters(0,0); //show default parameters for the initial selection
+
+  viennamaterials::library_handle matlib = vmini_device_->material_library();
+
+  viennamaterials::accessor_handle material_category  = matlib->register_accessor(new viennamini::xpath_material_category_accessor);
+  viennamaterials::accessor_handle data               = matlib->register_accessor(new viennamini::xpath_data_accessor);
+
+  // extract all semiconductors from the material database and populate the combobox
+  //
+  viennamaterials::query semiconductor_query = viennamaterials::make_query(
+        viennamaterials::make_entry(material_category , viennamini::material::semiconductor()),
+        viennamaterials::make_entry(data              , viennamini::material::id()));
+  viennamaterials::range semiconductor_range = viennamaterials::make_range(matlib->query(semiconductor_query));
+  foreach (std::string const& entry, semiconductor_range) {
+      ui->comboBoxSemiconductorMaterial->addItem(QString::fromStdString(entry));
+  }
+  QObject::connect(ui->comboBoxSemiconductorMaterial, SIGNAL(activated(QString)),
+                   this, SLOT(setSegmentMaterial(QString)));
+
+
+  // extract all oxides from the material database and populate the combobox
+  //
+  viennamaterials::query oxide_query = viennamaterials::make_query(
+        viennamaterials::make_entry(material_category , viennamini::material::oxide()),
+        viennamaterials::make_entry(data              , viennamini::material::id()));
+  viennamaterials::range oxide_range = viennamaterials::make_range(matlib->query(oxide_query));
+  foreach (std::string const& entry, oxide_range) {
+      ui->comboBoxOxideMaterial->addItem(QString::fromStdString(entry));
+  }
+  QObject::connect(ui->comboBoxOxideMaterial, SIGNAL(activated(QString)),
+                   this, SLOT(setSegmentMaterial(QString)));
+
+
+  // extract all metals from the material database and populate the combobox
+  //
+  viennamaterials::query metal_query = viennamaterials::make_query(
+        viennamaterials::make_entry(material_category , viennamini::material::metal()),
+        viennamaterials::make_entry(data              , viennamini::material::id()));
+  viennamaterials::range metal_range = viennamaterials::make_range(matlib->query(metal_query));
+  foreach (std::string const& entry, metal_range) {
+    ui->comboBoxContactMaterial->addItem(QString::fromStdString(entry));
+  }
+  QObject::connect(ui->comboBoxContactMaterial, SIGNAL(activated(QString)),
+                   this, SLOT(setSegmentMaterial(QString)));
 }
 
 void DeviceGeneratorForm::saveState(QSettings& settings)
@@ -187,15 +233,13 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
     ui->checkBoxSemiconductor->setChecked(vmini_device_->is_semiconductor(sid));
     ui->checkBoxSemiconductor->blockSignals(false);
 
-    qDebug() << "doping " << vmini_device_->get_donator_doping(sid);
-
     ui->lineEditSemiconductorDonors->setText(QString::number(vmini_device_->get_donator_doping(sid)));
     ui->lineEditSemiconductorAcceptors->setText(QString::number(vmini_device_->get_acceptor_doping(sid)));
 
     // based on is{contact,oxide,semiconductor} deactivate/activate the corresponding parameter ui elements
     if(vmini_device_->is_contact(sid))
     {
-//        qDebug() << "  -> contact";
+//        qDebug() << "  -> contact: " << QString::fromStdString(vmini_device_->get_material(sid));
         this->toggleSegmentContact(true);
         ui->comboBoxContactMaterial->setCurrentIndex(ui->comboBoxContactMaterial->findText(QString::fromStdString(vmini_device_->get_material(sid))));
     }
@@ -203,7 +247,7 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
 
     if(vmini_device_->is_oxide(sid))
     {
-//        qDebug() << "  -> oxide";
+//        qDebug() << "  -> oxide: " << QString::fromStdString(vmini_device_->get_material(sid));
         this->toggleSegmentOxide(true);
         ui->comboBoxOxideMaterial->setCurrentIndex(ui->comboBoxOxideMaterial->findText(QString::fromStdString(vmini_device_->get_material(sid))));
     }
@@ -211,7 +255,7 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
 
     if(vmini_device_->is_semiconductor(sid))
     {
-//        qDebug() << "  -> semiconductor";
+//        qDebug() << "  -> semiconductor: " << QString::fromStdString(vmini_device_->get_material(sid));
         this->toggleSegmentSemiconductor(true);
         ui->comboBoxSemiconductorMaterial->setCurrentIndex(ui->comboBoxSemiconductorMaterial->findText(QString::fromStdString(vmini_device_->get_material(sid))));
     }

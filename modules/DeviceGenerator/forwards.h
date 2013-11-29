@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#include "viennamaterials/base_accessor.hpp"
+
 namespace key
 {
   static QString device_capacitor_1d = "Capacitor 1D";
