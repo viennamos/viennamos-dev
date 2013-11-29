@@ -134,7 +134,9 @@ void DeviceGeneratorModule::reset()
  */
 void DeviceGeneratorModule::execute()
 {
-
+  if(database->has_key("vmini_device")) database->erase<viennamini::device_handle>("mini_device");
+  database->insert("vmini_device", vmini_device_);
+  emit finished();
 }
 
 /**
@@ -150,6 +152,8 @@ void DeviceGeneratorModule::loadMeshFile(QString const& filename)
   //
   if(vmini_device_) vmini_device_.reset();
   vmini_device_ = viennamini::device_handle(new viennamini::device); // TODO pass a stream object into the c'tor
+
+
 
   std::vector<int> segment_ids;
 

@@ -66,43 +66,43 @@ public:
     QuantitySet& get_quantity_set();
     void         register_quantity(Quantity& quan);
 
-    template<typename EntryT>
-    inline EntryT& make() {
-        if(!database) {
-            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
-        }
-        else return *(database->insert(EntryT::ID(), new EntryT));
-    }
+//    template<typename EntryT>
+//    inline EntryT& make() {
+//        if(!database) {
+//            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
+//        }
+//        else return *(database->insert(EntryT::ID(), new EntryT));
+//    }
 
-    template<typename EntryT>
-    inline void remove() {
-        if(!database) {
-            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
-        }
-        else database->delete_entry<EntryT*>(EntryT::ID());
-    }
+//    template<typename EntryT>
+//    inline void remove() {
+//        if(!database) {
+//            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
+//        }
+//        else database->delete_entry<EntryT*>(EntryT::ID());
+//    }
 
-    template<typename EntryT>
-    inline void remove(EntryT&) {
-        this->remove<EntryT>();
-    }
+//    template<typename EntryT>
+//    inline void remove(EntryT&) {
+//        this->remove<EntryT>();
+//    }
 
-    template<typename EntryT>
-    inline bool has() {
-        if(!database) {
-            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
-            return false;
-        }
-        else return database->has_entry(EntryT::ID());
-    }
+//    template<typename EntryT>
+//    inline bool has() {
+//        if(!database) {
+//            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
+//            return false;
+//        }
+//        else return database->has_entry(EntryT::ID());
+//    }
 
-    template<typename EntryT>
-    inline EntryT& access() {
-        if(!database) {
-            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
-        }
-        else return *(database->value<EntryT*>(EntryT::ID()));
-    }
+//    template<typename EntryT>
+//    inline EntryT& access() {
+//        if(!database) {
+//            QMessageBox::critical(NULL, "Error", "ViennaMOS Database is not ready!");
+//        }
+//        else return *(database->value<EntryT*>(EntryT::ID()));
+//    }
 
 private slots:
     void on_pushButtonSave_clicked();

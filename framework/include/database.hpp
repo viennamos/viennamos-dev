@@ -30,13 +30,24 @@
 #include <exception>
 #include <iostream>
 
+#include "boost/shared_ptr.hpp"
+
+#include <stdexcept>
+
+
+class database_exception : public std::runtime_error
+{
+public:
+  database_exception(std::string const & str) : std::runtime_error(str) {}
+};
+
 class DataBase
 {
 
 public:
 
   typedef std::string             Key;
-  typedef std::map<Key, void*>    Storage;
+  typedef std::map<Key, boost::shared_ptr<void> >    Storage;
 
 
   DataBase()
@@ -45,42 +56,38 @@ public:
   }
 
   template<typename T>
-  T insert(Key key, T value)
+  boost::shared_ptr<T> insert(Key key, boost::shared_ptr<T> value)
   {
-    if(this->has_entry(key))
+    if(this->has_key(key))
     {
-      std::cerr << "[DataBase][Error] Could not insert new element as it's already stored" << std::endl;
-      return value;
+      throw database_exception("Could not insert new data the same key is already used!");
     }
-    storage.insert(std::pair<Key, T>(key, value));
-    return this->value<T>(key);
+    storage.insert(std::make_pair(key, value));
+    return this->at<boost::shared_ptr<T> >(key);
+  }
+
+  template<typename SharedPtrT>
+  SharedPtrT at(Key key)
+  {
+    if(!this->has_key(key))
+    {
+      throw database_exception("Could not find element!");
+    }
+    return boost::static_pointer_cast<typename SharedPtrT::element_type>(storage.at(key));
   }
 
   template<typename T>
-  T value(Key key)
+  void erase(Key key)
   {
-    if(!this->has_entry(key))
+    if(this->has_key(key))
     {
-      std::cerr << "[DataBase][Error] Could find element" << std::endl;
-      return NULL;
-    }
-    return static_cast<T>(storage.at(key));
-  }
-
-  template<typename T>
-  void delete_entry(Key key)
-  {
-    if(this->has_entry(key))
-    {
-      delete this->value<T>(key);
-      storage.erase(key);
+      storage.erase(key); // smart pointer takes care of 'value'
     }
   }
 
-  bool has_entry(Key key)
+  bool has_key(Key key)
   {
-    if(storage.find(key) == storage.end()) return false;
-    else return true;
+    return !(storage.find(key) == storage.end());
   }
 
   std::size_t size()
