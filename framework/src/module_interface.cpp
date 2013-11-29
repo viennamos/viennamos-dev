@@ -50,6 +50,7 @@ void ModuleInterface::pre_execute()
     module_control_widget->deactivate();
     emit module_begin(child->name());
     child->execute();
+    this->post_execute();
 }
 
 void ModuleInterface::post_execute()

@@ -52,10 +52,6 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 
     // setup module specific mechanisms
     //
-    QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
-//    QObject::connect(this, SIGNAL(materialsAvailable(MaterialManager::Library&)), widget, SLOT(setMaterialLibrary(MaterialManager::Library&)));
-
-    vmini_simulator = NULL;
 
     // create output quantities of this module
     //
@@ -78,7 +74,6 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
 
 ViennaMiniModule::~ViennaMiniModule()
 {
-  if(vmini_simulator) delete vmini_simulator;
 }
 
 QString ViennaMiniModule::name()
@@ -170,7 +165,9 @@ std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
  */
 bool ViennaMiniModule::is_ready()
 {
+  if(database->has_key("vmini_device"))
     return true;
+  else return false;
 }
 
 /**
@@ -194,6 +191,17 @@ void ViennaMiniModule::reset()
  */
 void ViennaMiniModule::execute()
 {
+  viennamini::device_handle vmini_device = database->at<viennamini::device_handle>("vmini_device");
+
+
+  vmini_simulator.reset();
+  vmini_simulator = viennamini::simulator_handle(new viennamini::simulator);
+  vmini_simulator->set_device_handle(vmini_device);
+
+  vmini_simulator->current_contact_potential(1) = 1.0;
+  vmini_simulator->current_contact_potential(5) = 0.0;
+  vmini_simulator->run();
+
 //    DeviceParameters& parameters = widget->getParameters();
 
 //    if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))

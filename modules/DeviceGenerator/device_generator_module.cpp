@@ -136,7 +136,6 @@ void DeviceGeneratorModule::execute()
 {
   if(database->has_key("vmini_device")) database->erase<viennamini::device_handle>("mini_device");
   database->insert("vmini_device", vmini_device_);
-  emit finished();
 }
 
 /**

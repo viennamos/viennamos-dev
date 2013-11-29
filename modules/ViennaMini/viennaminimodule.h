@@ -34,7 +34,10 @@
 // Local includes
 //
 #include "viennaminiform.h"
-#include "viennaminiworker.h"
+
+#include "viennamini/forwards.h"
+#include "viennamini/simulator.hpp"
+
 
 class ViennaMiniModule : public ModuleInterface
 {
@@ -65,9 +68,8 @@ public slots:
 
 private:
   ViennaMiniForm*     widget;
-//  int                 device_segments;
 
-  viennamini::simulator*  vmini_simulator;
+  viennamini::simulator_handle  vmini_simulator;
 };
 
 #endif // VIENNAMINIMODULE_H
