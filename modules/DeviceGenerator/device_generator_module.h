@@ -33,6 +33,7 @@
 
 // Local includes
 //
+#include "forwards.h"
 #include "device_generator_form.h"
 
 class DeviceGeneratorModule : public ModuleInterface
@@ -53,9 +54,16 @@ public:
   virtual void            execute             ();
   virtual void            preprocess          ();
 
+private slots:
+  void loadMeshFile(QString const& filename);
+  void scaleDevice(double factor);
+  void generateDeviceTemplate(QString const& device_template_id);
+
 private:
   DeviceGeneratorForm*     widget;
 
+  viennamini::device_handle           vmini_device_;
+  viennamini::device_template_handle  vmini_device_generator_;
 };
 
 #endif // DEVICE_GENERATOR_H

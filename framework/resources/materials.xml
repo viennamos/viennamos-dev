@@ -1,97 +1,148 @@
 <materials>
   <material>
-    <id>Air</id>
-    <name>Air</name>
-    <parameters>
-      <parameter>
-        <name>permittivity</name>
-        <value>1.0</value>
-        <unit></unit>
-      </parameter>      
-    </parameters>
-  </material>
-  <material>
     <id>Si</id>
     <name>Silicon</name>
     <category>semiconductor</category>
     <category>indirect</category>    
-    <parameters>
-      <parameter>
-        <name>Eg0</name>
-        <value>1.166</value>
-        <unit>eV</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>
-      <parameter>
-        <name>alpha</name>
-        <value>4.73E-4</value>
-        <unit>eV/K</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>
-      <parameter>
-        <name>beta</name>
-        <value>636</value>
-        <unit>K</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>      
-      <parameter>
-        <name>permittivity</name>
-        <value>11.8</value>
-        <unit></unit>
-      </parameter>      
-      <parameter>
-        <name>electron_mobility</name>
-        <value>1900</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>hole_mobility</name>
-        <value>500</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>    
-    </parameters>
-<!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=7d1b56e9e0c54ac5bb9cd433a0991e27&ckck=1</source>-->
+    <parameter>
+      <name>bandgap</name>
+      <value>1.107</value>
+      <unit>eV</unit>
+    </parameter>
+    <parameter>
+      <name>intrinsic_carrier_concentration</name>
+      <value>1.0E16</value>
+      <unit>1/m3</unit>
+    </parameter>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>11.8</value>
+      <unit></unit>
+    </parameter>
+    <parameter>
+      <name>mu_n_0</name>
+      <value>0.1430</value>
+      <unit>m^2/V*s</unit>
+    </parameter>
+    <parameter>
+      <name>mu_p_0</name>
+      <value>0.0460</value>
+      <unit>m^2/V*s</unit>
+    </parameter>
+    <model>
+    <id>drift_diffusion</id>
+      <model>
+        <id>lattice_scattering</id>
+        <parameter>
+          <name>alpha_n</name>
+          <value>2.33</value>
+          <unit>1</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_p</name>
+          <value>2.18</value>
+          <unit>1</unit>
+        </parameter>
+      </model>
+      <model>
+        <id>ionized_impurity_scattering</id>
+        <parameter>
+          <name>mu_min_n</name>
+          <value>80</value>
+          <unit>m^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>mu_min_p</name>
+          <value>45</value>
+          <unit>m^2/V*s</unit>
+        </parameter>
+        <parameter>
+          <name>N_ref_n</name>
+          <value>1.12E23</value>
+          <unit>1/m3</unit>
+        </parameter>
+        <parameter>
+          <name>N_ref_p</name>
+          <value>2.23E23</value>
+          <unit>1/m3</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_n</name>
+          <value>0.72</value>
+          <unit>1</unit>
+        </parameter>
+        <parameter>
+          <name>alpha_p</name>
+          <value>0.72</value>
+          <unit>1</unit>
+        </parameter>
+      </model>
+      <model>
+        <id>shockley_read_hall_recombination</id>
+        <source>Selberherr, Analysis and Simulation of Semiconductor Devices, page 106</source>
+        <parameter>
+          <name>N_ref_n</name>
+          <value>5.0E22</value>
+          <unit>1/m3</unit>
+        </parameter>
+        <parameter>
+          <name>N_ref_p</name>
+          <value>5.0E22</value>
+          <unit>1/m3</unit>
+        </parameter>
+        <parameter>
+          <name>tau_n_0</name>
+          <value>5.0E-5</value>
+          <unit>s</unit>
+        </parameter>
+        <parameter>
+          <name>tau_p_0</name>
+          <value>5.0E-5</value>
+          <unit>s</unit>
+        </parameter>
+      </model>
+    </model>
   </material>
   <material>
     <id>Ge</id>
     <name>Germanium</name>
     <category>semiconductor</category>
     <category>indirect</category>        
-    <parameters>
-      <parameter>
-        <name>Eg0</name>
-        <value>0.7437</value>
-        <unit>eV</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>
-      <parameter>
-        <name>alpha</name>
-        <value>4.77E-4</value>
-        <unit>eV/K</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>
-      <parameter>
-        <name>beta</name>
-        <value>235</value>
-        <unit>K</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>      
-      <parameter>
-        <name>permittivity</name>
-        <value>16</value>
-        <unit></unit>
-      </parameter>      
-      <parameter>
-        <name>electron_mobility</name>
-        <value>3800</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>hole_mobility</name>
-        <value>1820</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>    
-    </parameters>
+    <parameter>
+      <name>bandgap</name>
+      <value>0.67</value>
+      <unit>eV</unit>
+    </parameter>
+    <parameter>
+      <name>intrinsic_carrier_concentration</name>
+      <value>2.4E13</value>
+      <unit>1/cm3</unit>
+    </parameter>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>16</value>
+      <unit></unit>
+    </parameter>      
+    <parameter>
+      <name>mu_n_0</name>
+      <value>0.3800</value>
+      <unit>cm^2/V*s</unit>
+    </parameter>
+    <parameter>
+      <name>mu_p_0</name>
+      <value>0.1800</value>
+      <unit>cm^2/V*s</unit>
+    </parameter>
+    <parameter>
+      <name>alpha_n</name>
+      <value>1.66</value>
+      <unit>1</unit>
+    </parameter>
+    <parameter>
+      <name>alpha_p</name>
+      <value>2.33</value>
+      <unit>1</unit>
+    </parameter>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=a03ca6b2d6ae431aa5a7e71a129f9a4a</source>-->
   </material>  
   <material>
@@ -100,88 +151,89 @@
     <category>semiconductor</category>
     <category>direct</category>
     <category>compound</category>
-    <parameters>
-      <parameter>
-        <name>Eg0</name>
-        <value>1.519</value>
-        <unit>eV</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>-->
-      </parameter>
-      <parameter>
-        <name>alpha</name>
-        <value>5.41E-4</value>
-        <unit>eV/K</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>
-      <parameter>
-        <name>beta</name>
-        <value>204</value>
-        <unit>K</unit>
-<!--        <note>http://ecee.colorado.edu/~bart/book/eband5.htm</note>        -->
-      </parameter>      
-      <parameter>
-        <name>permittivity</name>
-        <value>13.2</value>
-        <unit></unit>
-      </parameter>      
-      <parameter>
-        <name>electron_mobility</name>
-        <value>8800</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>
-      <parameter>
-        <name>hole_mobility</name>
-        <value>400</value>
-        <unit>cm^2/V*s</unit>
-      </parameter>      
-    </parameters>
+    <parameter>
+      <name>bandgap</name>
+      <value>1.35</value>
+      <unit>eV</unit>
+    </parameter>
+    <parameter>
+      <name>intrinsic_carrier_concentration</name>
+      <value>1.79E6</value>
+      <unit>1/cm3</unit>
+    </parameter>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>13.2</value>
+      <unit></unit>
+    </parameter>      
+    <parameter>
+      <name>mu_n_0</name>
+      <value>0.8500</value>
+      <unit>cm^2/V*s</unit>
+    </parameter>
+    <parameter>
+      <name>mu_p_0</name>
+      <value>0.0400</value>
+      <unit>cm^2/V*s</unit>
+    </parameter>
+    <parameter>
+      <name>alpha_n</name>
+      <value>1</value>
+      <unit>1</unit>
+    </parameter>
+    <parameter>
+      <name>alpha_p</name>
+      <value>2.1</value>
+      <unit>1</unit>
+    </parameter>
 <!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=029a4ff04bdc46d5906b29e0a36dba36&ckck=1</source>-->
   </material>    
   <material>
     <id>SiO2</id>
     <name>SiliconDioxide</name>
     <category>oxide</category>
-    <parameters>
-      <parameter>
-        <name>permittivity</name>
-        <value>3.9</value>
-        <unit></unit>
-      </parameter>          
-    </parameters>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>3.9</value>
+      <unit></unit>
+    </parameter>      
+<!--    <source>http://www.matweb.com/search/DataSheet.aspx?MatGUID=d5c906beded84f18a394afec8735c2a4</source>-->
+  </material>    
+  <material>
+    <id>InP</id>
+    <name>IndiumPhosphide</name>
+    <category>oxide</category>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>12.4</value>
+      <unit></unit>
+    </parameter>      
   </material>    
   <material>
     <id>HfO2</id>
     <name>HafniumDioxide</name>
     <category>oxide</category>
-    <parameters>
-      <parameter>
-        <name>permittivity</name>
-        <value>15.6</value>
-        <unit></unit>
-      </parameter>      
-    </parameters>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>15.6</value>
+      <unit></unit>
+    </parameter>      
+  </material>    
+  <material>
+    <id>Air</id>
+    <name>air</name>
+    <category>air</category>
+    <parameter>
+      <name>relative_permittivity</name>
+      <value>1.0</value>
+      <unit></unit>
+    </parameter>      
   </material>    
   <material>
     <id>Cu</id>
     <name>Copper</name>
     <category>metal</category>
-    <parameters>
-    </parameters>
   </material>      
-  <material>
-    <id>Al</id>
-    <name>Aluminium</name>
-    <category>metal</category>
-    <parameters>
-    </parameters>
-  </material>      
-  <material>
-    <id>Au</id>
-    <name>Gold</name>
-    <category>metal</category>
-    <parameters>
-    </parameters>
-  </material>       
 </materials>
 
 

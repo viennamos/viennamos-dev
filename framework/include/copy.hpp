@@ -50,7 +50,9 @@
 //#include "vtkFloatArray.h"
 //#include <QDebug>
 
-
+// ViennaMini includes
+//
+#include "viennamini/device.hpp"
 
 namespace viennamos {
 
@@ -62,6 +64,13 @@ namespace viennamos {
   template<typename MeshT, typename SegmentationT>
   void copy(viennagrid::segmented_mesh<MeshT, SegmentationT>& segmesh, MultiView* multiview)
   {
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+
+
     typedef MeshT                                                             MeshType;
     typedef SegmentationT                                                     SegmentationType;
     typedef typename SegmentationType::segment_handle_type                    SegmentType;
@@ -88,7 +97,11 @@ namespace viennamos {
     else
     if(cell_type == "3-simplex")
         VTK_CELL_TYPE = VTK_TETRA;
-    else throw copy_exception("ViennaGrid device not supported!");
+    else
+    {
+      throw copy_exception("ViennaGrid device not supported!");
+      return;
+    }
 
     multiview->resetGrid();
     MultiView::MultiGrid multigrid = multiview->getGrid();
@@ -147,9 +160,26 @@ namespace viennamos {
     multiview->multigridModified();
   }
 
+  inline void copy(viennamini::device_handle& vmini_device, MultiView* multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
 
-
-
+    if(vmini_device->is_line1d())
+      viennamos::copy(vmini_device->get_segmesh_line_1d(),        multiview);
+    if(vmini_device->is_triangular2d())
+      viennamos::copy(vmini_device->get_segmesh_triangular_2d(),  multiview);
+    else if(vmini_device->is_tetrahedral3d())
+      viennamos::copy(vmini_device->get_segmesh_tetrahedral_3d(), multiview);
+  }
 
 
 

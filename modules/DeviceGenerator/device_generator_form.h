@@ -29,7 +29,14 @@
 #include <QWidget>
 #include <QSettings>
 
+// ViennaMini includes
+//
+#include "viennamini/device.hpp"
+#include "viennamini/device_template.hpp"
 
+// Local includes
+//
+#include "forwards.h"
 
 namespace Ui {
 class DeviceGeneratorForm;
@@ -37,14 +44,54 @@ class DeviceGeneratorForm;
 
 class DeviceGeneratorForm : public QWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit DeviceGeneratorForm(QWidget *parent = 0);
-    ~DeviceGeneratorForm();
+
+//  typedef std::vector<std::std::string >
+
+  explicit DeviceGeneratorForm(QWidget *parent = 0);
+  ~DeviceGeneratorForm();
+  void process(viennamini::device_handle& vmini_device);
+  QString getMeshType();
+
+public slots:
+    void saveState(QSettings& settings);
+    void loadState(QSettings& settings);
+
+signals:
+    void meshFileEntered(QString const& filename);
+    void scaleDevice(double factor);
+    void deviceTemplateEntered(QString const& device_template_id);
+
+
+private slots:
+    void on_pushButtonLoadMesh_clicked();
+    void on_pushButtonScaleDevice_clicked();
+
+    void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
+    void setSegmentName(QString const& name);
+    void setSegmentMaterial(QString const& name);
+    void setSegmentSCAcceptors(QString const& value_str);
+    void setSegmentSCDonors(QString const& value_str);
+    void makeCurrentSegmentContact(bool state);
+    void makeCurrentSegmentOxide(bool state);
+    void makeCurrentSegmentSemiconductor(bool state);
+    void toggleSegmentContact(bool state);
+    void toggleSegmentOxide(bool state);
+    void toggleSegmentSemiconductor(bool state);
+    void toggleParameters(bool state);
+
+    void on_pushButtonLoadTemplate_clicked();
+
+    void on_pushButtonCSGEditor_clicked();
 
 private:
-    Ui::DeviceGeneratorForm *ui;
+  Ui::DeviceGeneratorForm *ui;
+  QString             meshfile;
+
+  viennamini::device_handle vmini_device_;
+
 
 };
 

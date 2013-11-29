@@ -37,6 +37,7 @@ void MaterialManager::readXMLFile(QString const& filename)
 {
     // populate the user interface
     //
+    ui->treeWidget->clear();
     XMLStreamIO xmlstream(ui->treeWidget);
     xmlstream.load(filename);
     for(int i = 0; i < ui->treeWidget->columnCount(); i++)
@@ -48,13 +49,17 @@ void MaterialManager::readXMLFile(QString const& filename)
     QFile file( filename );
     if( file.open( QFile::ReadOnly ) ) {
        QTextStream ts( &file );
+
        result = ts.readAll();
     }
 
-    // load the viennamaterial library
+    // load the ViennaMaterials library, automatically guess the
+    // the language via the 'generator'
     //
-//    std::stringstream stream(result.toStdString());
-//    library.load(stream);
+    vmatlib_.reset();
+    vmatlib_ = viennamaterials::library_handle(new viennamaterials::pugixml);
+    std::stringstream str(result.toStdString());
+    vmatlib_->read(str);
 }
 
 void MaterialManager::saveXMLFile(QString const& filename)
@@ -83,7 +88,7 @@ void MaterialManager::on_pushButtonSave_clicked()
 
 }
 
-//MaterialManager::Library& MaterialManager::getLibrary()
-//{
-//    return library;
-//}
+viennamaterials::library_handle& MaterialManager::getLibrary()
+{
+  return vmatlib_;
+}

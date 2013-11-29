@@ -23,9 +23,22 @@
  *
  */
 
+// Framework includes
+//
+#include "copy.hpp"
 
+// Module includes
+//
 #include "device_generator_module.h"
 
+// ViennaMini includes
+//
+#include "viennamini/utils/is_zero.hpp"
+
+#include "templates/capacitor1d.hpp"
+#include "templates/capacitor2d.hpp"
+#include "templates/capacitor3d.hpp"
+#include "templates/diode_np2d.hpp"
 
 /**
  * @brief The module's c'tor registers the module's UI widget and registers
@@ -38,6 +51,9 @@ DeviceGeneratorModule::DeviceGeneratorModule() : ModuleInterface(this)
     widget    = new DeviceGeneratorForm();
     register_module_widget(widget); // takes ownership of the widget - no deleting required
 
+    QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
+    QObject::connect(widget, SIGNAL(scaleDevice(double)), this, SLOT(scaleDevice(double)));
+    QObject::connect(widget, SIGNAL(deviceTemplateEntered(QString)), this, SLOT(generateDeviceTemplate(QString)));
 }
 
 DeviceGeneratorModule::~DeviceGeneratorModule()
@@ -121,6 +137,162 @@ void DeviceGeneratorModule::execute()
 
 }
 
+/**
+ * @brief Function reads an input mesh into the framework's central device database
+ * This function is not part of the Module interface*
+ */
+void DeviceGeneratorModule::loadMeshFile(QString const& filename)
+{
+  QString suffix = QFileInfo(filename).suffix();
 
+  // completly reset the simulator object, as a new device
+  // forces us to reset everything and begin from scratch
+  //
+  if(vmini_device_) vmini_device_.reset();
+  vmini_device_ = viennamini::device_handle(new viennamini::device); // TODO pass a stream object into the c'tor
 
+  std::vector<int> segment_ids;
+
+  if(suffix == "mesh")
+  {
+    QString type = widget->getMeshType();
+
+    if(type == viennamos::key::triangular2d)
+    {
+      try
+      {
+        vmini_device_->read(filename.toStdString(), viennamini::triangular_2d());
+        viennamos::copy(vmini_device_, multiview);
+      }
+      catch(std::exception& e) {
+        QMessageBox::critical(0, QString("Error"), QString(e.what()));
+        return;
+      }
+    }
+    else
+    if(type == viennamos::key::tetrahedral3d)
+    {
+      try
+      {
+        vmini_device_->read(filename.toStdString(), viennamini::tetrahedral_3d());
+        viennamos::copy(vmini_device_, multiview);
+      }
+      catch(std::exception& e) {
+        QMessageBox::critical(0, QString("Error"), QString(e.what()));
+        return;
+      }
+    }
+    else
+    {
+      QMessageBox::critical(0, QString("Error"), QString("Mesh dimension/type not supported!"));
+      return;
+    }
+  }
+  else
+  {
+    QMessageBox::critical(0, QString("Error"), "Mesh File format not supported!");
+    return;
+  }
+
+  // link the material database with the device ..
+  //
+  vmini_device_->set_material_library(material_manager->getLibrary());
+
+  // which it requires to finalize the device, e.g., assign material-specific permittivities
+  //
+  vmini_device_->update();
+
+  // forward the device handle, i.e., a smart pointer, to the
+  // widget. also setup the GUI elements accordingly
+  //
+  widget->process(vmini_device_);
+
+  // show the loaded device in the current render window
+  //
+  multiview->show_current_grid_segments();
+
+  multiview->resetAllViews();
+}
+
+void DeviceGeneratorModule::scaleDevice(double factor)
+{
+  // Skip the scaling procedure, if a factor of 1.0 has been entered
+  if(viennamini::is_zero(factor-1.0)) return;
+  if(!vmini_device_)                  return;
+
+  try
+  {
+    vmini_device_->scale(factor);
+    viennamos::copy(vmini_device_, multiview);
+    multiview->show_current_grid_segments();
+    multiview->resetAllViews();
+  }
+  catch(std::exception& e) {
+    QMessageBox::critical(0, QString("Error"), QString(e.what()));
+    return;
+  }
+}
+
+void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_template_id)
+{
+  try
+  {
+    if(vmini_device_generator_) vmini_device_generator_.reset();
+
+//    if(device_template_id == key::device_capacitor_1d)
+//    {
+//      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::capacitor1d);
+//    }
+//    else
+    if(device_template_id == key::device_capacitor_2d)
+    {
+      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::capacitor2d);
+    }
+    else
+    if(device_template_id == key::device_capacitor_3d)
+    {
+      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::capacitor3d);
+    }
+    else
+    if(device_template_id == key::device_diode_pn_2d)
+    {
+      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::diode_np2d);
+    }
+    else
+    {
+      QMessageBox::critical(0, QString("Error"), QString("Template \""+device_template_id+"\" is not supported!"));
+      return;
+    }
+
+    if(vmini_device_generator_)
+    {
+      vmini_device_generator_->device_handle()->set_material_library(material_manager->getLibrary());
+        // create the default device
+      vmini_device_generator_->generate();
+
+      vmini_device_.reset();
+      vmini_device_ = vmini_device_generator_->device_handle();
+
+      // the device generator already set the segment information
+      // calling update finalizes the setup based on this information
+      vmini_device_->update();
+
+      // copy the device to the renderer
+      viennamos::copy(vmini_device_, multiview);
+
+      // update the widget accordingly
+      widget->process(vmini_device_);
+
+      // show the loaded device in the current render window
+      multiview->show_current_grid_segments();
+
+      // reset the camera to an initial/default position
+      multiview->resetAllViews();
+    }
+  }
+  catch(std::exception& e) {
+    QMessageBox::critical(0, QString("Error"), QString(e.what()));
+    return;
+  }
+}
 
