@@ -37,6 +37,8 @@
 #include "forwards.hpp"
 #include "device.h"
 
+#include "viennamini/forwards.h"
+
 ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ViennaMiniForm)
@@ -60,19 +62,6 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->lineEditNonLinSolveTol->setValidator(double_validator);
     ui->lineEditNonLinSolveDamping->setValidator(double_validator);
 
-    QObject::connect(ui->tableWidgetSegmentRoles, SIGNAL(currentCellChanged(int,int,int,int)),
-                     this,                        SLOT(showSegmentParameters(int, int, int, int)));
-
-
-    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
-    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
-    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
-    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
-    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
-    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
-    QObject::connect(ui->comboBoxProblem, SIGNAL(currentIndexChanged(QString)), this, SLOT(setNewProblem(QString)));
-
-
 //    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
 //    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
 //    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
@@ -88,9 +77,9 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
     ui->tableWidgetSegmentRoles->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-
     ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::laplace()));
     ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::poisson_drift_diffusion_np()));
+
     ui->comboBoxProblem->setCurrentIndex(0);
     ui->comboBoxProblem->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
@@ -99,6 +88,16 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->comboBoxContactModel->setCurrentIndex(0);
     ui->comboBoxContactModel->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
+
+    QObject::connect(ui->tableWidgetSegmentRoles, SIGNAL(currentCellChanged(int,int,int,int)),
+                     this,                        SLOT(showSegmentParameters(int, int, int, int)));
+    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
+    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
+    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
+    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
+    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
+    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
+    QObject::connect(ui->comboBoxProblem, SIGNAL(currentIndexChanged(QString)), this, SLOT(setNewProblem(QString)));
 }
 
 ViennaMiniForm::~ViennaMiniForm()
