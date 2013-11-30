@@ -177,6 +177,7 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
         viennamaterials::make_entry(material_category , viennamini::material::semiconductor()),
         viennamaterials::make_entry(data              , viennamini::material::id()));
   viennamaterials::range semiconductor_range = viennamaterials::make_range(matlib->query(semiconductor_query));
+  ui->comboBoxSemiconductorMaterial->clear();
   foreach (std::string const& entry, semiconductor_range) {
       ui->comboBoxSemiconductorMaterial->addItem(QString::fromStdString(entry));
   }
@@ -190,6 +191,7 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
         viennamaterials::make_entry(material_category , viennamini::material::oxide()),
         viennamaterials::make_entry(data              , viennamini::material::id()));
   viennamaterials::range oxide_range = viennamaterials::make_range(matlib->query(oxide_query));
+  ui->comboBoxOxideMaterial->clear();
   foreach (std::string const& entry, oxide_range) {
       ui->comboBoxOxideMaterial->addItem(QString::fromStdString(entry));
   }
@@ -203,6 +205,7 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
         viennamaterials::make_entry(material_category , viennamini::material::metal()),
         viennamaterials::make_entry(data              , viennamini::material::id()));
   viennamaterials::range metal_range = viennamaterials::make_range(matlib->query(metal_query));
+  ui->comboBoxContactMaterial->clear();
   foreach (std::string const& entry, metal_range) {
     ui->comboBoxContactMaterial->addItem(QString::fromStdString(entry));
   }

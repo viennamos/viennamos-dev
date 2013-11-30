@@ -50,15 +50,19 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QIntValidator*    integer_validator = new QIntValidator(this);
 
     ui->lineEditTemp->setValidator(double_validator);
-    ui->lineEditContactSingle->setValidator(double_validator);
-    ui->lineEditContactRangeFrom->setValidator(double_validator);
-    ui->lineEditContactRangeTo->setValidator(double_validator);
-    ui->lineEditWorkfunction->setValidator(double_validator);
+//    ui->lineEditContactSingle->setValidator(double_validator);
+//    ui->lineEditContactRangeFrom->setValidator(double_validator);
+//    ui->lineEditContactRangeTo->setValidator(double_validator);
+//    ui->lineEditWorkfunction->setValidator(double_validator);
     ui->lineEditLinSolveIterations->setValidator(integer_validator);
     ui->lineEditNonLinSolveIterations->setValidator(integer_validator);
     ui->lineEditLinSolveTol->setValidator(double_validator);
     ui->lineEditNonLinSolveTol->setValidator(double_validator);
     ui->lineEditNonLinSolveDamping->setValidator(double_validator);
+
+    QObject::connect(ui->tableWidgetSegmentRoles, SIGNAL(currentCellChanged(int,int,int,int)),
+                     this,                        SLOT(showSegmentParameters(int, int, int, int)));
+
 
     QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
     QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
@@ -66,6 +70,8 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
     QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
     QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
+    QObject::connect(ui->comboBoxProblem, SIGNAL(currentIndexChanged(QString)), this, SLOT(setNewProblem(QString)));
+
 
 //    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
 //    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
@@ -81,6 +87,17 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->tableWidgetSegmentRoles->verticalHeader()->setVisible(false);
     ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
     ui->tableWidgetSegmentRoles->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+
+    ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::laplace()));
+    ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::poisson_drift_diffusion_np()));
+    ui->comboBoxProblem->setCurrentIndex(0);
+    ui->comboBoxProblem->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+
+    ui->comboBoxContactModel->addItem("Ohmic");
+    ui->comboBoxContactModel->setCurrentIndex(0);
+    ui->comboBoxContactModel->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
 }
 
@@ -186,6 +203,38 @@ void ViennaMiniForm::setNonLinearDamping(QString const& value_str)
   vmini_simulator_->config_handle()->damping() = value_str.toDouble();
 }
 
+void ViennaMiniForm::setNewProblem(QString const& problem_str)
+{
+  vmini_simulator_->problem_id() = problem_str.toStdString();
+}
+
+
+void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
+{
+  if(row < 0) return;
+  if(!vmini_simulator_) return;
+
+
+  QTableWidgetItem* widgetItem = ui->tableWidgetSegmentRoles->item(row, ID_COLUMN);
+  int sid = widgetItem->data(Qt::UserRole).toInt();
+
+  if(vmini_simulator_->device_handle()->is_contact(sid))
+  {
+    ui->groupBoxContact->setEnabled(true);
+    ui->groupBoxSemiconductor->setEnabled(false);
+  }
+  else
+  if(vmini_simulator_->device_handle()->is_semiconductor(sid))
+  {
+    ui->groupBoxContact->setEnabled(false);
+    ui->groupBoxSemiconductor->setEnabled(true);
+  }
+  else
+  {
+    ui->groupBoxContact->setEnabled(false);
+    ui->groupBoxSemiconductor->setEnabled(false);
+  }
+}
 
 
 //void ViennaMiniForm::setSegmentContactIsSingle(bool state)
