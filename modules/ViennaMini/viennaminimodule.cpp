@@ -233,7 +233,7 @@ void ViennaMiniModule::execute()
 
   }
   catch(std::exception& e) {
-    QMessageBox::critical(0, QString("Error"), QString(e.what()));
+    QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
     return;
   }
 }

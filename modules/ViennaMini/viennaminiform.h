@@ -70,7 +70,7 @@ private slots:
     void setNonLinearIterations(QString const& value_str);
     void setNonLinearDamping(QString const& value_str);
     void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
-    void setSegmentName(QString const& name);
+
 //    void setSegmentContactIsSingle(bool state);
 //    void setSegmentContactContactValue(QString const& value_str);
 //    void setSegmentContactIsRange(bool state);

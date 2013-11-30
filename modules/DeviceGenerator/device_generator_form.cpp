@@ -162,8 +162,12 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
 //    this->toggleParameters(true);
 //    this->showSegmentParameters(0,0); //show default parameters for the initial selection
 
-  viennamaterials::library_handle matlib = vmini_device_->material_library();
+    // with a new mesh coming in, reset the scaling factor to default
+    //
+    ui->lineEditScalingFactor->setText("1.0");
 
+
+  viennamaterials::library_handle matlib = vmini_device_->material_library();
   viennamaterials::accessor_handle material_category  = matlib->register_accessor(new viennamini::xpath_material_category_accessor);
   viennamaterials::accessor_handle data               = matlib->register_accessor(new viennamini::xpath_data_accessor);
 

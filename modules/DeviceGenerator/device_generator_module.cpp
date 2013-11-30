@@ -168,7 +168,7 @@ void DeviceGeneratorModule::loadMeshFile(QString const& filename)
         viennamos::copy(vmini_device_, multiview);
       }
       catch(std::exception& e) {
-        QMessageBox::critical(0, QString("Error"), QString(e.what()));
+        QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
         return;
       }
     }
@@ -181,19 +181,19 @@ void DeviceGeneratorModule::loadMeshFile(QString const& filename)
         viennamos::copy(vmini_device_, multiview);
       }
       catch(std::exception& e) {
-        QMessageBox::critical(0, QString("Error"), QString(e.what()));
+        QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
         return;
       }
     }
     else
     {
-      QMessageBox::critical(0, QString("Error"), QString("Mesh dimension/type not supported!"));
+      QMessageBox::critical(0, QString(this->name()+" Error"), QString("Mesh dimension/type not supported!"));
       return;
     }
   }
   else
   {
-    QMessageBox::critical(0, QString("Error"), "Mesh File format not supported!");
+    QMessageBox::critical(0, QString(this->name()+" Error"), "Mesh File format not supported!");
     return;
   }
 
@@ -231,7 +231,7 @@ void DeviceGeneratorModule::scaleDevice(double factor)
     multiview->resetAllViews();
   }
   catch(std::exception& e) {
-    QMessageBox::critical(0, QString("Error"), QString(e.what()));
+    QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
     return;
   }
 }
@@ -263,7 +263,7 @@ void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_templat
     }
     else
     {
-      QMessageBox::critical(0, QString("Error"), QString("Template \""+device_template_id+"\" is not supported!"));
+      QMessageBox::critical(0, QString(this->name()+" Error"), QString("Template \""+device_template_id+"\" is not supported!"));
       return;
     }
 
@@ -295,7 +295,7 @@ void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_templat
     }
   }
   catch(std::exception& e) {
-    QMessageBox::critical(0, QString("Error"), QString(e.what()));
+    QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
     return;
   }
 }
