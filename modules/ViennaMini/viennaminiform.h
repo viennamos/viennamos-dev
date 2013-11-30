@@ -31,9 +31,6 @@
 
 #include <vector>
 
-//#include "deviceparameters.hpp"
-//#include "materialmanager.h"
-
 #include "viennamini/simulator.hpp"
 
 
@@ -48,21 +45,13 @@ class ViennaMiniForm : public QWidget
 public:
     explicit ViennaMiniForm(QWidget *parent = 0);
     ~ViennaMiniForm();
-    QString getMeshType();
-    double getScaling();
-    double getTemperature();
-    void process(viennamini::simulator* vmini_simulator);
-//    DeviceParameters& getParameters();
-signals:
-    void meshFileEntered(QString const& filename);
+    void process(viennamini::simulator_handle vmini_simulator);
 
 public slots:
     void saveState(QSettings& settings);
     void loadState(QSettings& settings);
-//    void setMaterialLibrary(MaterialManager::Library& lib);
 
 private slots:
-    void on_pushButtonLoadMesh_clicked();
     void setTemperature(QString const& value_str);
     void setLinearTolerance(QString const& value_str);
     void setLinearIterations(QString const& value_str);
@@ -71,32 +60,16 @@ private slots:
     void setNonLinearDamping(QString const& value_str);
     void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
     void setSegmentName(QString const& name);
-//    void setSegmentMaterial(QString const& name);
 //    void setSegmentContactIsSingle(bool state);
 //    void setSegmentContactContactValue(QString const& value_str);
 //    void setSegmentContactIsRange(bool state);
 //    void setSegmentContactContactFrom(QString const& value_str);
 //    void setSegmentContactContactTo(QString const& value_str);
 //    void setSegmentContactWorkfunction(QString const& value_str);
-//    void setSegmentSCAcceptors(QString const& value_str);
-//    void setSegmentSCDonors(QString const& value_str);
-//    void makeCurrentSegmentContact(bool state);
-//    void makeCurrentSegmentOxide(bool state);
-//    void makeCurrentSegmentSemiconductor(bool state);
-//    void toggleSegmentContact(bool state);
-//    void toggleSegmentOxide(bool state);
-//    void toggleSegmentSemiconductor(bool state);
-//    void toggleParameters(bool state);
 
 private:
-    Ui::ViennaMiniForm *ui;
-//    DeviceParameters    device_parameters;
-    QString             meshfile;
-    QStringList         list_oxides;
-    QStringList         list_metals;
-    QStringList         list_semiconductors;
-    bool                resize_device_parameters;
-    viennamini::simulator* vmini_simulator_;
+    Ui::ViennaMiniForm           *ui;
+    viennamini::simulator_handle  vmini_simulator_;
 };
 
 #endif // VIENNAMINIFORM_H

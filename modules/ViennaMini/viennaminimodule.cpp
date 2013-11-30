@@ -145,6 +145,10 @@ std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
 
 /**
  * @brief If there are input-dependenices check them before returning true
+ *
+ * This method is called whenever a module in the active module set finished execution.
+ * As a module might have generated data required by this module, we can check
+ * here whether the correct data is available in the database.
  */
 bool ViennaMiniModule::is_ready()
 {
@@ -155,10 +159,27 @@ bool ViennaMiniModule::is_ready()
 
 /**
  * @brief Give the module the opportunity to check whether there is new data available
+ *
+ * This method is called by the framework whenever a module in the active module set
+ * finished execution and, triggered by that, this module reported its readiness via
+ * returning 'true' in the 'is_ready()' method.
+ *
+ * application case: another module, such as a device generator, stored a new device
+ * on the central database. Here we can access this device and build up the GUI,
+ * which is most likely depending on the new device structure
  */
 void ViennaMiniModule::update()
 {
+  if(database->has_key("vmini_device"))
+  {
+    viennamini::device_handle vmini_device = database->at<viennamini::device_handle>("vmini_device");
 
+    vmini_simulator_.reset();
+    vmini_simulator_ = viennamini::simulator_handle(new viennamini::simulator);
+    vmini_simulator_->set_device_handle(vmini_device);
+
+    widget->process(vmini_simulator_);
+  }
 }
 
 /**
@@ -176,19 +197,16 @@ void ViennaMiniModule::execute()
 {
   try
   {
-    viennamini::device_handle vmini_device = database->at<viennamini::device_handle>("vmini_device");
 
-    vmini_simulator.reset();
-    vmini_simulator = viennamini::simulator_handle(new viennamini::simulator);
-    vmini_simulator->set_device_handle(vmini_device);
+//    vmini_simulator->problem_id() = viennamini::id::laplace();
 
-    vmini_simulator->problem_id() = viennamini::id::laplace();
+//    vmini_simulator->current_contact_potential(1) = 1.0;
+//    vmini_simulator->current_contact_potential(5) = 0.0;
 
-    vmini_simulator->current_contact_potential(1) = 1.0;
-    vmini_simulator->current_contact_potential(5) = 0.0;
-    vmini_simulator->run();
 
-    if(vmini_device->is_triangular2d())
+    vmini_simulator_->run();
+
+    if(vmini_simulator_->device_handle()->is_triangular2d())
     {
       typedef viennamini::mesh_triangular_2d                                          MeshType;
       typedef typename viennagrid::result_of::cell_tag<MeshType>::type                CellTag;
@@ -198,9 +216,9 @@ void ViennaMiniModule::execute()
       typedef viennafvm::quantity<CellType,   double>   CellQuantityType;
       typedef viennafvm::quantity<VertexType, double>   VertexQuantityType;
 
-      MeshType & mesh = vmini_device->get_segmesh_triangular_2d().mesh;
+      MeshType & mesh = vmini_simulator_->device_handle()->get_segmesh_triangular_2d().mesh;
 
-      CellQuantityType   & potential_cell = vmini_device->get_problem_description_triangular_2d(0).get_quantity(viennamini::id::potential());
+      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(0).get_quantity(viennamini::id::potential());
       VertexQuantityType   potential_vertex(0, potential_cell.get_name(), viennagrid::vertices(mesh).size());
 
       viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
@@ -209,93 +227,17 @@ void ViennaMiniModule::execute()
           viennamini::arithmetic_averaging(),
           viennamini::any_filter(), viennamini::any_filter()
       );
-      viennamos::copy(vmini_device, potential_vertex, multiview);
+      viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
 
-      register_quantity(Quantity(potential_vertex.get_name(), "V", "ViennaMini", viennamos::VERTEX, viennamos::SCALAR));
-
-
+      register_quantity(Quantity(potential_vertex.get_name(), "V", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
     }
-
-    //    pot_quan_vertex("potential",            "Volt", this->name().toStdString(), VERTEX, SCALAR);
-    //    n_quan_vertex("electron_concentration", "1/m^3", this->name().toStdString(), VERTEX, SCALAR);
-    //    p_quan_vertex("hole_concentration",     "1/m^3", this->name().toStdString(), VERTEX, SCALAR);
-    //    pot_quan_cell("potential",            "Volt", this->name().toStdString(), CELL, SCALAR);
-    //    n_quan_cell("electron_concentration", "1/m^3", this->name().toStdString(), CELL, SCALAR);
-    //    p_quan_cell("hole_concentration",     "1/m^3", this->name().toStdString(), CELL, SCALAR);
-
-        // register output quantities of this module in the framework
-        //
-    //    register_quantity(pot_quan_vertex);
-    //    register_quantity(n_quan_vertex);
-    //    register_quantity(p_quan_vertex);
-    //    register_quantity(pot_quan_cell);
-    //    register_quantity(n_quan_cell);
-    //    register_quantity(p_quan_cell);
-
-
 
   }
   catch(std::exception& e) {
     QMessageBox::critical(0, QString("Error"), QString(e.what()));
     return;
   }
-
-
-  // viennamos::copy(vmini_device->
-
-//    DeviceParameters& parameters = widget->getParameters();
-
-//    if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
-//    {
-//        viennamos::Device2u& device = access<viennamos::Device2u>();
-//        ViennaMiniWorker* worker = new ViennaMiniWorker(&device, material_manager->getLibrary(), parameters,
-//                                                        pot_quan_vertex, n_quan_vertex, p_quan_vertex,
-//                                                        pot_quan_cell, n_quan_cell, p_quan_cell);
-//        viennamos::offload(worker, messenger, SIGNAL(finished()), this, SLOT(transferResult()));
-//    }
-//    else
-//    if((device_id == viennamos::Device3u::ID()) && (has<viennamos::Device3u>()))
-//    {
-//        viennamos::Device3u& device = access<viennamos::Device3u>();
-//        ViennaMiniWorker* worker = new ViennaMiniWorker(&device, material_manager->getLibrary(), parameters,
-//                                                        pot_quan_vertex, n_quan_vertex, p_quan_vertex,
-//                                                        pot_quan_cell, n_quan_cell, p_quan_cell);
-//        viennamos::offload(worker, messenger, SIGNAL(finished()), this, SLOT(transferResult()));
-//    }
 }
-
-/**
- * @brief Function is called after the offloaded worker is finished and takes
- * care of copying the output data to the framework
- * This function is not part of the Module interface
- */
-void ViennaMiniModule::transferResult()
-{
-//  if((device_id == viennamos::Device2u::ID()) && (has<viennamos::Device2u>()))
-//  {
-//    viennamos::Device2u& device = access<viennamos::Device2u>();
-//    viennamos::copy(device, pot_quan_vertex, multiview);
-//    viennamos::copy(device, n_quan_vertex,   multiview);
-//    viennamos::copy(device, p_quan_vertex,   multiview);
-//    viennamos::copy(device, pot_quan_cell,   multiview);
-//    viennamos::copy(device, n_quan_cell,     multiview);
-//    viennamos::copy(device, p_quan_cell,     multiview);
-//  }
-//  else
-//  if((device_id == viennamos::Device3u::ID()) && (has<viennamos::Device3u>()))
-//  {
-//    viennamos::Device3u& device = access<viennamos::Device3u>();
-//    viennamos::copy(device, pot_quan_vertex, multiview);
-//    viennamos::copy(device, n_quan_vertex,   multiview);
-//    viennamos::copy(device, p_quan_vertex,   multiview);
-//    viennamos::copy(device, pot_quan_cell,   multiview);
-//    viennamos::copy(device, n_quan_cell,     multiview);
-//    viennamos::copy(device, p_quan_cell,     multiview);
-//  }
-//  emit finished();
-}
-
-
 
 
 

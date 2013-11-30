@@ -43,34 +43,17 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    vmini_simulator_ = NULL;
-
-    ui->tabWidget->setTabText(0, "General");
-    ui->tabWidget->setTabText(1, "Device");
-
-    // deactivate the device tab for now:
-    // note: it makes only sense to enable it, when a mesh has been loaded
-    // and the number of segments is available ...
-    ui->tabWidget->setTabEnabled(1, false);
-
-//    // for now, disable all segment parameters, as we don't have the number of segments right now ...
-//    this->toggleParameters(false);
-
-    ui->comboBoxMeshType->addItem(viennamos::key::triangular2d);
-    ui->comboBoxMeshType->addItem(viennamos::key::tetrahedral3d);
-    ui->comboBoxMeshType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+//    ui->tabWidget->setTabText(0, "Setup");
+//    ui->tabWidget->setTabText(1, "Solver");
 
     QDoubleValidator* double_validator = new QDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 10, this);
     QIntValidator*    integer_validator = new QIntValidator(this);
 
-    ui->lineEditScalingFactor->setValidator(double_validator);
     ui->lineEditTemp->setValidator(double_validator);
     ui->lineEditContactSingle->setValidator(double_validator);
     ui->lineEditContactRangeFrom->setValidator(double_validator);
     ui->lineEditContactRangeTo->setValidator(double_validator);
     ui->lineEditWorkfunction->setValidator(double_validator);
-    ui->lineEditSemiconductorAcceptors->setValidator(double_validator);
-    ui->lineEditSemiconductorDonors->setValidator(double_validator);
     ui->lineEditLinSolveIterations->setValidator(integer_validator);
     ui->lineEditNonLinSolveIterations->setValidator(integer_validator);
     ui->lineEditLinSolveTol->setValidator(double_validator);
@@ -81,7 +64,6 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 
     // setup initial values for the UI elements
     //
-    ui->lineEditScalingFactor->setText("1.0e-9");
 //    ui->lineEditTemp->setText(QString::number(device_parameters.config().temperature()));
 //    ui->lineEditLinSolveIterations->setText(QString::number(device_parameters.config().linear_iterations()));
 //    ui->lineEditLinSolveTol->setText(QString::number(device_parameters.config().linear_breaktol()));
@@ -89,15 +71,12 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    ui->lineEditNonLinSolveTol->setText(QString::number(device_parameters.config().nonlinear_breaktol()));
 //    ui->lineEditNonLinSolveDamping->setText(QString::number(device_parameters.config().damping()));
 
-    QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)), this, SLOT(showSegmentParameters(int, int, int, int)));
-
 //    QObject::connect(ui->lineEditTemp, SIGNAL(textChanged(QString)), this, SLOT(setTemperature(QString)));
 //    QObject::connect(ui->lineEditLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setLinearIterations(QString)));
 //    QObject::connect(ui->lineEditLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setLinearTolerance(QString)));
 //    QObject::connect(ui->lineEditNonLinSolveIterations, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearIterations(QString)));
 //    QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
 //    QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
-    QObject::connect(ui->lineEditSegmentName, SIGNAL(textChanged(QString)), this, SLOT(setSegmentName(QString)));
 //    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
 //    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
 //    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
@@ -115,12 +94,11 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    this->toggleSegmentOxide(false);
 //    this->toggleSegmentSemiconductor(false);
 
-    resize_device_parameters = false;
 
-    ui->tableWidget->setColumnCount(1);
+    ui->tableWidgetSegmentRoles->setColumnCount(4);
     QStringList header;
-    header << "Index";
-    ui->tableWidget->setHorizontalHeaderLabels(header);
+    header << "ID" << "Name" << "Type" << "Material";
+    ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
 
 }
 
@@ -129,151 +107,54 @@ ViennaMiniForm::~ViennaMiniForm()
     delete ui;
 }
 
-//void ViennaMiniForm::setMaterialLibrary(MaterialManager::Library& lib)
-//{
-//    typedef MaterialManager::Library::Entries          Entries;
-//    typedef MaterialManager::Library::EntryIterator    EntryIterator;
-
-//    Entries metals = lib.getMaterialsOfCategory("metal");
-//    for(EntryIterator iter = metals.begin(); iter != metals.end(); iter++)
-//    {
-//        list_metals << QString::fromStdString(vmat::id(*iter));
-//    }
-//    ui->comboBoxContactMaterial->addItems(list_metals);
-//    QObject::connect(ui->comboBoxContactMaterial, SIGNAL(activated(QString)), this, SLOT(setSegmentMaterial(QString)));
-
-//    Entries oxides = lib.getMaterialsOfCategory("oxide");
-//    for(EntryIterator iter = oxides.begin(); iter != oxides.end(); iter++)
-//    {
-//        list_oxides << QString::fromStdString(vmat::id(*iter));
-//    }
-//    ui->comboBoxOxideMaterial->addItems(list_oxides);
-//    QObject::connect(ui->comboBoxOxideMaterial, SIGNAL(activated(QString)), this, SLOT(setSegmentMaterial(QString)));
-
-//    Entries semiconductors = lib.getMaterialsOfCategory("semiconductor");
-//    for(EntryIterator iter = semiconductors.begin(); iter != semiconductors.end(); iter++)
-//    {
-//        list_semiconductors << QString::fromStdString(vmat::id(*iter));
-//    }
-//    ui->comboBoxSemiconductorMaterial->addItems(list_semiconductors);
-//    QObject::connect(ui->comboBoxSemiconductorMaterial, SIGNAL(activated(QString)), this, SLOT(setSegmentMaterial(QString)));
-//}
-
-
-QString ViennaMiniForm::getMeshType()
+void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator)
 {
-    return ui->comboBoxMeshType->currentText();
-}
+  vmini_simulator_.reset();
+  vmini_simulator_ = vmini_simulator;
+  viennamini::device::IndicesType& segment_indices = vmini_simulator->device().segment_indices();
+  ui->tableWidgetSegmentRoles->clearContents();
+  qDebug() << "widget processing ..";
+  ui->tableWidgetSegmentRoles->setRowCount(segment_indices.size());
+  for(int i = 0; i < segment_indices.size(); i++)
+  {
+      qDebug() << "iterating segmetn " << i;
+      // store the segment id, keep in mind that the viennagrid segment id
+      // is probably 1-based, instead of 0-based .. so store it as 'data' on the tablewidgetitem
+      // for later use
+      QTableWidgetItem *id = new QTableWidgetItem(QString::number(segment_indices[i]));
+      id->setFlags(id->flags() ^ Qt::ItemIsEditable); // make the table not editable
+      id->setData(Qt::UserRole, qint32(segment_indices[i]));
+      ui->tableWidgetSegmentRoles->setItem(i, 0, id);
 
-double ViennaMiniForm::getScaling()
-{
-    return ui->lineEditScalingFactor->text().toDouble();
-}
+      QTableWidgetItem *name = new QTableWidgetItem( QString::fromStdString(vmini_simulator_->device_handle()->get_name(segment_indices[i])) );
+      ui->tableWidgetSegmentRoles->setItem(i, 1, name);
 
-double ViennaMiniForm::getTemperature()
-{
-    return ui->lineEditTemp->text().toDouble();
-}
+      QTableWidgetItem *type = new QTableWidgetItem;
+      if(vmini_simulator_->device_handle()->is_contact(segment_indices[i]))
+        type->setText("Contact");
+      else
+      if(vmini_simulator_->device_handle()->is_oxide(segment_indices[i]))
+        type->setText("Oxide");
+      else
+      if(vmini_simulator_->device_handle()->is_semiconductor(segment_indices[i]))
+        type->setText("Semiconductor");
+      else type->setText("Unidentified");
+      ui->tableWidgetSegmentRoles->setItem(i, 2, type);
 
-void ViennaMiniForm::on_pushButtonLoadMesh_clicked()
-{
-//    device_parameters.clear();
-//    resize_device_parameters = true;
+      QTableWidgetItem *material = new QTableWidgetItem( QString::fromStdString(vmini_simulator_->device_handle()->get_material(segment_indices[i])) );
+      ui->tableWidgetSegmentRoles->setItem(i, 3, material);
+  }
 
-    // store the relative path
-    // to allow shipping the INI files (which also hold the meshinputfile) to colleagues ..
-  QDir dir(QCoreApplication::applicationDirPath());
+  ui->tableWidgetSegmentRoles->resizeColumnsToContents();
+  ui->tableWidgetSegmentRoles->horizontalHeader()->setStretchLastSection(true);
+  //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
-  meshfile = dir.relativeFilePath(
-        QFileDialog::getOpenFileName(this, tr("Open Mesh File"), QDir::currentPath(),
-                                    "All files (*.*);;VTK files (*.vtk,*.vtu);;ParaView files (*.pvd);;MESH files (*.mesh)")
-  );
-
-  if(meshfile.isEmpty()) return; // if the cancel button has been clicked ..
-  else emit meshFileEntered(meshfile);
-}
-
-void ViennaMiniForm::process(viennamini::simulator* vmini_simulator)
-{
-    vmini_simulator_ = vmini_simulator;
-    viennamini::device::IndicesType& segment_indices = vmini_simulator->device().segment_indices();
-    ui->tableWidget->clearContents();
-    ui->tableWidget->setRowCount(segment_indices.size());
-    for(int i = 0; i < segment_indices.size(); i++)
-    {
-        QTableWidgetItem *item = new QTableWidgetItem(QString::number(segment_indices[i]));
-        item->setFlags(item->flags() ^ Qt::ItemIsEditable); // make the table not editable
-        item->setData(Qt::UserRole, qint32(segment_indices[i]));
-        ui->tableWidget->setItem(i, 0, item);
-    }
-
-    ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-    //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
-
-    // now, activate the device tab!
-    ui->tabWidget->setTabEnabled(1, true);
-
-    // select the first segment by default
-    ui->tableWidget->setCurrentCell(segment_indices[0], 0);
+  // select the first segment by default
+  ui->tableWidgetSegmentRoles->setCurrentCell(segment_indices[0], 0);
 ////    this->toggleParameters(true);
 ////    this->showSegmentParameters(0,0); //show default parameters for the initial selection
 }
 
-void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
-{
-    if(row < 0) return;
-    if(!vmini_simulator_) return;
-
-    QTableWidgetItem* widgetItem = ui->tableWidget->item(row, 0);
-    int sid = widgetItem->data(Qt::UserRole).toInt();
-
-    // deactivating autoexclusive enabls to unselect all radio buttons
-    ui->radioButtonContactSingle->setAutoExclusive(false);
-    ui->radioButtonContactRange->setAutoExclusive(false);
-    qDebug() << "showing segment parameters " << sid;
-    ui->lineEditSegmentName->setText(QString::fromStdString(vmini_simulator_->device().get_name(sid)));
-//    ui->checkBoxContact->setChecked(device_parameters[segment_id].isContact);
-//    ui->radioButtonContactSingle->setChecked(device_parameters[segment_id].isContactSingle);
-//    ui->lineEditContactSingle->setText(QString::number(device_parameters[segment_id].contact));
-//    ui->radioButtonContactRange->setChecked(device_parameters[segment_id].isContactRange);
-//    ui->lineEditContactRangeFrom->setText(QString::number(device_parameters[segment_id].contactFrom));
-//    ui->lineEditContactRangeTo->setText(QString::number(device_parameters[segment_id].contactTo));
-//    ui->lineEditWorkfunction->setText(QString::number(device_parameters[segment_id].workfunction));
-//    ui->checkBoxOxide->setChecked(device_parameters[segment_id].isOxide);
-//    ui->checkBoxSemiconductor->setChecked(device_parameters[segment_id].isSemiconductor);
-//    ui->lineEditSemiconductorDonors->setText(QString::number(device_parameters[segment_id].donors));
-//    ui->lineEditSemiconductorAcceptors->setText(QString::number(device_parameters[segment_id].acceptors));
-
-//    // make sure that only one of the available radios can be selected
-//    ui->radioButtonContactSingle->setAutoExclusive(true);
-//    ui->radioButtonContactRange->setAutoExclusive(true);
-
-//    // based on is{contact,oxide,semiconductor} deactivate/activate the corresponding parameter ui elements
-//    if(device_parameters[segment_id].isContact)
-//    {
-//        this->toggleSegmentContact(true);
-//        ui->comboBoxContactMaterial->setCurrentIndex(ui->comboBoxContactMaterial->findText(device_parameters[segment_id].material));
-//    }
-//    else
-//        this->toggleSegmentContact(false);
-
-//    if(device_parameters[segment_id].isOxide)
-//    {
-//        this->toggleSegmentOxide(true);
-//        ui->comboBoxOxideMaterial->setCurrentIndex(ui->comboBoxOxideMaterial->findText(device_parameters[segment_id].material));
-//    }
-//    else
-//        this->toggleSegmentOxide(false);
-
-//    if(device_parameters[segment_id].isSemiconductor)
-//    {
-//        this->toggleSegmentSemiconductor(true);
-//        ui->comboBoxSemiconductorMaterial->setCurrentIndex(ui->comboBoxSemiconductorMaterial->findText(device_parameters[segment_id].material));
-//    }
-//    else
-//        this->toggleSegmentSemiconductor(false);
-}
 
 //void ViennaMiniForm::setTemperature(QString const& value_str)
 //{
@@ -305,16 +186,7 @@ void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second
 //    device_parameters.config().damping() = value_str.toDouble();
 //}
 
-void ViennaMiniForm::setSegmentName(QString const& name)
-{
-  qDebug() << "setting segment name " << ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt() << " name " << name;
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].name = name;
-    if(vmini_simulator_)
-      vmini_simulator_->device().set_name(
-        ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt(),
-        name.toStdString()
-      );
-}
+
 
 //void ViennaMiniForm::setSegmentMaterial(QString const& name)
 //{

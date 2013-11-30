@@ -57,19 +57,13 @@ public:
   virtual void            execute             ();
   virtual void            preprocess          ();
 
-signals:
-//    void materialsAvailable(MaterialManager::Library& lib);
-
 private slots:
   void loadMeshFile(QString const& filename);
-
-public slots:
-  void transferResult();
 
 private:
   ViennaMiniForm*     widget;
 
-  viennamini::simulator_handle  vmini_simulator;
+  viennamini::simulator_handle  vmini_simulator_;
 };
 
 #endif // VIENNAMINIMODULE_H
