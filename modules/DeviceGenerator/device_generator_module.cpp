@@ -48,7 +48,7 @@ DeviceGeneratorModule::DeviceGeneratorModule() : ModuleInterface(this)
 {
     // setup a new UI widget and register it with this module
     //
-    widget    = new DeviceGeneratorForm();
+    widget    = new DeviceGeneratorForm;
     register_module_widget(widget); // takes ownership of the widget - no deleting required
 
     QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
@@ -208,7 +208,7 @@ void DeviceGeneratorModule::loadMeshFile(QString const& filename)
   // forward the device handle, i.e., a smart pointer, to the
   // widget. also setup the GUI elements accordingly
   //
-  widget->process(vmini_device_);
+  widget->process(vmini_device_, multiview->getCurrentRender3D());
 
   // show the loaded device in the current render window
   //
@@ -285,7 +285,7 @@ void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_templat
       viennamos::copy(vmini_device_, multiview);
 
       // update the widget accordingly
-      widget->process(vmini_device_);
+      widget->process(vmini_device_, multiview->getCurrentRender3D());
 
       // show the loaded device in the current render window
       multiview->show_current_grid_segments();

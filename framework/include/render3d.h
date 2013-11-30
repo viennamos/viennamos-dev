@@ -127,6 +127,7 @@ public:
     void  switch_to_point_representation();
     void  switch_to_wireframe_representation();
     void  set_segment_color(std::size_t segment_index, double* rgb);
+    void  get_segment_color(std::size_t segment_index, RGB& rgb );
     void  set_segment_opacity(std::size_t segment_index, float opacity);
     int   segment_size();
     void  extract_segment_colors(std::vector<RGB>& segment_rgbs);

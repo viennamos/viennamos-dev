@@ -64,7 +64,6 @@ DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     ui->lineEditSemiconductorAcceptors->setValidator(double_validator);
     ui->lineEditSemiconductorDonors->setValidator(double_validator);
 
-    ui->tableWidget->verticalHeader()->setVisible(false);
     ui->lineEditScalingFactor->setText("1.0");
     QObject::connect(ui->tableWidget, SIGNAL(currentCellChanged(int,int,int,int)),
                      this,            SLOT(showSegmentParameters(int, int, int, int)));
@@ -91,10 +90,13 @@ DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     this->toggleSegmentOxide(false);
     this->toggleSegmentSemiconductor(false);
 
-    ui->tableWidget->setColumnCount(1);
+    ui->tableWidget->setColumnCount(2);
+    ui->tableWidget->setColumnWidth(0, 20);
     QStringList header;
-    header << "Index";
+    header << "" << "Index";
+    ui->tableWidget->verticalHeader()->setVisible(false);
     ui->tableWidget->setHorizontalHeaderLabels(header);
+    ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 DeviceGeneratorForm::~DeviceGeneratorForm()
@@ -125,7 +127,7 @@ QString DeviceGeneratorForm::getMeshType()
     return ui->comboBoxMeshType->currentText();
 }
 
-void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device)
+void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Render3D* renderer)
 {
     vmini_device_ = vmini_device;
     viennamini::device::IndicesType& segment_indices = vmini_device_->segment_indices();
@@ -133,21 +135,29 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device)
     ui->tableWidget->setRowCount(segment_indices.size());
     for(int i = 0; i < segment_indices.size(); i++)
     {
+        if(renderer)
+        {
+          Render3D::RGB rgb;
+          renderer->get_segment_color(i, rgb);
+          QTableWidgetItem *item = new QTableWidgetItem;
+          item->setBackground(QBrush(QColor::fromRgbF(rgb[0], rgb[1], rgb[2])));
+          ui->tableWidget->setItem(i, COLOR_COLUMN, item);
+        }
+
         QTableWidgetItem *item = new QTableWidgetItem(QString::number(segment_indices[i]));
         item->setFlags(item->flags() ^ Qt::ItemIsEditable); // make the table not editable
         item->setData(Qt::UserRole, qint32(segment_indices[i]));
-        ui->tableWidget->setItem(i, 0, item);
+        ui->tableWidget->setItem(i, ID_COLUMN, item);
     }
-
     ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+//    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
     //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
     // now, activate the device tab!
     ui->tabWidget->setTabEnabled(1, true);
 
     // select the first segment by default
-    ui->tableWidget->setCurrentCell(0, 0);
+    ui->tableWidget->setCurrentCell(0, ID_COLUMN);
 //    this->toggleParameters(true);
 //    this->showSegmentParameters(0,0); //show default parameters for the initial selection
 
@@ -214,7 +224,7 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
     if(!vmini_device_) return;
 
 
-    QTableWidgetItem* widgetItem = ui->tableWidget->item(row, 0);
+    QTableWidgetItem* widgetItem = ui->tableWidget->item(row, ID_COLUMN);
     int sid = widgetItem->data(Qt::UserRole).toInt();
 
 //    qDebug() << "showing segment " << sid;
@@ -270,29 +280,29 @@ void DeviceGeneratorForm::setSegmentName(QString const& name)
 //  qDebug() << "setting segment name " << ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt() << " name " << name;
 //    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].name = name;
   vmini_device_->set_name(
-    ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt(),
+    ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
     name.toStdString()
   );
 }
 
 void DeviceGeneratorForm::setSegmentMaterial(QString const& name)
 {
-  vmini_device_->set_material(ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt(), name.toStdString());
+  vmini_device_->set_material(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), name.toStdString());
 }
 
 void DeviceGeneratorForm::setSegmentSCAcceptors(QString const& value_str)
 {
-  vmini_device_->set_acceptor_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt(), value_str.toDouble());
+  vmini_device_->set_acceptor_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble());
 }
 
 void DeviceGeneratorForm::setSegmentSCDonors(QString const& value_str)
 {
-  vmini_device_->set_donator_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt(), value_str.toDouble());
+  vmini_device_->set_donator_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble());
 }
 
 void DeviceGeneratorForm::makeCurrentSegmentContact(bool state)
 {
-  int sid = ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt();
+  int sid = ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt();
   if(state == Qt::Unchecked)
   {
 //      qDebug() << "contact unsetting segment " << sid;
@@ -319,7 +329,7 @@ void DeviceGeneratorForm::makeCurrentSegmentContact(bool state)
 
 void DeviceGeneratorForm::makeCurrentSegmentOxide(bool state)
 {
-  int sid = ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt();
+  int sid = ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt();
   if(state == Qt::Unchecked)
   {
 //      qDebug() << "oxide unsetting segment " << sid;
@@ -346,7 +356,7 @@ void DeviceGeneratorForm::makeCurrentSegmentOxide(bool state)
 
 void DeviceGeneratorForm::makeCurrentSegmentSemiconductor(bool state)
 {
-  int sid = ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt();
+  int sid = ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt();
   if(state == Qt::Unchecked)
   {
 //    qDebug() << "semiconductor unsetting segment " << sid;

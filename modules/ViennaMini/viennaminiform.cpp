@@ -43,8 +43,8 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    ui->tabWidget->setTabText(0, "Setup");
-//    ui->tabWidget->setTabText(1, "Solver");
+    ui->tabWidget->setTabText(0, "Setup");
+    ui->tabWidget->setTabText(1, "Solver");
 
     QDoubleValidator* double_validator = new QDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 10, this);
     QIntValidator*    integer_validator = new QIntValidator(this);
@@ -99,6 +99,7 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QStringList header;
     header << "ID" << "Name" << "Type" << "Material";
     ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
+    ui->tableWidgetSegmentRoles->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 }
 
@@ -145,8 +146,10 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator)
       ui->tableWidgetSegmentRoles->setItem(i, 3, material);
   }
 
+  ui->lineEditTemp->setText(QString::number(vmini_simulator_->device_handle()->temperature()));
+
   ui->tableWidgetSegmentRoles->resizeColumnsToContents();
-  ui->tableWidgetSegmentRoles->horizontalHeader()->setStretchLastSection(true);
+//  ui->tableWidgetSegmentRoles->horizontalHeader()->setStretchLastSection(true);
   //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
   // select the first segment by default

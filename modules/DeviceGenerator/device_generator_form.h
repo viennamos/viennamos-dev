@@ -29,6 +29,8 @@
 #include <QWidget>
 #include <QSettings>
 
+#include "multiview.h"
+
 // ViennaMini includes
 //
 #include "viennamini/device.hpp"
@@ -46,13 +48,20 @@ class DeviceGeneratorForm : public QWidget
 {
   Q_OBJECT
 
+  enum column_ids
+  {
+    COLOR_COLUMN,
+    ID_COLUMN
+  };
+
+
 public:
 
 //  typedef std::vector<std::std::string >
 
   explicit DeviceGeneratorForm(QWidget *parent = 0);
   ~DeviceGeneratorForm();
-  void process(viennamini::device_handle& vmini_device);
+  void process(viennamini::device_handle& vmini_device, Render3D* renderer);
   QString getMeshType();
 
 public slots:

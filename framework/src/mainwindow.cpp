@@ -278,7 +278,7 @@ void MainWindow::unloadActiveModules(QList<QString>& modules)
 void MainWindow::show_module_widget(QListWidgetItem * item)
 {
     // update the widget before retrieving the widget
-    avail_modules[item->text()]->update();
+//    avail_modules[item->text()]->update();
     dockModuleConfig->setWidget(avail_modules[item->text()]->get_widget());
 }
 

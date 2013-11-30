@@ -659,3 +659,9 @@ void Render3D::extract_segment_colors(std::vector<RGB>& segment_rgbs)
   }
 }
 
+void  Render3D::get_segment_color(std::size_t segment_index, RGB& rgb )
+{
+  lutSegmentIndices->GetColor(double(segment_index), rgb.c_array());
+}
+
+
