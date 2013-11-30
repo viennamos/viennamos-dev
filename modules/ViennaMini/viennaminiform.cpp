@@ -45,9 +45,6 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->tabWidget->setTabText(0, "Setup");
-    ui->tabWidget->setTabText(1, "Solver");
-
     QDoubleValidator* double_validator = new QDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 10, this);
     QIntValidator*    integer_validator = new QIntValidator(this);
 
@@ -61,13 +58,6 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->lineEditLinSolveTol->setValidator(double_validator);
     ui->lineEditNonLinSolveTol->setValidator(double_validator);
     ui->lineEditNonLinSolveDamping->setValidator(double_validator);
-
-//    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
-//    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
-//    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
-//    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
-//    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
-//    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
 
     ui->tableWidgetSegmentRoles->setColumnCount(5);
     ui->tableWidgetSegmentRoles->setColumnWidth(COLOR_COLUMN, 20);
@@ -98,6 +88,13 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QObject::connect(ui->lineEditNonLinSolveTol, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearTolerance(QString)));
     QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
     QObject::connect(ui->comboBoxProblem, SIGNAL(currentIndexChanged(QString)), this, SLOT(setNewProblem(QString)));
+
+    //    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
+    //    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
+    //    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
+    //    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
+    //    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
+    //    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
 }
 
 ViennaMiniForm::~ViennaMiniForm()
