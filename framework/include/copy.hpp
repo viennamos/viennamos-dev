@@ -181,14 +181,232 @@ namespace viennamos {
       viennamos::copy(vmini_device->get_segmesh_tetrahedral_3d(), multiview);
   }
 
+  //
+  // Vertex Quantity Transfer
+  //
+  template<typename MeshT, typename SegmentationT, typename VGridConfigT, typename ValueT>
+  void copy(viennagrid::segmented_mesh<MeshT, SegmentationT> & segmesh,
+            viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, VGridConfigT>, ValueT>         & quantity,
+            MultiView                                        * multiview)
+  {
+    typedef typename SegmentationT::segment_handle_type                                                     SegmentType;
+    typedef typename viennagrid::result_of::element<SegmentType, viennagrid::vertex_tag>::type              VertexType;
+    typedef typename viennagrid::result_of::element_range<SegmentType, viennagrid::vertex_tag>::type  VertexRange;
+    typedef typename viennagrid::result_of::iterator<VertexRange>::type                                     VertexIterator;
 
+    SegmentationT & segmentation = segmesh.segmentation;
 
+    MultiView::MultiGrid multigrid = multiview->getGrid();
 
+    std::string quantity_name = quantity.get_name();
 
+    std::size_t si = 0;
+    for(typename SegmentationT::iterator sit = segmentation.begin();
+        sit != segmentation.end(); sit++)
+    {
+      VertexRange vertices = viennagrid::elements<VertexType>(*sit);
+      vtkSmartPointer<vtkDoubleArray> render_data = vtkSmartPointer<vtkDoubleArray>::New();
+      render_data->SetName(quantity_name.c_str());
+      render_data->SetNumberOfValues(vertices.size());
+      std::size_t i = 0;
+      for(VertexIterator vit = vertices.begin(); vit != vertices.end(); vit++)
+      {
+        render_data->SetValue(i++,quantity(*vit));
+      }
+      vtkPointSet* generic_segment = vtkPointSet::SafeDownCast(multigrid->GetBlock(si));
 
+      if(generic_segment->GetPointData()->HasArray(quantity_name.c_str()))
+          generic_segment->GetPointData()->RemoveArray(quantity_name.c_str());
+      generic_segment->GetPointData()->AddArray(render_data);
 
+      si++;
+    }
+  }
 
+  //
+  // Cell Quantity Transfer
+  //
+  template<typename MeshT, typename SegmentationT, typename VGridConfigT, typename ValueT>
+  void copy(viennagrid::segmented_mesh<MeshT, SegmentationT> & segmesh,
+            viennafvm::quantity<  viennagrid::element<typename viennagrid::result_of::cell_tag<MeshT>::type, VGridConfigT>, ValueT>         & quantity,
+            MultiView                                        * multiview)
+  {
+    typedef typename SegmentationT::segment_handle_type                                                     SegmentType;
+    typedef typename viennagrid::result_of::cell_tag<MeshT>::type                                           CellTag;
+    typedef typename viennagrid::result_of::element<MeshT, CellTag>::type                                   CellType;
+    typedef typename viennagrid::result_of::element_range<SegmentType, CellTag>::type                       CellRange;
+    typedef typename viennagrid::result_of::iterator<CellRange>::type                                       CellIterator;
 
+    SegmentationT & segmentation = segmesh.segmentation;
+
+    MultiView::MultiGrid multigrid = multiview->getGrid();
+
+    std::string quantity_name = quantity.get_name();
+
+    std::size_t si = 0;
+    for(typename SegmentationT::iterator sit = segmentation.begin();
+        sit != segmentation.end(); sit++)
+    {
+      CellRange cells = viennagrid::elements<CellType>(*sit);
+      vtkSmartPointer<vtkDoubleArray> render_data = vtkSmartPointer<vtkDoubleArray>::New();
+      render_data->SetName(quantity_name.c_str());
+      render_data->SetNumberOfValues(cells.size());
+      std::size_t i = 0;
+      for(CellIterator cit = cells.begin(); cit != cells.end(); cit++)
+      {
+        render_data->SetValue(i++, quantity(*cit));
+      }
+      vtkPointSet* generic_segment = vtkPointSet::SafeDownCast(multigrid->GetBlock(si));
+
+      if(generic_segment->GetCellData()->HasArray(quantity_name.c_str()))
+          generic_segment->GetCellData()->RemoveArray(quantity_name.c_str());
+      generic_segment->GetCellData()->AddArray(render_data);
+
+      si++;
+    }
+  }
+
+  //
+  // Convenience Vertex Quantity Transfer Overload for 1D Meshes
+  //
+  template<typename ValueT>
+  void copy(viennamini::device_handle                & vmini_device,
+            viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, viennagrid::config::line_1d>, ValueT> & quantity,
+            MultiView                                * multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+
+    if(vmini_device->is_line1d())
+      viennamos::copy(vmini_device->get_segmesh_line_1d(),  quantity, multiview);
+    else throw copy_exception("Mesh does not fit to quantity");
+  }
+
+  //
+  // Convenience Vertex Quantity Transfer Overload for 2D Triangular Meshes
+  //
+  template<typename ValueT>
+  void copy(viennamini::device_handle                & vmini_device,
+            viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, viennagrid::config::triangular_2d>, ValueT> & quantity,
+            MultiView                                * multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+
+    if(vmini_device->is_triangular2d())
+      viennamos::copy(vmini_device->get_segmesh_triangular_2d(),  quantity, multiview);
+    else throw copy_exception("Mesh does not fit to quantity");
+  }
+
+  //
+  // Convenience Vertex Quantity Transfer Overload for 3D Tetrahedral Meshes
+  //
+  template<typename ValueT>
+  void copy(viennamini::device_handle                & vmini_device,
+            viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, viennagrid::config::tetrahedral_3d>, ValueT> & quantity,
+            MultiView                                * multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+    if(vmini_device->is_tetrahedral3d())
+      viennamos::copy(vmini_device->get_segmesh_tetrahedral_3d(), quantity, multiview);
+    else throw copy_exception("Mesh does not fit to quantity");
+  }
+
+  //
+  // Convenience Cell Quantity Transfer Overload for 1D Meshes
+  //
+  template<typename CellTagT, typename ValueT>
+  void copy(viennamini::device_handle                & vmini_device,
+            viennafvm::quantity<  viennagrid::element<CellTagT, viennagrid::config::line_1d>, ValueT> & quantity,
+            MultiView                                * multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+
+    if(vmini_device->is_line1d())
+      viennamos::copy(vmini_device->get_segmesh_line_1d(),  quantity, multiview);
+    else throw copy_exception("Mesh does not fit to quantity");
+  }
+
+  //
+  // Convenience Cell Quantity Transfer Overload for 2D Triangular Meshes
+  //
+  template<typename CellTagT, typename ValueT>
+  void copy(viennamini::device_handle                & vmini_device,
+            viennafvm::quantity<  viennagrid::element<CellTagT, viennagrid::config::triangular_2d>, ValueT> & quantity,
+            MultiView                                * multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+
+    if(vmini_device->is_triangular2d())
+      viennamos::copy(vmini_device->get_segmesh_triangular_2d(),  quantity, multiview);
+    else throw copy_exception("Mesh does not fit to quantity");
+  }
+
+  //
+  // Convenience Cell Quantity Transfer Overload for 3D Tetrahedral Meshes
+  //
+  template<typename CellTagT, typename ValueT>
+  void copy(viennamini::device_handle                & vmini_device,
+            viennafvm::quantity<  viennagrid::element<CellTagT, viennagrid::config::tetrahedral_3d>, ValueT> & quantity,
+            MultiView                                * multiview)
+  {
+    if(!vmini_device)
+    {
+      throw copy_exception("Device is not available");
+      return;
+    }
+    if(!multiview)
+    {
+      throw copy_exception("MultiView is not available");
+      return;
+    }
+    if(vmini_device->is_tetrahedral3d())
+      viennamos::copy(vmini_device->get_segmesh_tetrahedral_3d(), quantity, multiview);
+    else throw copy_exception("Mesh does not fit to quantity");
+  }
 
 
 //template<typename PostfixT>

@@ -128,6 +128,8 @@ namespace viennamos
   typedef std::vector<problem_description_line_1d>                                                                problem_description_line_1d_set;
   typedef std::vector<problem_description_triangular_2d>                                                          problem_description_triangular_2d_set;
   typedef std::vector<problem_description_tetrahedral_3d>                                                         problem_description_tetrahedral_3d_set;
+
+
 } // viennamos
 
 #endif

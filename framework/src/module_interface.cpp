@@ -82,22 +82,12 @@ void ModuleInterface::register_module_widget(QWidget* widget)
                      module_control_widget->getWidget(), SLOT(saveState(QSettings&)));
 }
 
-//Quantity::TupleContainer& ModuleInterface::getQuantityTuples()
-//{
-//    return quantityTuples;
-//}
-
-//void ModuleInterface::register_quantity(Quantity& quan)
-//{
-//    quantityTuples.push_back(quan.acc_tuple());
-//}
-
 QuantitySet& ModuleInterface::get_quantity_set()
 {
     return quantity_set;
 }
 
-void  ModuleInterface::register_quantity(Quantity& quan)
+void  ModuleInterface::register_quantity(Quantity const& quan)
 {
     quantity_set.push_back(quan);
 }
