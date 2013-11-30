@@ -60,8 +60,6 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->lineEditNonLinSolveTol->setValidator(double_validator);
     ui->lineEditNonLinSolveDamping->setValidator(double_validator);
 
-    ui->tableWidget->verticalHeader()->setVisible(false);
-
     // setup initial values for the UI elements
     //
 //    ui->lineEditTemp->setText(QString::number(device_parameters.config().temperature()));
@@ -95,9 +93,11 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
 //    this->toggleSegmentSemiconductor(false);
 
 
-    ui->tableWidgetSegmentRoles->setColumnCount(4);
+    ui->tableWidgetSegmentRoles->setColumnCount(5);
+    ui->tableWidgetSegmentRoles->setColumnWidth(COLOR_COLUMN, 20);
     QStringList header;
-    header << "ID" << "Name" << "Type" << "Material";
+    header << "" << "ID" << "Name" << "Type" << "Material";
+    ui->tableWidgetSegmentRoles->verticalHeader()->setVisible(false);
     ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
     ui->tableWidgetSegmentRoles->setSelectionBehavior(QAbstractItemView::SelectRows);
 
@@ -108,29 +108,39 @@ ViennaMiniForm::~ViennaMiniForm()
     delete ui;
 }
 
-void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator)
+void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator, Render3D* renderer)
 {
   vmini_simulator_.reset();
   vmini_simulator_ = vmini_simulator;
   viennamini::device::IndicesType& segment_indices = vmini_simulator->device().segment_indices();
   ui->tableWidgetSegmentRoles->clearContents();
-  qDebug() << "widget processing ..";
   ui->tableWidgetSegmentRoles->setRowCount(segment_indices.size());
   for(int i = 0; i < segment_indices.size(); i++)
   {
-      qDebug() << "iterating segmetn " << i;
+      if(renderer)
+      {
+        Render3D::RGB rgb;
+        renderer->get_segment_color(i, rgb);
+        QTableWidgetItem *color = new QTableWidgetItem;
+        color->setBackground(QBrush(QColor::fromRgbF(rgb[0], rgb[1], rgb[2])));
+        color->setFlags(Qt::ItemIsEnabled); // make item not selectable
+        ui->tableWidgetSegmentRoles->setItem(i, COLOR_COLUMN, color);
+      }
+
       // store the segment id, keep in mind that the viennagrid segment id
       // is probably 1-based, instead of 0-based .. so store it as 'data' on the tablewidgetitem
       // for later use
       QTableWidgetItem *id = new QTableWidgetItem(QString::number(segment_indices[i]));
-      id->setFlags(id->flags() ^ Qt::ItemIsEditable); // make the table not editable
+      id->setFlags(id->flags() ^ Qt::ItemIsEditable); // make the item not editable
       id->setData(Qt::UserRole, qint32(segment_indices[i]));
-      ui->tableWidgetSegmentRoles->setItem(i, 0, id);
+      ui->tableWidgetSegmentRoles->setItem(i, ID_COLUMN, id);
 
       QTableWidgetItem *name = new QTableWidgetItem( QString::fromStdString(vmini_simulator_->device_handle()->get_name(segment_indices[i])) );
-      ui->tableWidgetSegmentRoles->setItem(i, 1, name);
+      name->setFlags(name->flags() ^ Qt::ItemIsEditable); // make the item not editable
+      ui->tableWidgetSegmentRoles->setItem(i, NAME_COLUMN, name);
 
       QTableWidgetItem *type = new QTableWidgetItem;
+      type->setFlags(type->flags() ^ Qt::ItemIsEditable); // make the item not editable
       if(vmini_simulator_->device_handle()->is_contact(segment_indices[i]))
         type->setText("Contact");
       else
@@ -140,10 +150,11 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator)
       if(vmini_simulator_->device_handle()->is_semiconductor(segment_indices[i]))
         type->setText("Semiconductor");
       else type->setText("Unidentified");
-      ui->tableWidgetSegmentRoles->setItem(i, 2, type);
+      ui->tableWidgetSegmentRoles->setItem(i, TYPE_COLUMN, type);
 
       QTableWidgetItem *material = new QTableWidgetItem( QString::fromStdString(vmini_simulator_->device_handle()->get_material(segment_indices[i])) );
-      ui->tableWidgetSegmentRoles->setItem(i, 3, material);
+      material->setFlags(material->flags() ^ Qt::ItemIsEditable); // make the item not editable
+      ui->tableWidgetSegmentRoles->setItem(i, MATERIAL_COLUMN, material);
   }
 
   ui->lineEditTemp->setText(QString::number(vmini_simulator_->device_handle()->temperature()));
@@ -153,7 +164,7 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator)
   //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
   // select the first segment by default
-  ui->tableWidgetSegmentRoles->setCurrentCell(segment_indices[0], 0);
+  ui->tableWidgetSegmentRoles->setCurrentCell(segment_indices[0], ID_COLUMN);
 ////    this->toggleParameters(true);
 ////    this->showSegmentParameters(0,0); //show default parameters for the initial selection
 }

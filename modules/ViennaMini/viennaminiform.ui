@@ -30,15 +30,28 @@
           <string>General</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_11">
-          <item row="0" column="0">
-           <widget class="QLineEdit" name="lineEditTemp"/>
-          </item>
           <item row="0" column="1">
            <widget class="QLabel" name="label_2">
             <property name="text">
              <string>Temperature (K)</string>
             </property>
            </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLineEdit" name="lineEditTemp"/>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -50,7 +63,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>272</width>
+           <width>258</width>
            <height>20</height>
           </size>
          </property>
@@ -66,7 +79,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>278</width>
+           <width>264</width>
            <height>347</height>
           </size>
          </property>

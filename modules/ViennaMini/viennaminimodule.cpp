@@ -88,7 +88,6 @@ QString ViennaMiniModule::version()
  */
 void ViennaMiniModule::preprocess()
 {
- //   emit materialsAvailable(material_manager->getLibrary());
 }
 
 /**
@@ -178,7 +177,7 @@ void ViennaMiniModule::update()
     vmini_simulator_ = viennamini::simulator_handle(new viennamini::simulator);
     vmini_simulator_->set_device_handle(vmini_device);
 
-    widget->process(vmini_simulator_);
+    widget->process(vmini_simulator_, multiview->getCurrentRender3D());
   }
 }
 

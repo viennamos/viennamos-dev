@@ -91,7 +91,7 @@ DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     this->toggleSegmentSemiconductor(false);
 
     ui->tableWidget->setColumnCount(2);
-    ui->tableWidget->setColumnWidth(0, 20);
+    ui->tableWidget->setColumnWidth(COLOR_COLUMN, 20);
     QStringList header;
     header << "" << "Index";
     ui->tableWidget->verticalHeader()->setVisible(false);
@@ -139,15 +139,16 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
         {
           Render3D::RGB rgb;
           renderer->get_segment_color(i, rgb);
-          QTableWidgetItem *item = new QTableWidgetItem;
-          item->setBackground(QBrush(QColor::fromRgbF(rgb[0], rgb[1], rgb[2])));
-          ui->tableWidget->setItem(i, COLOR_COLUMN, item);
+          QTableWidgetItem *color = new QTableWidgetItem;
+          color->setBackground(QBrush(QColor::fromRgbF(rgb[0], rgb[1], rgb[2])));
+          color->setFlags(Qt::ItemIsEnabled); // make item not selectable
+          ui->tableWidget->setItem(i, COLOR_COLUMN, color);
         }
 
-        QTableWidgetItem *item = new QTableWidgetItem(QString::number(segment_indices[i]));
-        item->setFlags(item->flags() ^ Qt::ItemIsEditable); // make the table not editable
-        item->setData(Qt::UserRole, qint32(segment_indices[i]));
-        ui->tableWidget->setItem(i, ID_COLUMN, item);
+        QTableWidgetItem *id = new QTableWidgetItem(QString::number(segment_indices[i]));
+        id->setFlags(id->flags() ^ Qt::ItemIsEditable); // make the item not editable
+        id->setData(Qt::UserRole, qint32(segment_indices[i]));
+        ui->tableWidget->setItem(i, ID_COLUMN, id);
     }
     ui->tableWidget->resizeColumnsToContents();
 //    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);

@@ -31,6 +31,8 @@
 
 #include <vector>
 
+#include "render3d.h"
+
 #include "viennamini/simulator.hpp"
 
 
@@ -42,10 +44,19 @@ class ViennaMiniForm : public QWidget
 {
     Q_OBJECT
 
+  enum column_ids
+  {
+    COLOR_COLUMN,
+    ID_COLUMN,
+    NAME_COLUMN,
+    TYPE_COLUMN,
+    MATERIAL_COLUMN
+  };
+
 public:
     explicit ViennaMiniForm(QWidget *parent = 0);
     ~ViennaMiniForm();
-    void process(viennamini::simulator_handle vmini_simulator);
+    void process(viennamini::simulator_handle vmini_simulator, Render3D* renderer);
 
 public slots:
     void saveState(QSettings& settings);
