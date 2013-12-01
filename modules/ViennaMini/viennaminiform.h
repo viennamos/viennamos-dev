@@ -63,6 +63,7 @@ public slots:
     void loadState(QSettings& settings);
 
 private slots:
+    void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
     void setTemperature(QString const& value_str);
     void setLinearTolerance(QString const& value_str);
     void setLinearIterations(QString const& value_str);
@@ -70,21 +71,22 @@ private slots:
     void setNonLinearIterations(QString const& value_str);
     void setNonLinearDamping(QString const& value_str);
     void setNewProblem(QString const& problem_str);
-    void showSegmentParameters(int row, int col = -1, int prev_row = -1, int prev_col = -1);
-
-private:
-
-
-//    void setSegmentContactIsSingle(bool state);
-//    void setSegmentContactContactValue(QString const& value_str);
-//    void setSegmentContactIsRange(bool state);
-//    void setSegmentContactContactFrom(QString const& value_str);
-//    void setSegmentContactContactTo(QString const& value_str);
-//    void setSegmentContactWorkfunction(QString const& value_str);
+    void setSegmentContactIsSingle(bool state);
+    void setSegmentContactContactValue(QString const& value_str);
+    void setSegmentContactIsRange(bool state);
+    void setSegmentContactContactFrom(QString const& value_str);
+    void setSegmentContactContactTo(QString const& value_str);
+    void setSegmentContactContactDelta(QString const& value_str);
+    void setSegmentContactWorkfunction(QString const& value_str);
+    void setSegmentContactRecordIV(bool state);
+    void setSegmentSemiconductorMobilityLattice(bool state);
+    void setSegmentSemiconductorMobilityIoniziedImpurity(bool state);
+    void setSegmentSemiconductorRecombinationSRH(bool state);
 
 private:
     Ui::ViennaMiniForm           *ui;
     viennamini::simulator_handle  vmini_simulator_;
+
 };
 
 #endif // VIENNAMINIFORM_H

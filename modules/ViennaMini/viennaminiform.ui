@@ -47,7 +47,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButtonContactSingle_2">
+       <widget class="QRadioButton" name="radioButtonContactSingle">
         <property name="text">
          <string>Single</string>
         </property>
@@ -77,7 +77,7 @@
        </spacer>
       </item>
       <item row="2" column="0">
-       <widget class="QRadioButton" name="radioButtonContactRange_2">
+       <widget class="QRadioButton" name="radioButtonContactRange">
         <property name="text">
          <string>Range</string>
         </property>
@@ -161,14 +161,14 @@
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBoxScatteringLattice">
            <property name="text">
-            <string>Lattice Scattering</string>
+            <string>Lattice</string>
            </property>
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBoxScatteringIonizedImpurities">
+          <widget class="QCheckBox" name="checkBoxScatteringIonizedImpurity">
            <property name="text">
-            <string>Ionized Impurity Scattering</string>
+            <string>Ionized Impurity</string>
            </property>
           </widget>
          </item>
@@ -184,7 +184,7 @@
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBoxRecombinationSRH">
            <property name="text">
-            <string>Shockley Read Hall</string>
+            <string>Shockley-Read-Hall</string>
            </property>
           </widget>
          </item>

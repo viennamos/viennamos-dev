@@ -73,11 +73,11 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->comboBoxProblem->setCurrentIndex(0);
     ui->comboBoxProblem->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-
     ui->comboBoxContactModel->addItem("Ohmic");
     ui->comboBoxContactModel->setCurrentIndex(0);
     ui->comboBoxContactModel->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
+    ui->radioButtonContactSingle->setChecked(true);
 
     QObject::connect(ui->tableWidgetSegmentRoles, SIGNAL(currentCellChanged(int,int,int,int)),
                      this,                        SLOT(showSegmentParameters(int, int, int, int)));
@@ -89,12 +89,18 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QObject::connect(ui->lineEditNonLinSolveDamping, SIGNAL(textChanged(QString)), this, SLOT(setNonLinearDamping(QString)));
     QObject::connect(ui->comboBoxProblem, SIGNAL(currentIndexChanged(QString)), this, SLOT(setNewProblem(QString)));
 
-    //    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
-    //    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
-    //    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
-    //    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
-    //    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
-    //    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
+
+    QObject::connect(ui->radioButtonContactSingle, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsSingle(bool)));
+    QObject::connect(ui->lineEditContactSingle, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactValue(QString)));
+    QObject::connect(ui->radioButtonContactRange, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactIsRange(bool)));
+    QObject::connect(ui->lineEditContactRangeFrom, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactFrom(QString)));
+    QObject::connect(ui->lineEditContactRangeTo, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactTo(QString)));
+    QObject::connect(ui->lineEditContactRangeDelta, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactContactDelta(QString)));
+    QObject::connect(ui->lineEditWorkfunction, SIGNAL(textChanged(QString)), this, SLOT(setSegmentContactWorkfunction(QString)));
+    QObject::connect(ui->checkBoxIV, SIGNAL(toggled(bool)), this, SLOT(setSegmentContactRecordIV(bool)));
+    QObject::connect(ui->checkBoxScatteringLattice, SIGNAL(toggled(bool)), this, SLOT(setSegmentSemiconductorMobilityLattice(bool)));
+    QObject::connect(ui->checkBoxScatteringIonizedImpurity, SIGNAL(toggled(bool)), this, SLOT(setSegmentSemiconductorMobilityIoniziedImpurity(bool)));
+    QObject::connect(ui->checkBoxRecombinationSRH, SIGNAL(toggled(bool)), this, SLOT(setSegmentSemiconductorRecombinationSRH(bool)));
 }
 
 ViennaMiniForm::~ViennaMiniForm()
@@ -156,7 +162,7 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator, Rende
   ui->tableWidgetSegmentRoles->resizeColumnsToContents();
 
   // select the first segment by default
-  ui->tableWidgetSegmentRoles->setCurrentCell(segment_indices[0], ID_COLUMN);
+  ui->tableWidgetSegmentRoles->setCurrentCell(0, ID_COLUMN);
 
   // load gui with parameters provided by the simulator
   ui->lineEditTemp->setText(QString::number(vmini_simulator->device_handle()->temperature()));
@@ -168,6 +174,172 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator, Rende
 
 }
 
+void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
+{
+  if(row < 0) return;
+  if(!vmini_simulator_) return;
+
+
+  QTableWidgetItem* widgetItem = ui->tableWidgetSegmentRoles->item(row, ID_COLUMN);
+  int sid = widgetItem->data(Qt::UserRole).toInt();
+
+  if(vmini_simulator_->device_handle()->is_contact(sid))
+  {
+    ui->groupBoxContact->setEnabled(true);
+    ui->groupBoxSemiconductor->setEnabled(false);
+
+    if(vmini_simulator_->is_contact_single(sid))
+    {
+      // check the radio button, make sure it's not firing a signal
+      //
+      ui->radioButtonContactSingle->blockSignals(true);
+      ui->radioButtonContactSingle->setChecked(true);
+      ui->radioButtonContactSingle->blockSignals(false);
+
+      // enable contact single widgets
+      //
+      ui->lineEditContactSingle->setEnabled(true);
+      ui->lineEditContactSingle->setText(QString::number(vmini_simulator_->contact_potential(sid)));
+//      qDebug() << "retrieving single contact " << vmini_simulator_->contact_potential(sid) << " for sid " << sid;
+      // disable contact range widgets
+      //
+      ui->lineEditContactRangeFrom->setEnabled(false);
+      ui->lineEditContactRangeTo->setEnabled(false);
+      ui->lineEditContactRangeDelta->setEnabled(false);
+    }
+    else if(vmini_simulator_->is_contact_range(sid))
+    {
+      // check the radio button, make sure it's not firing a signal
+      //
+      ui->radioButtonContactRange->blockSignals(true);
+      ui->radioButtonContactRange->setChecked(true);
+      ui->radioButtonContactRange->blockSignals(false);
+
+      // enable contact range widgets
+      //
+      ui->lineEditContactRangeFrom->setEnabled((true));
+      ui->lineEditContactRangeTo->setEnabled((true));
+      ui->lineEditContactRangeDelta->setEnabled((true));
+      ui->lineEditContactRangeFrom->setText(QString::number(vmini_simulator_->contact_potential_range_from(sid)));
+      ui->lineEditContactRangeTo->setText(QString::number(vmini_simulator_->contact_potential_range_to(sid)));
+      ui->lineEditContactRangeDelta->setText(QString::number(vmini_simulator_->contact_potential_range_delta(sid)));
+//      qDebug() << "retrieving range contact from " << vmini_simulator_->contact_potential_range_from(sid) << " for sid " << sid;
+      // disable contact single widgets
+      //
+      ui->lineEditContactSingle->setEnabled(false);
+    }
+    // set the workfunction
+    //
+    ui->lineEditWorkfunction->setText(QString::number(vmini_simulator_->contact_workfunction(sid)));
+
+    // set the IV record checkbox
+    //
+    ui->checkBoxIV->blockSignals(true);
+    ui->checkBoxIV->setChecked(vmini_simulator_->record_iv(sid));
+    ui->checkBoxIV->blockSignals(false);
+  }
+  else
+  if(vmini_simulator_->device_handle()->is_semiconductor(sid))
+  {
+    ui->groupBoxContact->setEnabled(false);
+    ui->groupBoxSemiconductor->setEnabled(true);
+
+    // retrieve scattering model
+    //
+    if(vmini_simulator_->device_handle()->get_mobility(sid) == viennamini::mobility::none)
+    {
+      ui->checkBoxScatteringLattice->blockSignals(true);
+      ui->checkBoxScatteringLattice->setChecked(false);
+      ui->checkBoxScatteringLattice->blockSignals(false);
+      ui->checkBoxScatteringIonizedImpurity->blockSignals(true);
+      ui->checkBoxScatteringIonizedImpurity->setChecked(false);
+      ui->checkBoxScatteringIonizedImpurity->blockSignals(false);
+    }
+    else
+    if(vmini_simulator_->device_handle()->get_mobility(sid) == viennamini::mobility::lattice)
+    {
+        ui->checkBoxScatteringLattice->blockSignals(true);
+        ui->checkBoxScatteringLattice->setChecked(true);
+        ui->checkBoxScatteringLattice->blockSignals(false);
+        ui->checkBoxScatteringIonizedImpurity->blockSignals(true);
+        ui->checkBoxScatteringIonizedImpurity->setChecked(false);
+        ui->checkBoxScatteringIonizedImpurity->blockSignals(false);
+    }
+    else
+    if(vmini_simulator_->device_handle()->get_mobility(sid) == viennamini::mobility::ionized_impurity)
+    {
+        ui->checkBoxScatteringLattice->blockSignals(true);
+        ui->checkBoxScatteringLattice->setChecked(true);
+        ui->checkBoxScatteringLattice->blockSignals(false);
+        ui->checkBoxScatteringIonizedImpurity->blockSignals(true);
+        ui->checkBoxScatteringIonizedImpurity->setChecked(true);
+        ui->checkBoxScatteringIonizedImpurity->blockSignals(false);
+
+        // indicate to the user, that he/she cannot turn lattice scattering off when ionizied impurity is switchted on
+        //
+        ui->checkBoxScatteringLattice->setEnabled(false);
+    }
+    else
+    {
+      QMessageBox::critical(0, QString("Error"), "Mobility model not recognized");
+    }
+
+    // retrieve recombination model
+    //
+    if(vmini_simulator_->device_handle()->get_recombination(sid) == viennamini::recombination::none)
+    {
+      ui->checkBoxRecombinationSRH->blockSignals(true);
+      ui->checkBoxRecombinationSRH->setChecked(false);
+      ui->checkBoxRecombinationSRH->blockSignals(false);
+    }
+    else
+    if(vmini_simulator_->device_handle()->get_recombination(sid) == viennamini::recombination::srh)
+    {
+        ui->checkBoxRecombinationSRH->blockSignals(true);
+        ui->checkBoxRecombinationSRH->setChecked(true);
+        ui->checkBoxRecombinationSRH->blockSignals(false);
+    }
+    else
+    {
+      QMessageBox::critical(0, QString("Error"), "Mobility model not recognized");
+    }
+  }
+  else
+  {
+    // deactivate all
+    //
+    ui->radioButtonContactSingle->blockSignals(true);
+    ui->radioButtonContactSingle->setChecked(false);
+    ui->radioButtonContactSingle->blockSignals(false);
+    ui->radioButtonContactRange->blockSignals(true);
+    ui->radioButtonContactRange->setChecked(false);
+    ui->radioButtonContactRange->blockSignals(false);
+
+    ui->lineEditContactSingle->clear();
+    ui->lineEditContactRangeFrom->clear();
+    ui->lineEditContactRangeTo->clear();
+    ui->lineEditContactRangeDelta->clear();
+    ui->lineEditWorkfunction->clear();
+
+    ui->groupBoxContact->setEnabled(false);
+    ui->groupBoxSemiconductor->setEnabled(false);
+
+    ui->checkBoxScatteringLattice->blockSignals(true);
+    ui->checkBoxScatteringLattice->setChecked(false);
+    ui->checkBoxScatteringLattice->blockSignals(false);
+    ui->checkBoxScatteringIonizedImpurity->blockSignals(true);
+    ui->checkBoxScatteringIonizedImpurity->setChecked(false);
+    ui->checkBoxScatteringIonizedImpurity->blockSignals(false);
+
+    ui->checkBoxScatteringIonizedImpurity->blockSignals(true);
+    ui->checkBoxScatteringIonizedImpurity->setChecked(false);
+    ui->checkBoxScatteringIonizedImpurity->blockSignals(false);
+
+    ui->checkBoxRecombinationSRH->blockSignals(true);
+    ui->checkBoxRecombinationSRH->setChecked(false);
+    ui->checkBoxRecombinationSRH->blockSignals(false);
+  }
+}
 
 void ViennaMiniForm::setTemperature(QString const& value_str)
 {
@@ -204,65 +376,139 @@ void ViennaMiniForm::setNewProblem(QString const& problem_str)
   vmini_simulator_->problem_id() = problem_str.toStdString();
 }
 
-
-void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
+void ViennaMiniForm::setSegmentContactIsSingle(bool state)
 {
-  if(row < 0) return;
-  if(!vmini_simulator_) return;
+  vmini_simulator_->is_contact_single(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = state;
 
+  if(state)
+  {
+    // deactivate range widgets
+    ui->lineEditContactRangeFrom->clear();
+    ui->lineEditContactRangeTo->clear();
+    ui->lineEditContactRangeDelta->clear();
+    ui->lineEditContactRangeFrom->setEnabled(false);
+    ui->lineEditContactRangeTo->setEnabled(false);
+    ui->lineEditContactRangeDelta->setEnabled(false);
 
-  QTableWidgetItem* widgetItem = ui->tableWidgetSegmentRoles->item(row, ID_COLUMN);
-  int sid = widgetItem->data(Qt::UserRole).toInt();
-
-  if(vmini_simulator_->device_handle()->is_contact(sid))
-  {
-    ui->groupBoxContact->setEnabled(true);
-    ui->groupBoxSemiconductor->setEnabled(false);
-  }
-  else
-  if(vmini_simulator_->device_handle()->is_semiconductor(sid))
-  {
-    ui->groupBoxContact->setEnabled(false);
-    ui->groupBoxSemiconductor->setEnabled(true);
-  }
-  else
-  {
-    ui->groupBoxContact->setEnabled(false);
-    ui->groupBoxSemiconductor->setEnabled(false);
+    // activate single widget
+    ui->lineEditContactSingle->setEnabled(true);
+    ui->lineEditContactSingle->setText("0.0");
   }
 }
 
+void ViennaMiniForm::setSegmentContactContactValue(QString const& value_str)
+{
+  vmini_simulator_->contact_potential(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = value_str.toDouble();
+}
 
-//void ViennaMiniForm::setSegmentContactIsSingle(bool state)
-//{
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isContactSingle = state;
-//}
+void ViennaMiniForm::setSegmentContactIsRange(bool state)
+{
+  vmini_simulator_->is_contact_range(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = state;
 
-//void ViennaMiniForm::setSegmentContactContactValue(QString const& value_str)
-//{
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].contact = value_str.toDouble();
-//}
+  if(state)
+  {
+    // deactivate single widget
+    ui->lineEditContactSingle->clear();
+    ui->lineEditContactSingle->setEnabled(false);
+    // activate range widgets
+    ui->lineEditContactRangeFrom->setEnabled(true);
+    ui->lineEditContactRangeTo->setEnabled(true);
+    ui->lineEditContactRangeDelta->setEnabled(true);
+    ui->lineEditContactRangeFrom->setText("0.0");
+    ui->lineEditContactRangeTo->setText("0.0");
+    ui->lineEditContactRangeDelta->setText("0.0");
+  }
+}
 
-//void ViennaMiniForm::setSegmentContactIsRange(bool state)
-//{
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].isContactRange = state;
-//}
+void ViennaMiniForm::setSegmentContactContactFrom(QString const& value_str)
+{
+  vmini_simulator_->contact_potential_range_from(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = value_str.toDouble();
+}
 
-//void ViennaMiniForm::setSegmentContactContactFrom(QString const& value_str)
-//{
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].contactFrom = value_str.toDouble();
-//}
+void ViennaMiniForm::setSegmentContactContactTo(QString const& value_str)
+{
+  vmini_simulator_->contact_potential_range_to(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = value_str.toDouble();
+}
 
-//void ViennaMiniForm::setSegmentContactContactTo(QString const& value_str)
-//{
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].contactTo = value_str.toDouble();
-//}
+void ViennaMiniForm::setSegmentContactContactDelta(QString const& value_str)
+{
+  vmini_simulator_->contact_potential_range_delta(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = value_str.toDouble();
+}
 
-//void ViennaMiniForm::setSegmentContactWorkfunction(QString const& value_str)
-//{
-//    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].workfunction = value_str.toDouble();
-//}
+void ViennaMiniForm::setSegmentContactWorkfunction(QString const& value_str)
+{
+  vmini_simulator_->contact_workfunction(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = value_str.toDouble();
+}
 
+void ViennaMiniForm::setSegmentContactRecordIV(bool state)
+{
+  vmini_simulator_->record_iv(ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()) = state;
+}
+
+
+void ViennaMiniForm::setSegmentSemiconductorMobilityLattice(bool state)
+{
+  if(state)
+  {
+    vmini_simulator_->device_handle()->set_mobility(
+          ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
+          viennamini::mobility::lattice);
+  }
+  else
+  {
+    vmini_simulator_->device_handle()->set_mobility(
+          ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
+          viennamini::mobility::none);
+  }
+}
+
+void ViennaMiniForm::setSegmentSemiconductorMobilityIoniziedImpurity(bool state)
+{
+  if(state)
+  {
+    vmini_simulator_->device_handle()->set_mobility(
+          ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
+          viennamini::mobility::ionized_impurity);
+
+    // ionizied impurities include the lattice scattering, so
+    // check the corresponding checkbox to indiciate this to the user
+    //
+    ui->checkBoxScatteringLattice->blockSignals(true);
+    ui->checkBoxScatteringLattice->setChecked(true);
+    ui->checkBoxScatteringLattice->blockSignals(false);
+
+    // indicate to the user, that he/she cannot turn lattice scattering off when ionizied impurity is switchted on
+    //
+    ui->checkBoxScatteringLattice->setEnabled(false);
+  }
+  else
+  {
+    // if the user unchecks ionizied impurity scattering,
+    // leave lattice scattering on
+    //
+    vmini_simulator_->device_handle()->set_mobility(
+          ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
+          viennamini::mobility::lattice);
+
+    ui->checkBoxScatteringLattice->setEnabled(true);
+  }
+}
+
+void ViennaMiniForm::setSegmentSemiconductorRecombinationSRH(bool state)
+{
+  if(state) // TODO with recombination, there are severla different independent models ..
+  {
+    vmini_simulator_->device_handle()->set_recombination(
+          ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
+          viennamini::recombination::srh);
+  }
+  else
+  {
+    vmini_simulator_->device_handle()->set_recombination(
+          ui->tableWidgetSegmentRoles->item(ui->tableWidgetSegmentRoles->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(),
+          viennamini::recombination::none);
+  }
+}
 
 
 //void ViennaMiniForm::saveState(QSettings& settings)
