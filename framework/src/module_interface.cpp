@@ -92,6 +92,11 @@ void  ModuleInterface::register_quantity(Quantity const& quan)
     quantity_set.push_back(quan);
 }
 
+void  ModuleInterface::clear_quantities()
+{
+    quantity_set.clear();
+}
+
 void ModuleInterface::on_pushButtonSave_clicked()
 {
     QString filename = QFileDialog::getSaveFileName(NULL, tr("Save State to File"), QDir::currentPath(), viennamos::key::state_file_filter);

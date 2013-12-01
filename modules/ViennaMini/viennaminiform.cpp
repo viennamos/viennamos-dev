@@ -67,6 +67,7 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
     ui->tableWidgetSegmentRoles->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+    ui->comboBoxProblem->addItem("");
     ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::laplace()));
     ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::poisson_drift_diffusion_np()));
 

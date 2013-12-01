@@ -134,8 +134,9 @@ void DeviceGeneratorModule::reset()
  */
 void DeviceGeneratorModule::execute()
 {
-  if(database->has_key("vmini_device")) database->erase<viennamini::device_handle>("mini_device");
-  database->insert("vmini_device", vmini_device_);
+  std::string vmini_device_db_key = "vmini_device";
+  if(database->has_key(vmini_device_db_key)) database->erase<viennamini::device_handle>(vmini_device_db_key);
+  database->insert(vmini_device_db_key, vmini_device_);
 }
 
 /**

@@ -53,6 +53,8 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
     //
     widget    = new ViennaMiniForm();
     register_module_widget(widget); // takes ownership of the widget - no deleting required
+
+    vmini_device_db_key_ = "vmini_device";
 }
 
 ViennaMiniModule::~ViennaMiniModule()
@@ -151,7 +153,7 @@ std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
  */
 bool ViennaMiniModule::is_ready()
 {
-  if(database->has_key("vmini_device"))
+  if(database->has_key(vmini_device_db_key_))
     return true;
   else return false;
 }
@@ -169,9 +171,9 @@ bool ViennaMiniModule::is_ready()
  */
 void ViennaMiniModule::update()
 {
-  if(database->has_key("vmini_device"))
+  if(database->has_key(vmini_device_db_key_))
   {
-    viennamini::device_handle vmini_device = database->at<viennamini::device_handle>("vmini_device");
+    viennamini::device_handle vmini_device = database->at<viennamini::device_handle>(vmini_device_db_key_);
 
     vmini_simulator_.reset();
     vmini_simulator_ = viennamini::simulator_handle(new viennamini::simulator);
@@ -179,17 +181,17 @@ void ViennaMiniModule::update()
 
     // initialize contacts
     //
-    viennamini::device::IndicesType& segment_indices = vmini_device->segment_indices();
+//    viennamini::device::IndicesType& segment_indices = vmini_device->segment_indices();
 
-    for(viennamini::device::IndicesType::iterator sit = segment_indices.begin();
-        sit != segment_indices.end(); sit++)
-    {
-      if(vmini_device->is_contact(*sit))
-      {
-        vmini_simulator_->contact_potential(*sit) = 0.0;
-        vmini_simulator_->record_iv(*sit) = true;
-      }
-    }
+//    for(viennamini::device::IndicesType::iterator sit = segment_indices.begin();
+//        sit != segment_indices.end(); sit++)
+//    {
+//      if(vmini_device->is_contact(*sit))
+//      {
+//        vmini_simulator_->contact_potential(*sit) = 0.0;
+//        vmini_simulator_->record_iv(*sit) = true;
+//      }
+//    }
 
     widget->process(vmini_simulator_, multiview->getCurrentRender3D());
   }
@@ -210,13 +212,6 @@ void ViennaMiniModule::execute()
 {
   try
   {
-
-//    vmini_simulator->problem_id() = viennamini::id::laplace();
-
-//    vmini_simulator->current_contact_potential(1) = 1.0;
-//    vmini_simulator->current_contact_potential(5) = 0.0;
-
-
     vmini_simulator_->run();
 
     if(vmini_simulator_->device_handle()->is_triangular2d())
@@ -231,6 +226,8 @@ void ViennaMiniModule::execute()
 
       MeshType & mesh = vmini_simulator_->device_handle()->get_segmesh_triangular_2d().mesh;
 
+
+
       CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(0).get_quantity(viennamini::id::potential());
       VertexQuantityType   potential_vertex(0, potential_cell.get_name(), viennagrid::vertices(mesh).size());
 
@@ -240,8 +237,38 @@ void ViennaMiniModule::execute()
           viennamini::arithmetic_averaging(),
           viennamini::any_filter(), viennamini::any_filter()
       );
-      viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
+      qDebug() << "problem description size: " << vmini_simulator_->device_handle()->get_problem_description_triangular_2d_set().size();
+      qDebug() << "potential cell sum: " << potential_cell.get_sum();
+      qDebug() << "potential vertex sum: " << potential_vertex.get_sum();
 
+      viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
+      clear_quantities();
+      register_quantity(Quantity(potential_vertex.get_name(), "V", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
+    }
+    else
+    if(vmini_simulator_->device_handle()->is_tetrahedral3d())
+    {
+      typedef viennamini::mesh_tetrahedral_3d                                         MeshType;
+      typedef typename viennagrid::result_of::cell_tag<MeshType>::type                CellTag;
+      typedef viennagrid::vertex_tag                                                  VertexTag;
+      typedef typename viennagrid::result_of::element<MeshType, CellTag>::type        CellType;
+      typedef typename viennagrid::result_of::element<MeshType, VertexTag>::type      VertexType;
+      typedef viennafvm::quantity<CellType,   double>   CellQuantityType;
+      typedef viennafvm::quantity<VertexType, double>   VertexQuantityType;
+
+      MeshType & mesh = vmini_simulator_->device_handle()->get_segmesh_tetrahedral_3d().mesh;
+
+      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_tetrahedral_3d(0).get_quantity(viennamini::id::potential());
+      VertexQuantityType   potential_vertex(0, potential_cell.get_name(), viennagrid::vertices(mesh).size());
+
+      viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
+          mesh,
+          potential_cell, potential_vertex,
+          viennamini::arithmetic_averaging(),
+          viennamini::any_filter(), viennamini::any_filter()
+      );
+      viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
+      clear_quantities();
       register_quantity(Quantity(potential_vertex.get_name(), "V", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
     }
 

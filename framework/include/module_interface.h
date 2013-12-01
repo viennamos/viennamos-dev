@@ -63,6 +63,7 @@ public:
 
     QuantitySet& get_quantity_set();
     void         register_quantity(Quantity const& quan);
+    void  clear_quantities();
 
 private slots:
     void on_pushButtonSave_clicked();

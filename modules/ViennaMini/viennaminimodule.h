@@ -64,6 +64,7 @@ private:
   ViennaMiniForm*     widget;
 
   viennamini::simulator_handle  vmini_simulator_;
+  std::string vmini_device_db_key_;
 };
 
 #endif // VIENNAMINIMODULE_H

@@ -34,7 +34,7 @@
 
 #include <stdexcept>
 
-
+#include <QDebug>
 class database_exception : public std::runtime_error
 {
 public:
@@ -81,7 +81,8 @@ public:
   {
     if(this->has_key(key))
     {
-      storage.erase(key); // smart pointer takes care of 'value'
+      at<T>(key).reset();
+      storage.erase(key);
     }
   }
 
