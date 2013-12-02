@@ -55,6 +55,10 @@ ViennaMiniModule::ViennaMiniModule() : ModuleInterface(this)
     register_module_widget(widget); // takes ownership of the widget - no deleting required
 
     vmini_device_db_key_ = "vmini_device";
+
+    // change the name of the 'run' button
+    //
+    module_control_widget->getButtonRun()->setText("Run Simulation");
 }
 
 ViennaMiniModule::~ViennaMiniModule()

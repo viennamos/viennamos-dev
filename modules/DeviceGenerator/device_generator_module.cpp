@@ -54,6 +54,10 @@ DeviceGeneratorModule::DeviceGeneratorModule() : ModuleInterface(this)
     QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
     QObject::connect(widget, SIGNAL(scaleDevice(double)), this, SLOT(scaleDevice(double)));
     QObject::connect(widget, SIGNAL(deviceTemplateEntered(QString)), this, SLOT(generateDeviceTemplate(QString)));
+
+    // change the name of the 'run' button
+    //
+    module_control_widget->getButtonRun()->setText("Set Device");
 }
 
 DeviceGeneratorModule::~DeviceGeneratorModule()

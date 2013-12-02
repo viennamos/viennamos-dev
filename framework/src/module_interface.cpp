@@ -27,6 +27,11 @@ ModuleInterface::ModuleInterface(ModuleInterface* child) : child(child)
     multiview        = NULL;
     messenger        = NULL;
     material_manager = NULL;
+
+    // for now hide the save/load state buttons
+    //
+    module_control_widget->getButtonLoad()->hide();
+    module_control_widget->getButtonSave()->hide();
 }
 
 ModuleInterface::~ModuleInterface()
