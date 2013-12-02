@@ -228,7 +228,7 @@ void ViennaMiniModule::execute()
 
 
 
-      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(0).get_quantity(viennamini::id::potential());
+      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(1).get_quantity(viennamini::id::potential());
       VertexQuantityType   potential_vertex(0, potential_cell.get_name(), viennagrid::vertices(mesh).size());
 
       viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
@@ -258,7 +258,7 @@ void ViennaMiniModule::execute()
 
       MeshType & mesh = vmini_simulator_->device_handle()->get_segmesh_tetrahedral_3d().mesh;
 
-      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_tetrahedral_3d(0).get_quantity(viennamini::id::potential());
+      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_tetrahedral_3d(1).get_quantity(viennamini::id::potential());
       VertexQuantityType   potential_vertex(0, potential_cell.get_name(), viennagrid::vertices(mesh).size());
 
       viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (

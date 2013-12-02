@@ -134,9 +134,17 @@ void DeviceGeneratorModule::reset()
  */
 void DeviceGeneratorModule::execute()
 {
-  std::string vmini_device_db_key = "vmini_device";
-  if(database->has_key(vmini_device_db_key)) database->erase<viennamini::device_handle>(vmini_device_db_key);
-  database->insert(vmini_device_db_key, vmini_device_);
+  if(vmini_device_)
+  {
+    std::string vmini_device_db_key = "vmini_device";
+    if(database->has_key(vmini_device_db_key)) database->erase<viennamini::device_handle>(vmini_device_db_key);
+    database->insert(vmini_device_db_key, vmini_device_);
+  }
+  else
+  {
+    QMessageBox::critical(0, QString(this->name()+" Error"), "No device loaded!");
+    return;
+  }
 }
 
 /**
