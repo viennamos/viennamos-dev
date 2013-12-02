@@ -474,7 +474,7 @@ void MainWindow::evaluate_module_states()
     for(int row = 0; row < active_modules->count(); row++)
     {
         // proceed if the item is already active ..
-//        if(active_modules->item(row)->flags() == (Qt::ItemIsEnabled | Qt::ItemIsSelectable) ) continue;
+        // if(active_modules->item(row)->flags() == (Qt::ItemIsEnabled | Qt::ItemIsSelectable) ) continue;
 
         QString current_module = active_modules->item(row)->text();
 
