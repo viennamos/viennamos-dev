@@ -65,7 +65,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionModule_Manager"/>
-   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBarVCR">
