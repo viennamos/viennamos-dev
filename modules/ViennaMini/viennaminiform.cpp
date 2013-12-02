@@ -70,10 +70,9 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     ui->tableWidgetSegmentRoles->setHorizontalHeaderLabels(header);
     ui->tableWidgetSegmentRoles->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    ui->comboBoxProblem->addItem("");
+    ui->comboBoxProblem->addItem("Select");
     ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::laplace()));
     ui->comboBoxProblem->addItem(QString::fromStdString(viennamini::id::poisson_drift_diffusion_np()));
-
     ui->comboBoxProblem->setCurrentIndex(0);
     ui->comboBoxProblem->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
@@ -176,6 +175,10 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator, Rende
   ui->lineEditNonLinSolveTol->setText(QString::number(vmini_simulator->config_handle()->nonlinear_breaktol()));
   ui->lineEditNonLinSolveDamping->setText(QString::number(vmini_simulator->config_handle()->damping()));
 
+  // reset the 'problem' combobox, to indicate to the user that the problem has to
+  // be set again for this new device.
+  //
+  ui->comboBoxProblem->setCurrentIndex(0);
 }
 
 void ViennaMiniForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
