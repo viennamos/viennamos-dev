@@ -72,7 +72,7 @@ QString ViennaMiniModule::name()
 
 QString ViennaMiniModule::description()
 {
-    return "Classical Device Simulator";
+    return "Classical Device Simulator for solving Laplace and Drift-Diffusion Problems";
 }
 
 QString ViennaMiniModule::version()
