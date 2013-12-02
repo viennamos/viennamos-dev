@@ -48,6 +48,9 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QDoubleValidator* double_validator = new QDoubleValidator(-std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), 10, this);
     QIntValidator*    integer_validator = new QIntValidator(this);
 
+    ui->tabWidget->setTabText(0, "Setup");
+    ui->tabWidget->setTabText(1, "Solver");
+
     ui->lineEditTemp->setValidator(double_validator);
 //    ui->lineEditContactSingle->setValidator(double_validator);
 //    ui->lineEditContactRangeFrom->setValidator(double_validator);
