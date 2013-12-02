@@ -102,6 +102,7 @@ void ViennaMiniModule::preprocess()
  */
 void ViennaMiniModule::render(Quantity& quan, int step)
 {
+  qDebug() << "rendering quantity " << QString::fromStdString(quan.name) << " step " << step;
   // retrieve the 'current' render object from the framework
   Render3D* render = multiview->getCurrentRender3D();
 
@@ -117,7 +118,9 @@ void ViennaMiniModule::render(Quantity& quan, int step)
         multiview->setCurrentLogScale(true);
 
       // order the renderer to overlay the mesh with a quantitiy distribution
-      render->color_quantity(quan.name, quan.name, quan.cell_level);
+      // the first string parameter has to be the step-encoded key,
+      // consisting of the quantity name and the simulation index postfix
+      render->color_quantity(quan.name+viennamini::convert<std::string>()(step), quan.name, quan.cell_level);
       render->update();
   }
 }
@@ -129,6 +132,21 @@ void ViennaMiniModule::render(Quantity& quan, int step)
  */
 std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
 {
+  // for each quantity we have the size-1 of the problem descrption
+  // -1 because we only transfered results and not the initial guess,
+  // which is on the 0 index of the prbolem description set.
+  if(vmini_simulator_->device_handle()->is_triangular2d())
+  {
+    return vmini_simulator_->device_handle()->get_problem_description_triangular_2d_set().size()-1;
+  }
+  else
+  if(vmini_simulator_->device_handle()->is_tetrahedral3d())
+  {
+    return vmini_simulator_->device_handle()->get_problem_description_tetrahedral_3d_set().size()-1;
+  }
+
+
+
 //    if(device_id == Device22u::ID())
 //    {
 //        Device22u* device = database->value<Device22u*>(Device22u::ID());
@@ -203,6 +221,27 @@ void ViennaMiniModule::execute()
   {
     vmini_simulator_->run();
 
+    // ---------------------------------------------------------
+    //
+    // now transfer the data from ViennaMini to the renderer
+    //
+    // ---------------------------------------------------------
+
+    // reset the quantity set, so no previous simulation results spoil the current results
+    //
+    clear_quantities();
+
+    // and register new quantities, which will be provided in the next lines
+    //
+    register_quantity(Quantity("Potential", "V", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
+    if(vmini_simulator_->problem_id() == viennamini::id::poisson_drift_diffusion_np())
+    {
+      register_quantity(Quantity("Electron Density", "1/m^3", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
+      register_quantity(Quantity("Hole Density", "1/m^3", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
+    }
+
+    // do the actual data transfer for the 2d case
+    //
     if(vmini_simulator_->device_handle()->is_triangular2d())
     {
       typedef viennamini::mesh_triangular_2d                                          MeshType;
@@ -215,58 +254,75 @@ void ViennaMiniModule::execute()
 
       MeshType & mesh = vmini_simulator_->device_handle()->get_segmesh_triangular_2d().mesh;
 
-      CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(1).get_quantity(viennamini::id::potential());
-      VertexQuantityType   potential_vertex(0, potential_cell.get_name(), viennagrid::vertices(mesh).size());
+      viennamini::problem_description_triangular_2d_set& problem_description = vmini_simulator_->device_handle()->get_problem_description_triangular_2d_set();
 
-      viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
-          mesh,
-          potential_cell, potential_vertex,
-          viennamini::arithmetic_averaging(),
-          viennamini::any_filter(), viennamini::any_filter()
-      );
-
-      viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
-      clear_quantities();
-      register_quantity(Quantity(potential_vertex.get_name(), "V", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
-
-      // if DD is simulated, add the electron and hole distributions as well
-      //
-      if(vmini_simulator_->problem_id() == viennamini::id::poisson_drift_diffusion_np())
+      // simulation result indices are 1-based, 0 contains the initial guesses
+      for(int si = 1; si < problem_description.size(); si++)
       {
-        // electrons
-        //
-        CellQuantityType   & electrons_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(1).get_quantity(viennamini::id::electron_density());
-        VertexQuantityType   electrons_vertex(0, electrons_cell.get_name(), viennagrid::vertices(mesh).size());
+        // get the potential result of this simulation run ..
+        CellQuantityType   & potential_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(si).get_quantity(viennamini::id::potential());
 
+        // .. and prepare a corresponding vertex quantity. encode the simulation run into the name
+        // note that si must be zero based again ... TODO ..
+        std::string encoded_quantity_run = potential_cell.get_name()+viennamini::convert<std::string>()(si-1);
+        VertexQuantityType   potential_vertex(0, encoded_quantity_run, viennagrid::vertices(mesh).size());
+
+        // now, transfer the cell quantity to the corresponding vertex quantity
         viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
             mesh,
-            electrons_cell, electrons_vertex,
+            potential_cell, potential_vertex,
             viennamini::arithmetic_averaging(),
             viennamini::any_filter(), viennamini::any_filter()
         );
 
-        viennamos::copy(vmini_simulator_->device_handle(), electrons_vertex, multiview);
-        register_quantity(Quantity(electrons_vertex.get_name(), "1/m^3", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
+        // and copy it to the renderer
+        viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
 
-        // holes
+        // if DD is simulated, add the electron and hole distributions as well
         //
-        CellQuantityType   & holes_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(1).get_quantity(viennamini::id::hole_density());
-        VertexQuantityType   holes_vertex(0, holes_cell.get_name(), viennagrid::vertices(mesh).size());
+        if(vmini_simulator_->problem_id() == viennamini::id::poisson_drift_diffusion_np())
+        {
+          // electrons
+          //
+          CellQuantityType   & electrons_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(si).get_quantity(viennamini::id::electron_density());
+          encoded_quantity_run = electrons_cell.get_name()+viennamini::convert<std::string>()(si-1);
+          VertexQuantityType   electrons_vertex(0, electrons_cell.get_name(), viennagrid::vertices(mesh).size());
 
-        viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
-            mesh,
-            holes_cell, holes_vertex,
-            viennamini::arithmetic_averaging(),
-            viennamini::any_filter(), viennamini::any_filter()
-        );
+          qDebug() << "  transferring quantity " << QString::fromStdString(encoded_quantity_run) << " si " << si;
 
-        viennamos::copy(vmini_simulator_->device_handle(), holes_vertex, multiview);
-        register_quantity(Quantity(holes_vertex.get_name(), "1/m^3", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
+          viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
+              mesh,
+              electrons_cell, electrons_vertex,
+              viennamini::arithmetic_averaging(),
+              viennamini::any_filter(), viennamini::any_filter()
+          );
+
+          viennamos::copy(vmini_simulator_->device_handle(), electrons_vertex, multiview);
+
+          // holes
+          //
+          CellQuantityType   & holes_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(si).get_quantity(viennamini::id::hole_density());
+          encoded_quantity_run = holes_cell.get_name()+viennamini::convert<std::string>()(si-1);
+          VertexQuantityType   holes_vertex(0, holes_cell.get_name(), viennagrid::vertices(mesh).size());
+
+          viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
+              mesh,
+              holes_cell, holes_vertex,
+              viennamini::arithmetic_averaging(),
+              viennamini::any_filter(), viennamini::any_filter()
+          );
+
+          viennamos::copy(vmini_simulator_->device_handle(), holes_vertex, multiview);
+        }
       }
     }
     else
     if(vmini_simulator_->device_handle()->is_tetrahedral3d())
     {
+      QMessageBox::critical(0, QString(this->name()+" Error"), "3D transfer case not implemented yet!");
+      return;
+
+
       typedef viennamini::mesh_tetrahedral_3d                                         MeshType;
       typedef typename viennagrid::result_of::cell_tag<MeshType>::type                CellTag;
       typedef viennagrid::vertex_tag                                                  VertexTag;
