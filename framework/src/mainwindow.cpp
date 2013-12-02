@@ -324,6 +324,7 @@ void MainWindow::apply_module_end(QString const& module)
     // (as the required data may now be available ..)
     evaluate_module_states();
 
+    int previous_comboBoxFieldViz_index = comboBoxFieldViz->currentIndex();
     reset_comboBoxFieldViz();
 
     // if the module prepared some quantity field data, populate the combobox and
@@ -342,6 +343,11 @@ void MainWindow::apply_module_end(QString const& module)
       // update the quantity selection combobox with this module's generated quantities
       repopulate_quantity_selection(quantity_set);
 
+      // if the previous index is still available, use it, otherwise
+      // visualize the first resulting quantity
+      //
+      if(previous_comboBoxFieldViz_index < comboBoxFieldViz->count())
+        comboBoxFieldViz->setCurrentIndex(previous_comboBoxFieldViz_index);
       // at this point,comboboxfieldviz cotains the default two entries
       // - being the 'solid' and 'segment index' key - plus at least one
       // quantity entry from the module.
@@ -349,11 +355,11 @@ void MainWindow::apply_module_end(QString const& module)
       // before we populated it with the module quantities.
       // This way, we make sure that we visualize the first result quantity of the module
       //
-      comboBoxFieldViz->setCurrentIndex(first_module_quantity_index); // emits 'currentIndexChanged'
+      else comboBoxFieldViz->setCurrentIndex(first_module_quantity_index); // emits 'currentIndexChanged'
     }
-    else // there is no quantity, so do a plain 'solid' render
+    else // there is no quantity, so do a plain 'segment index' render
     {
-      comboBoxFieldViz->setCurrentIndex(0); // emits 'currentIndexChanged'
+      comboBoxFieldViz->setCurrentIndex(1); // emits 'currentIndexChanged'
     }
 
 //    // record the current quantity for later restore of the quantity selection in the combobox due to view-switching
