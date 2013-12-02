@@ -102,7 +102,6 @@ void ViennaMiniModule::preprocess()
  */
 void ViennaMiniModule::render(Quantity& quan, int step)
 {
-  qDebug() << "rendering quantity " << QString::fromStdString(quan.name) << " step " << step;
   // retrieve the 'current' render object from the framework
   Render3D* render = multiview->getCurrentRender3D();
 
@@ -122,6 +121,14 @@ void ViennaMiniModule::render(Quantity& quan, int step)
       // consisting of the quantity name and the simulation index postfix
       render->color_quantity(quan.name+viennamini::convert<std::string>()(step), quan.name, quan.cell_level);
       render->update();
+  }
+
+  Chart2D* chart = multiview->getCurrentChart2D();
+
+  // if current is actually a render view, and not a, for instance, chart view
+  if(chart)
+  {
+      chart->showAllPlots();
   }
 }
 
@@ -144,26 +151,6 @@ std::size_t ViennaMiniModule::quantity_sequence_size(std::string quankey)
   {
     return vmini_simulator_->device_handle()->get_problem_description_tetrahedral_3d_set().size()-1;
   }
-
-
-
-//    if(device_id == Device22u::ID())
-//    {
-//        Device22u* device = database->value<Device22u*>(Device22u::ID());
-//        typedef Device22u::Quantities    QuantitiesT;
-//        QuantitiesT& quantities = device->quantities();
-//        QuantitiesT::iterator it = quantities.find(quankey);
-//        return (it->data_sequence).size();
-//    }
-//    else if(device_id == Device33u::ID())
-//    {
-//        Device33u* device = database->value<Device33u*>(Device33u::ID());
-//        typedef Device33u::Quantities    QuantitiesT;
-//        QuantitiesT& quantities = device->quantities();
-//        QuantitiesT::iterator it = quantities.find(quankey);
-//        return (it->data_sequence).size();
-//    }
-//        else return 0;
 }
 
 /**
@@ -379,6 +366,22 @@ void ViennaMiniModule::execute()
         register_quantity(Quantity(holes_vertex.get_name(), "1/m^3", this->name().toStdString(), viennamos::VERTEX, viennamos::SCALAR));
       }
     }
+
+
+    // ---------------------------------------------------------
+    //
+    // now transfer the CSV data to the chart renderer
+    //
+    // ---------------------------------------------------------
+
+    viennamini::csv mycsv = vmini_simulator_->csv();
+    vtkSmartPointer<vtkTable> table;
+
+
+
+    multiview->resetTables();
+    //multiview->addTable(experimentName, table);
+    multiview->update();
   }
   catch(std::exception& e) {
     QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
