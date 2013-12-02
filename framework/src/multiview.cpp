@@ -255,8 +255,6 @@ QDockWidget* MultiView::removeCurrentView()
 
 QDockWidget* MultiView::removeView(int id)
 {
-    //std::cout << "removing view: " << id << std::endl;
-
     if(id == INVALID) return NULL; // there are no views, so do nothing
 
     QDockWidget* dock = this->getDock(id);
@@ -271,13 +269,11 @@ QDockWidget* MultiView::removeView(int id)
 
     if(currentIsRender3D())
     {
-        vtk_connections->Disconnect(render_map[dock]->GetRenderWindow()->GetInteractor());
         render_editor_map.erase(dock);
         render_map.erase(dock);
     }
     else if(currentIsChart2D())
     {
-        vtk_connections->Disconnect(chart_map[dock]->GetRenderWindow()->GetInteractor());
         chart_editor_map.erase(dock);
         chart_map.erase(dock);
     }

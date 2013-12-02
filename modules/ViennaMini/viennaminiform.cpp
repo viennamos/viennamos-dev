@@ -104,6 +104,8 @@ ViennaMiniForm::ViennaMiniForm(QWidget *parent) :
     QObject::connect(ui->checkBoxScatteringLattice, SIGNAL(toggled(bool)), this, SLOT(setSegmentSemiconductorMobilityLattice(bool)));
     QObject::connect(ui->checkBoxScatteringIonizedImpurity, SIGNAL(toggled(bool)), this, SLOT(setSegmentSemiconductorMobilityIoniziedImpurity(bool)));
     QObject::connect(ui->checkBoxRecombinationSRH, SIGNAL(toggled(bool)), this, SLOT(setSegmentSemiconductorRecombinationSRH(bool)));
+
+    ui->checkBoxIV->hide(); // for now hide the button, we will record all contacts by default
 }
 
 ViennaMiniForm::~ViennaMiniForm()
