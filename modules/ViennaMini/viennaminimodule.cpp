@@ -374,13 +374,21 @@ void ViennaMiniModule::execute()
     //
     // ---------------------------------------------------------
 
-    viennamini::csv mycsv = vmini_simulator_->csv();
-    vtkSmartPointer<vtkTable> table;
+    viennamini::data_table& vmini_table = vmini_simulator_->data_table();
+    vtkSmartPointer<vtkTable> vtk_table = vtkSmartPointer<vtkTable>::New();
 
-
+    for(std::size_t ci = 0; ci < vmini_table.column_size(); ci++)
+    {
+        vtkSmartPointer<vtkDoubleArray> vtk_col = vtkSmartPointer<vtkDoubleArray>::New();
+        std::string col_name = vmini_table.get_column_name(ci);
+        viennamini::data_table::column_type & col = vmini_table.get_column(col_name);
+        vtk_col->SetName(col_name.c_str());
+        vtk_col->SetArray(&vmini_table.get_column(col_name)[0], vmini_table.get_column(col_name).size(), 1);
+        vtk_table->AddColumn(vtk_col);
+    }
 
     multiview->resetTables();
-    //multiview->addTable(experimentName, table);
+    multiview->addTable("ViennaMini", vtk_table);
     multiview->update();
   }
   catch(std::exception& e) {
