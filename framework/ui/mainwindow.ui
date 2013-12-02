@@ -65,7 +65,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionModule_Manager"/>
-   <addaction name="actionMaterial_Manager"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -93,7 +92,7 @@
   </widget>
   <action name="actionModule_Manager">
    <property name="icon">
-    <iconset>
+    <iconset resource="../thesource.qrc">
      <normaloff>:/resources/icons/module_manager.png</normaloff>:/resources/icons/module_manager.png</iconset>
    </property>
    <property name="text">
@@ -171,7 +170,7 @@
   </action>
   <action name="actionMaterial_Manager">
    <property name="icon">
-    <iconset>
+    <iconset resource="../thesource.qrc">
      <normaloff>:/resources/icons/material_manager.png</normaloff>:/resources/icons/material_manager.png</iconset>
    </property>
    <property name="text">
@@ -196,6 +195,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../thesource.qrc"/>
+ </resources>
  <connections/>
 </ui>
