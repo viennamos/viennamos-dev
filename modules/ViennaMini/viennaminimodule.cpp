@@ -178,21 +178,6 @@ void ViennaMiniModule::update()
     vmini_simulator_.reset();
     vmini_simulator_ = viennamini::simulator_handle(new viennamini::simulator);
     vmini_simulator_->set_device_handle(vmini_device);
-
-    // initialize contacts
-    //
-//    viennamini::device::IndicesType& segment_indices = vmini_device->segment_indices();
-
-//    for(viennamini::device::IndicesType::iterator sit = segment_indices.begin();
-//        sit != segment_indices.end(); sit++)
-//    {
-//      if(vmini_device->is_contact(*sit))
-//      {
-//        vmini_simulator_->contact_potential(*sit) = 0.0;
-//        vmini_simulator_->record_iv(*sit) = true;
-//      }
-//    }
-
     widget->process(vmini_simulator_, multiview->getCurrentRender3D());
   }
 }

@@ -96,7 +96,7 @@ namespace viennamos {
       VTK_CELL_TYPE = VTK_TRIANGLE;
     else
     if(cell_type == "3-simplex")
-        VTK_CELL_TYPE = VTK_TETRA;
+      VTK_CELL_TYPE = VTK_TETRA;
     else
     {
       throw copy_exception("ViennaGrid device not supported!");
