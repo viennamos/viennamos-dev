@@ -151,7 +151,7 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
         ui->tableWidget->setItem(i, ID_COLUMN, id);
     }
     ui->tableWidget->resizeColumnsToContents();
-//    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
     //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
     // now, activate the device tab!

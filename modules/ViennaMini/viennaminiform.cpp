@@ -162,6 +162,10 @@ void ViennaMiniForm::process(viennamini::simulator_handle vmini_simulator, Rende
 
   ui->lineEditTemp->setText(QString::number(vmini_simulator_->device_handle()->temperature()));
 
+  // make last column stretch the entire width of the table, so there is no ugly white gap
+  ui->tableWidgetSegmentRoles->horizontalHeader()->setStretchLastSection(true);
+
+  // make sure the columns are wide enough to hold the contents
   ui->tableWidgetSegmentRoles->resizeColumnsToContents();
 
   // select the first segment by default
