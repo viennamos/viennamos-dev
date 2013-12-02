@@ -294,7 +294,7 @@ void MainWindow::apply_module_begin(const QString &module)
     output->append("# [BEGIN] \""+module+"\"");
     output->append("# ------------------------------------------------------------------------------------------");
     output->append("");
-    //output->claimDefaultStreams();
+    output->claimDefaultStreams();
 }
 
 /**
@@ -309,7 +309,7 @@ void MainWindow::apply_module_end(QString const& module)
 
     // update the 'mainwindow state' indicators
     ui->statusBar->showMessage("ready");
-    //output->releaseStreams();
+    output->releaseStreams();
     output->append("");
     output->append("# ------------------------------------------------------------------------------------------");
     output->append("# [END] \""+module+"\" exec-time: "+QString::number(get_current_module_timer_seconds())+" s");
