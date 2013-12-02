@@ -171,10 +171,12 @@ bool ViennaMiniModule::is_ready()
  */
 void ViennaMiniModule::update()
 {
+  qDebug() << "updating .. " ;
   if(database->has_key(vmini_device_db_key_))
   {
     viennamini::device_handle vmini_device = database->at<viennamini::device_handle>(vmini_device_db_key_);
 
+    qDebug() << "resetting simulator";
     vmini_simulator_.reset();
     vmini_simulator_ = viennamini::simulator_handle(new viennamini::simulator);
     vmini_simulator_->set_device_handle(vmini_device);
@@ -222,9 +224,9 @@ void ViennaMiniModule::execute()
           viennamini::arithmetic_averaging(),
           viennamini::any_filter(), viennamini::any_filter()
       );
-      qDebug() << "problem description size: " << vmini_simulator_->device_handle()->get_problem_description_triangular_2d_set().size();
-      qDebug() << "potential cell sum: " << potential_cell.get_sum();
-      qDebug() << "potential vertex sum: " << potential_vertex.get_sum();
+//      qDebug() << "problem description size: " << vmini_simulator_->device_handle()->get_problem_description_triangular_2d_set().size();
+//      qDebug() << "potential cell sum: " << potential_cell.get_sum();
+//      qDebug() << "potential vertex sum: " << potential_vertex.get_sum();
 
       viennamos::copy(vmini_simulator_->device_handle(), potential_vertex, multiview);
       clear_quantities();
