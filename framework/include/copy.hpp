@@ -48,7 +48,7 @@
 //#include "vtkDoubleArray.h"
 //#include "vtkUnsignedCharArray.h"
 //#include "vtkFloatArray.h"
-//#include <QDebug>
+#include <QDebug>
 
 // ViennaMini includes
 //

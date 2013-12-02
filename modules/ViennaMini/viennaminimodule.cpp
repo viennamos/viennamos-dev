@@ -286,9 +286,7 @@ void ViennaMiniModule::execute()
           //
           CellQuantityType   & electrons_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(si).get_quantity(viennamini::id::electron_density());
           encoded_quantity_run = electrons_cell.get_name()+viennamini::convert<std::string>()(si-1);
-          VertexQuantityType   electrons_vertex(0, electrons_cell.get_name(), viennagrid::vertices(mesh).size());
-
-          qDebug() << "  transferring quantity " << QString::fromStdString(encoded_quantity_run) << " si " << si;
+          VertexQuantityType   electrons_vertex(0, encoded_quantity_run, viennagrid::vertices(mesh).size());
 
           viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
               mesh,
@@ -303,7 +301,7 @@ void ViennaMiniModule::execute()
           //
           CellQuantityType   & holes_cell = vmini_simulator_->device_handle()->get_problem_description_triangular_2d(si).get_quantity(viennamini::id::hole_density());
           encoded_quantity_run = holes_cell.get_name()+viennamini::convert<std::string>()(si-1);
-          VertexQuantityType   holes_vertex(0, holes_cell.get_name(), viennagrid::vertices(mesh).size());
+          VertexQuantityType   holes_vertex(0, encoded_quantity_run, viennagrid::vertices(mesh).size());
 
           viennagrid::quantity_transfer<CellTag, viennagrid::vertex_tag> (
               mesh,

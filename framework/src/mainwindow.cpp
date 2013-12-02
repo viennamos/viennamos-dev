@@ -148,8 +148,8 @@ void MainWindow::create_widgets()
     // [JW] for now, we deactivate the VCR option as we first need an approach
     // for storing quantity sequences via the ViennaData-based device storage
     //
-    //setup_vcr();
-    ui->toolBarVCR->hide(); // hide it for now ...
+    setup_vcr();
+//    ui->toolBarVCR->hide(); // hide it for now ...
 
 
     ui->actionActive_Modules->setChecked(true);
@@ -646,32 +646,68 @@ void MainWindow::showChartEditor()
 
 void MainWindow::show_first()
 {
-//    if(active_modules->count() == 0)   return;
+    if(active_modules->count() == 0)   return;
 
-//    // get the currently selected active module ..
-//    //
-//    QListWidgetItem* item = active_modules->currentItem();
-//    QString module = item->text();
+    // get the currently selected active module ..
+    //
+    QListWidgetItem* item = active_modules->currentItem();
+    QString module = item->text();
 
-//    // get the currently selected quantity from the combobox ..
-//    //
-//    QString quantity = comboBoxFieldViz->currentText();
+    // get the current quantity, identified with the current id of the combobox ..
+    //
+    Quantity quantity = comboBoxFieldViz->itemData(comboBoxFieldViz->currentIndex()).value<Quantity>();
 
-//    if(quantity == key::solid_color)        return;
-//    else
-//    {
-//        // reset the module's quantity index
-//        //
-//        module_quan_index[module][quantity] = 0;
 
-//        // forward the quantity id to the module's renderer
-//        // the module will render the quantity accordingly
-//        avail_modules[module]->render(quantity.toStdString(), module_quan_index[module][quantity]);
-//    }
+    if(comboBoxFieldViz->currentText() == viennamos::key::solid_color)        return;
+    if(comboBoxFieldViz->currentText() == viennamos::key::segment_index)        return;
+    else
+    {  // only in this case, a solution quantity is selected ..
+
+        // reset the module's quantity index
+        //
+        module_quan_index[module][QString::fromStdString(quantity.name)] = 0;
+
+        // forward the quantity to the module's renderer
+        // which takes care of the actual rendering
+        //
+        avail_modules[module]->render(quantity, module_quan_index[module][QString::fromStdString(quantity.name)]);
+    }
 }
 
 void MainWindow::show_back()
 {
+  if(active_modules->count() == 0)   return;
+
+  // get the currently selected active module ..
+  //
+  QListWidgetItem* item = active_modules->currentItem();
+  QString module = item->text();
+
+  // get the current quantity, identified with the current id of the combobox ..
+  //
+  Quantity quantity = comboBoxFieldViz->itemData(comboBoxFieldViz->currentIndex()).value<Quantity>();
+
+
+  if(comboBoxFieldViz->currentText() == viennamos::key::solid_color)        return;
+  if(comboBoxFieldViz->currentText() == viennamos::key::segment_index)        return;
+  else
+  {  // only in this case, a solution quantity is selected ..
+
+      // reset the module's quantity index
+      //
+      QString quan_name = QString::fromStdString(quantity.name);
+
+      // decrement the current index - set 0
+      //
+      if(module_quan_index[module][quan_name] != 0)
+          module_quan_index[module][quan_name]--;
+
+      // forward the quantity to the module's renderer
+      // which takes care of the actual rendering
+      //
+      avail_modules[module]->render(quantity, module_quan_index[module][quan_name]);
+  }
+  // -------------------------------------------------
 //    if(active_modules->count() == 0)   return;
 
 //    // get the currently selected active module ..
@@ -699,6 +735,41 @@ void MainWindow::show_back()
 
 void MainWindow::show_play()
 {
+  if(active_modules->count() == 0)   return;
+
+  // get the currently selected active module ..
+  //
+  QListWidgetItem* item = active_modules->currentItem();
+  QString module = item->text();
+
+  // get the current quantity, identified with the current id of the combobox ..
+  //
+  Quantity quantity = comboBoxFieldViz->itemData(comboBoxFieldViz->currentIndex()).value<Quantity>();
+
+
+  if(comboBoxFieldViz->currentText() == viennamos::key::solid_color)        return;
+  if(comboBoxFieldViz->currentText() == viennamos::key::segment_index)        return;
+  else
+  {  // only in this case, a solution quantity is selected ..
+
+      // reset the module's quantity index
+      //
+      QString quan_name = QString::fromStdString(quantity.name);
+
+      std::size_t maxi = avail_modules[module]->quantity_sequence_size(quan_name.toStdString());
+      for(std::size_t i = module_quan_index[module][quan_name]; i < maxi; i++)
+      {
+          module_quan_index[module][quan_name] = i;
+          avail_modules[module]->render(quantity, module_quan_index[module][quan_name]);
+          if(i < (maxi-1)) delay(spinBoxVCRDelay->value()); // in milliseconds
+      }
+
+      // forward the quantity to the module's renderer
+      // which takes care of the actual rendering
+      //
+      avail_modules[module]->render(quantity, module_quan_index[module][quan_name]);
+  }
+  // -------------------------------------------------
 //    if(active_modules->count() == 0)   return;
 
 //    // get the currently selected active module ..
@@ -725,6 +796,36 @@ void MainWindow::show_play()
 
 void MainWindow::show_forward()
 {
+  if(active_modules->count() == 0)   return;
+
+  // get the currently selected active module ..
+  //
+  QListWidgetItem* item = active_modules->currentItem();
+  QString module = item->text();
+
+  // get the current quantity, identified with the current id of the combobox ..
+  //
+  Quantity quantity = comboBoxFieldViz->itemData(comboBoxFieldViz->currentIndex()).value<Quantity>();
+
+
+  if(comboBoxFieldViz->currentText() == viennamos::key::solid_color)        return;
+  if(comboBoxFieldViz->currentText() == viennamos::key::segment_index)        return;
+  else
+  {  // only in this case, a solution quantity is selected ..
+
+      // reset the module's quantity index
+      //
+      QString quan_name = QString::fromStdString(quantity.name);
+
+      if(module_quan_index[module][quan_name] != (avail_modules[module]->quantity_sequence_size(quan_name.toStdString())-1))
+        module_quan_index[module][quan_name]++;
+
+      // forward the quantity to the module's renderer
+      // which takes care of the actual rendering
+      //
+      avail_modules[module]->render(quantity, module_quan_index[module][quan_name]);
+  }
+  // -------------------------------------------------
 //    if(active_modules->count() == 0)   return;
 
 //    // get the currently selected active module ..
@@ -752,6 +853,37 @@ void MainWindow::show_forward()
 
 void MainWindow::show_last()
 {
+  if(active_modules->count() == 0)   return;
+
+  // get the currently selected active module ..
+  //
+  QListWidgetItem* item = active_modules->currentItem();
+  QString module = item->text();
+
+  // get the current quantity, identified with the current id of the combobox ..
+  //
+  Quantity quantity = comboBoxFieldViz->itemData(comboBoxFieldViz->currentIndex()).value<Quantity>();
+
+
+  if(comboBoxFieldViz->currentText() == viennamos::key::solid_color)        return;
+  if(comboBoxFieldViz->currentText() == viennamos::key::segment_index)        return;
+  else
+  {  // only in this case, a solution quantity is selected ..
+
+      // reset the module's quantity index
+      //
+      QString quan_name = QString::fromStdString(quantity.name);
+
+      // set the current index to the last frame
+      //
+      module_quan_index[module][quan_name] = avail_modules[module]->quantity_sequence_size(quan_name.toStdString())-1;
+
+      // forward the quantity to the module's renderer
+      // which takes care of the actual rendering
+      //
+      avail_modules[module]->render(quantity, module_quan_index[module][quan_name]);
+  }
+  // -------------------------------------------------
 //    if(active_modules->count() == 0)   return;
 
 //    // get the currently selected active module ..
