@@ -477,6 +477,11 @@ void MainWindow::evaluate_module_states()
         // proceed if the item is already active ..
         // if(active_modules->item(row)->flags() == (Qt::ItemIsEnabled | Qt::ItemIsSelectable) ) continue;
 
+        // proceed if the item is the currently 'highlighted' item in the
+        // active module list
+        //
+        if(active_modules->currentRow() == row) continue;
+
         QString current_module = active_modules->item(row)->text();
 
         if(avail_modules.value(current_module)->is_ready())
