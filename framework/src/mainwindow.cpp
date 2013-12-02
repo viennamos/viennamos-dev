@@ -149,6 +149,7 @@ void MainWindow::create_widgets()
     // for storing quantity sequences via the ViennaData-based device storage
     //
     //setup_vcr();
+    ui->toolBarVCR->hide(); // hide it for now ...
 
 
     ui->actionActive_Modules->setChecked(true);
