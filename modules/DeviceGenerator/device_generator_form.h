@@ -70,9 +70,9 @@ public slots:
 
 signals:
     void meshFileEntered(QString const& filename);
-    void scaleDevice(double factor);
     void deviceTemplateEntered(QString const& device_template_id);
-
+    void csggeneratorTriggered();
+    void scaleDevice(double factor);
 
 private slots:
     void on_pushButtonLoadMesh_clicked();
@@ -100,8 +100,6 @@ private:
   QString             meshfile;
 
   viennamini::device_handle vmini_device_;
-
-
 };
 
 #endif // DEVICE_GENERATOR_H

@@ -457,5 +457,5 @@ void DeviceGeneratorForm::on_pushButtonLoadTemplate_clicked()
 
 void DeviceGeneratorForm::on_pushButtonCSGEditor_clicked()
 {
-
+  emit csggeneratorTriggered();
 }

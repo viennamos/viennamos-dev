@@ -35,6 +35,8 @@
 //
 #include "forwards.h"
 #include "device_generator_form.h"
+#include "csggenerator.h"
+
 
 class DeviceGeneratorModule : public ModuleInterface
 {
@@ -56,11 +58,14 @@ public:
 
 private slots:
   void loadMeshFile(QString const& filename);
-  void scaleDevice(double factor);
   void generateDeviceTemplate(QString const& device_template_id);
+  void raiseCSGEditor();
+  void generateCSGDevice(QString const& csg_string);
+  void scaleDevice(double factor);
 
 private:
   DeviceGeneratorForm*     widget;
+  CSGGenerator* csg_generator_;
 
   viennamini::device_handle           vmini_device_;
   viennamini::device_template_handle  vmini_device_generator_;

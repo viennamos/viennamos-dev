@@ -40,20 +40,28 @@
 #include "templates/capacitor3d.hpp"
 #include "templates/diode_np2d.hpp"
 
+// ViennaMesh includes
+//
+#include "viennamesh/algorithm/netgen.hpp"
+
 /**
  * @brief The module's c'tor registers the module's UI widget and registers
  * output quantities
  */
-DeviceGeneratorModule::DeviceGeneratorModule() : ModuleInterface(this)
+DeviceGeneratorModule::DeviceGeneratorModule() :
+  ModuleInterface(this)
 {
     // setup a new UI widget and register it with this module
     //
     widget    = new DeviceGeneratorForm;
     register_module_widget(widget); // takes ownership of the widget - no deleting required
+    csg_generator_ = new CSGGenerator;
 
     QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
-    QObject::connect(widget, SIGNAL(scaleDevice(double)), this, SLOT(scaleDevice(double)));
     QObject::connect(widget, SIGNAL(deviceTemplateEntered(QString)), this, SLOT(generateDeviceTemplate(QString)));
+    QObject::connect(widget, SIGNAL(csggeneratorTriggered()), this, SLOT(raiseCSGEditor()));
+    QObject::connect(widget, SIGNAL(scaleDevice(double)), this, SLOT(scaleDevice(double)));
+    QObject::connect(csg_generator_, SIGNAL(newCSGAvailable(QString)), this, SLOT(generateCSGDevice(QString)));
 
     // change the name of the 'run' button
     //
@@ -62,6 +70,8 @@ DeviceGeneratorModule::DeviceGeneratorModule() : ModuleInterface(this)
 
 DeviceGeneratorModule::~DeviceGeneratorModule()
 {
+  delete widget;
+  delete csg_generator_;
 }
 
 QString DeviceGeneratorModule::name()
@@ -311,5 +321,63 @@ void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_templat
     QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
     return;
   }
+}
+
+void DeviceGeneratorModule::raiseCSGEditor()
+{
+
+  csg_generator_->show();
+}
+
+void DeviceGeneratorModule::generateCSGDevice(QString const& csg_string)
+{
+  // completly reset the simulator object, as a new device
+  // forces us to reset everything and begin from scratch
+  //
+  if(vmini_device_) vmini_device_.reset();
+  vmini_device_ = viennamini::device_handle(new viennamini::device); // TODO pass a stream object into the c'tor
+  vmini_device_->make_tetrahedral3d();
+
+//  qDebug() << "about to mesh the following csg string: \"" << csg_string << "\"";
+
+  // deactivate viennamesh output
+  //
+  viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
+  viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
+
+  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesher() );
+  mesher->set_input( "default", csg_string.toStdString() );
+  mesher->set_input( "delaunay", true );                    // use delaunay meshing
+  mesher->set_input( "cell_size", 1.0 );                    // set the cell size
+  mesher->set_input( "grading", 0.3 );                      // set the element grading, 0...1 (0 => uniform mesh; 1 => aggressive local grading)
+  mesher->set_input( "optimization_steps", 0 );             // set the number of optimization steps for 3-D mesh optimization
+//  mesher->set_input( "optimize_string", "cmdmustm" );
+  mesher->reference_output( "default", vmini_device_->get_segmesh_tetrahedral_3d() );
+  mesher->run();
+
+  vmini_device_->update_problem_description();
+
+  // the CSG has been meshed, now transfer to ViennaMOS
+  //
+  viennamos::copy(vmini_device_, multiview);
+
+  // link the material database with the device ..
+  //
+  vmini_device_->set_material_library(material_manager->getLibrary());
+
+  // which it requires to finalize the device, e.g., assign material-specific permittivities
+  //
+  vmini_device_->update();
+
+  // forward the device handle, i.e., a smart pointer, to the
+  // widget. also setup the GUI elements accordingly
+  //
+  widget->process(vmini_device_, multiview->getCurrentRender3D());
+
+  // show the loaded device in the current render window
+  //
+  multiview->show_current_grid_segments();
+
+  multiview->resetAllViews();
 }
 

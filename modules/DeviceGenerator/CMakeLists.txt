@@ -11,16 +11,19 @@ SET(SOURCES
   device_generator.cpp
   device_generator_module.cpp
   device_generator_form.cpp
+  csggenerator.cpp
   )
 
 SET(HEADERS
   device_generator.h
   device_generator_module.h
   device_generator_form.h
+  csggenerator.h
   )
 
 SET(FORMS
   device_generator_form.ui
+  csggenerator.ui
   )
 
 SET(RESOURCES )
