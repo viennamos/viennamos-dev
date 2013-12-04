@@ -15,6 +15,8 @@ class CSGGenerator : public QDialog
 public:
     explicit CSGGenerator(QWidget *parent = 0);
     ~CSGGenerator();
+    void reset_csg();
+
 
 signals:
   void newCSGAvailable(QString const& csg_string);
@@ -28,6 +30,8 @@ private slots:
   void on_pushButtonSave_clicked();
 
   void on_pushButtonLoad_clicked();
+
+  void on_pushButtonReset_clicked();
 
 private:
     Ui::CSGGenerator *ui;

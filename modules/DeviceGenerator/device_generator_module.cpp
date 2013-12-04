@@ -348,9 +348,9 @@ void DeviceGeneratorModule::generateCSGDevice(QString const& csg_string)
   viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesher() );
   mesher->set_input( "default", csg_string.toStdString() );
   mesher->set_input( "delaunay", true );                    // use delaunay meshing
-  mesher->set_input( "cell_size", 1.0 );                    // set the cell size
+//  mesher->set_input( "cell_size", 1.0 );                    // set the cell size
   mesher->set_input( "grading", 0.3 );                      // set the element grading, 0...1 (0 => uniform mesh; 1 => aggressive local grading)
-  mesher->set_input( "optimization_steps", 0 );             // set the number of optimization steps for 3-D mesh optimization
+  mesher->set_input( "optimization_steps", 3 );             // set the number of optimization steps for 3-D mesh optimization
 //  mesher->set_input( "optimize_string", "cmdmustm" );
   mesher->reference_output( "default", vmini_device_->get_segmesh_tetrahedral_3d() );
   mesher->run();

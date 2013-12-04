@@ -14,22 +14,27 @@ CSGGenerator::CSGGenerator(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("CSG Mesh Generator");
-    QString default_csg_device =
-        "algebraic3d \n"
-        "solid cube = plane (0, 0, 0; 0, 0, -1) \n"
-        "       and plane (0, 0, 0; 0, -1, 0) \n"
-        "       and plane (0, 0, 0; -1, 0, 0) \n"
-        "       and plane (1, 1, 1; 0, 0, 1) \n"
-        "       and plane (1, 1, 1; 0, 1, 0) \n"
-        "       and plane (1, 1, 1; 1, 0, 0); \n"
-        "tlo cube;\n";
-
-    ui->textEditCSG->setPlainText(default_csg_device);
+    this->reset_csg();
 }
 
 CSGGenerator::~CSGGenerator()
 {
     delete ui;
+}
+
+void CSGGenerator::reset_csg()
+{
+  QString default_csg_device =
+      "algebraic3d \n"
+      "solid cube = plane (0, 0, 0; 0, 0, -1) \n"
+      "       and plane (0, 0, 0; 0, -1, 0) \n"
+      "       and plane (0, 0, 0; -1, 0, 0) \n"
+      "       and plane (1, 1, 1; 0, 0, 1) \n"
+      "       and plane (1, 1, 1; 0, 1, 0) \n"
+      "       and plane (1, 1, 1; 1, 0, 0); \n"
+      "tlo cube;\n";
+
+  ui->textEditCSG->setPlainText(default_csg_device);
 }
 
 void CSGGenerator::on_pushButtonGenerate_clicked()
@@ -73,4 +78,9 @@ void CSGGenerator::on_pushButtonLoad_clicked()
   QApplication::setOverrideCursor(Qt::WaitCursor);
   ui->textEditCSG->setPlainText(in.readAll());
   QApplication::restoreOverrideCursor();
+}
+
+void CSGGenerator::on_pushButtonReset_clicked()
+{
+    this->reset_csg();
 }
