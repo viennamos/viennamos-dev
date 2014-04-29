@@ -46,7 +46,7 @@ ADD_DEFINITIONS(-DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
 # qt/vtk include files which seem to be deprecated O.o
 # deactivating warning here, as we can't influence it anyway ..
 IF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wno-deprecated") 
+  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wno-deprecated")
 ENDIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 
 
@@ -106,7 +106,7 @@ IF(VTK_FOUND)
     INCLUDE(${VTK_USE_FILE})
     SET(LIBRARIES ${LIBRARIES} ${VTK_LIBRARIES})
   ELSE(${VTK_MAJOR_VERSION} GREATER 5)
-  
+
     SET(QVTKLIB "QVTK")
     # Look for QtVTK Kit, requires VTK to be compiled with Qt/GUI support
     SET(QTVTK_FOUND FALSE)
@@ -148,7 +148,7 @@ SET(BOOST_MIN_VERSION 1.46.1)
 #SET(Boost_USE_STATIC_RUNTIME    OFF)
 #SET(Boost_NO_SYSTEM_PATHS       OFF)
 FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} COMPONENTS ${BOOST_LIBS} REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})   
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 SET(LIBRARIES ${LIBRARIES} ${Boost_LIBRARIES})
 MESSAGE(STATUS "Boost Include Path: "${Boost_INCLUDE_DIR})
 MESSAGE(STATUS "Boost Library Path: "${Boost_LIBRARY_DIRS})
@@ -256,5 +256,4 @@ ADD_SUBDIRECTORY(framework/)
 #
 # ------------------------------------------------------------------------------
 SET(VMOS_MODULE_PREFIX "vmos_module_")
-ADD_SUBDIRECTORY(modules/)
-
+#ADD_SUBDIRECTORY(modules/)

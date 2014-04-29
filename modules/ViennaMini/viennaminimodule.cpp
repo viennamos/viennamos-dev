@@ -32,7 +32,7 @@
 #include "keys_units.hpp"
 
 #include "viennagrid/io/netgen_reader.hpp"
-#include "viennagrid/algorithm/scale.hpp"
+#include "viennagrid/algorithm/geometric_transform.hpp"
 #include "viennagrid/algorithm/quantity_transfer.hpp"
 
 #include "viennafvm/quantity.hpp"
@@ -404,6 +404,3 @@ void ViennaMiniModule::execute()
     return;
   }
 }
-
-
-
