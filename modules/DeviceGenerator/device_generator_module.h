@@ -58,7 +58,6 @@ public:
 
 private slots:
   void loadMeshFile(QString const& filename);
-  void generateDeviceTemplate(QString const& device_template_id);
   void raiseCSGEditor();
   void generateCSGDevice(QString const& csg_string);
   void scaleDevice(double factor);
@@ -68,7 +67,6 @@ private:
   CSGGenerator* csg_generator_;
 
   viennamini::device_handle           vmini_device_;
-  viennamini::device_template_handle  vmini_device_generator_;
 };
 
 #endif // DEVICE_GENERATOR_H

@@ -35,14 +35,14 @@
 //
 #include "viennamini/utils/is_zero.hpp"
 
-#include "templates/capacitor1d.hpp"
-#include "templates/capacitor2d.hpp"
-#include "templates/capacitor3d.hpp"
-#include "templates/diode_np2d.hpp"
+//#include "templates/capacitor1d.hpp"
+//#include "templates/capacitor2d.hpp"
+//#include "templates/capacitor3d.hpp"
+//#include "templates/diode_np2d.hpp"
 
 // ViennaMesh includes
 //
-#include "viennamesh/algorithm/netgen.hpp"
+#include "viennamesh/viennamesh.hpp"
 
 /**
  * @brief The module's c'tor registers the module's UI widget and registers
@@ -58,7 +58,6 @@ DeviceGeneratorModule::DeviceGeneratorModule() :
     csg_generator_ = new CSGGenerator;
 
     QObject::connect(widget, SIGNAL(meshFileEntered(QString const&)), this, SLOT(loadMeshFile(QString const&)));
-    QObject::connect(widget, SIGNAL(deviceTemplateEntered(QString)), this, SLOT(generateDeviceTemplate(QString)));
     QObject::connect(widget, SIGNAL(csggeneratorTriggered()), this, SLOT(raiseCSGEditor()));
     QObject::connect(widget, SIGNAL(scaleDevice(double)), this, SLOT(scaleDevice(double)));
     QObject::connect(csg_generator_, SIGNAL(newCSGAvailable(QString)), this, SLOT(generateCSGDevice(QString)));
@@ -148,7 +147,7 @@ void DeviceGeneratorModule::reset()
  */
 void DeviceGeneratorModule::execute()
 {
-  if(vmini_device_)
+  if(vmini_device_.get())
   {
     std::string vmini_device_db_key = "vmini_device";
     if(database->has_key(vmini_device_db_key)) database->erase<viennamini::device_handle>(vmini_device_db_key);
@@ -172,7 +171,7 @@ void DeviceGeneratorModule::loadMeshFile(QString const& filename)
   // completly reset the simulator object, as a new device
   // forces us to reset everything and begin from scratch
   //
-  if(vmini_device_) vmini_device_.reset();
+  if(vmini_device_.get()) vmini_device_.reset();
   vmini_device_ = viennamini::device_handle(new viennamini::device); // TODO pass a stream object into the c'tor
 
 
@@ -222,7 +221,7 @@ void DeviceGeneratorModule::loadMeshFile(QString const& filename)
 
   // link the material database with the device ..
   //
-  vmini_device_->set_material_library(material_manager->getLibrary());
+//  vmini_device_->set_material_library(material_manager->getLibrary());
 
   // which it requires to finalize the device, e.g., assign material-specific permittivities
   //
@@ -244,7 +243,7 @@ void DeviceGeneratorModule::scaleDevice(double factor)
 {
   // Skip the scaling procedure, if a factor of 1.0 has been entered
   if(viennamini::is_zero(factor-1.0)) return;
-  if(!vmini_device_)                  return;
+  if(!vmini_device_.get())            return;
 
   try
   {
@@ -252,70 +251,6 @@ void DeviceGeneratorModule::scaleDevice(double factor)
     viennamos::copy(vmini_device_, multiview);
     multiview->show_current_grid_segments();
     multiview->resetAllViews();
-  }
-  catch(std::exception& e) {
-    QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
-    return;
-  }
-}
-
-void DeviceGeneratorModule::generateDeviceTemplate(QString const& device_template_id)
-{
-  try
-  {
-    if(vmini_device_generator_) vmini_device_generator_.reset();
-
-//    if(device_template_id == key::device_capacitor_1d)
-//    {
-//      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::capacitor1d);
-//    }
-//    else
-    if(device_template_id == key::device_capacitor_2d)
-    {
-      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::capacitor2d);
-    }
-    else
-    if(device_template_id == key::device_capacitor_3d)
-    {
-      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::capacitor3d);
-    }
-    else
-    if(device_template_id == key::device_diode_pn_2d)
-    {
-      vmini_device_generator_ = viennamini::device_template_handle(new viennamini::diode_np2d);
-    }
-    else
-    {
-      QMessageBox::critical(0, QString(this->name()+" Error"), QString("Template \""+device_template_id+"\" is not supported!"));
-      return;
-    }
-
-    if(vmini_device_generator_)
-    {
-      vmini_device_generator_->device_handle()->set_material_library(material_manager->getLibrary());
-
-      // create the default device
-      vmini_device_generator_->generate();
-
-      vmini_device_.reset();
-      vmini_device_ = vmini_device_generator_->device_handle();
-
-      // the device generator already set the segment information
-      // calling update finalizes the setup based on this information
-      vmini_device_->update();
-
-      // copy the device to the renderer
-      viennamos::copy(vmini_device_, multiview);
-
-      // update the widget accordingly
-      widget->process(vmini_device_, multiview->getCurrentRender3D());
-
-      // show the loaded device in the current render window
-      multiview->show_current_grid_segments();
-
-      // reset the camera to an initial/default position
-      multiview->resetAllViews();
-    }
   }
   catch(std::exception& e) {
     QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
@@ -334,7 +269,7 @@ void DeviceGeneratorModule::generateCSGDevice(QString const& csg_string)
   // completly reset the simulator object, as a new device
   // forces us to reset everything and begin from scratch
   //
-  if(vmini_device_) vmini_device_.reset();
+  if(vmini_device_.get()) vmini_device_.reset();
   vmini_device_ = viennamini::device_handle(new viennamini::device); // TODO pass a stream object into the c'tor
   vmini_device_->make_tetrahedral3d();
 
@@ -345,39 +280,38 @@ void DeviceGeneratorModule::generateCSGDevice(QString const& csg_string)
   viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
   viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
 
-  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesher() );
-  mesher->set_input( "default", csg_string.toStdString() );
-  mesher->set_input( "delaunay", true );                    // use delaunay meshing
-//  mesher->set_input( "cell_size", 1.0 );                    // set the cell size
-  mesher->set_input( "grading", 0.3 );                      // set the element grading, 0...1 (0 => uniform mesh; 1 => aggressive local grading)
-  mesher->set_input( "optimization_steps", 3 );             // set the number of optimization steps for 3-D mesh optimization
-//  mesher->set_input( "optimize_string", "cmdmustm" );
-  mesher->reference_output( "default", vmini_device_->get_segmesh_tetrahedral_3d() );
-  mesher->run();
+//  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesh_generator() );
+//  mesher->set_input( "default", csg_string.toStdString() );
+//  mesher->set_input( "delaunay", true );                    // use delaunay meshing
+////  mesher->set_input( "cell_size", 1.0 );                    // set the cell size
+//  mesher->set_input( "grading", 0.3 );                      // set the element grading, 0...1 (0 => uniform mesh; 1 => aggressive local grading)
+//  mesher->set_input( "optimization_steps", 3 );             // set the number of optimization steps for 3-D mesh optimization
+////  mesher->set_input( "optimize_string", "cmdmustm" );
+//  mesher->reference_output( "default", vmini_device_->get_segmesh_tetrahedral_3d() );
+//  mesher->run();
 
-  vmini_device_->update_problem_description();
+//  vmini_device_->update_problem_description();
 
-  // the CSG has been meshed, now transfer to ViennaMOS
-  //
-  viennamos::copy(vmini_device_, multiview);
+//  // the CSG has been meshed, now transfer to ViennaMOS
+//  //
+//  viennamos::copy(vmini_device_, multiview);
 
-  // link the material database with the device ..
-  //
-  vmini_device_->set_material_library(material_manager->getLibrary());
+//  // link the material database with the device ..
+//  //
+//  vmini_device_->set_material_library(material_manager->getLibrary());
 
-  // which it requires to finalize the device, e.g., assign material-specific permittivities
-  //
-  vmini_device_->update();
+//  // which it requires to finalize the device, e.g., assign material-specific permittivities
+//  //
+//  vmini_device_->update();
 
-  // forward the device handle, i.e., a smart pointer, to the
-  // widget. also setup the GUI elements accordingly
-  //
-  widget->process(vmini_device_, multiview->getCurrentRender3D());
+//  // forward the device handle, i.e., a smart pointer, to the
+//  // widget. also setup the GUI elements accordingly
+//  //
+//  widget->process(vmini_device_, multiview->getCurrentRender3D());
 
-  // show the loaded device in the current render window
-  //
-  multiview->show_current_grid_segments();
+//  // show the loaded device in the current render window
+//  //
+//  multiview->show_current_grid_segments();
 
-  multiview->resetAllViews();
+//  multiview->resetAllViews();
 }
-

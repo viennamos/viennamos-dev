@@ -64,38 +64,6 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_6">
-         <property name="title">
-          <string>Load Device Template</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboBoxDeviceTemplates"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="pushButtonLoadTemplate">
-            <property name="text">
-             <string>Load Template</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>291</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
           <string>Generate New Mesh</string>
@@ -124,7 +92,7 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
           <string>Mesh Operations</string>

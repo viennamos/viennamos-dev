@@ -162,7 +162,7 @@ namespace viennamos {
 
   inline void copy(viennamini::device_handle& vmini_device, MultiView* multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -274,7 +274,7 @@ namespace viennamos {
             viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, viennagrid::config::line_1d>, ValueT> & quantity,
             MultiView                                * multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -298,7 +298,7 @@ namespace viennamos {
             viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, viennagrid::config::triangular_2d>, ValueT> & quantity,
             MultiView                                * multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -322,7 +322,7 @@ namespace viennamos {
             viennafvm::quantity<  viennagrid::element<viennagrid::simplex_tag<0>, viennagrid::config::tetrahedral_3d>, ValueT> & quantity,
             MultiView                                * multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -345,7 +345,7 @@ namespace viennamos {
             viennafvm::quantity<  viennagrid::element<CellTagT, viennagrid::config::line_1d>, ValueT> & quantity,
             MultiView                                * multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -369,7 +369,7 @@ namespace viennamos {
             viennafvm::quantity<  viennagrid::element<CellTagT, viennagrid::config::triangular_2d>, ValueT> & quantity,
             MultiView                                * multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -393,7 +393,7 @@ namespace viennamos {
             viennafvm::quantity<  viennagrid::element<CellTagT, viennagrid::config::tetrahedral_3d>, ValueT> & quantity,
             MultiView                                * multiview)
   {
-    if(!vmini_device)
+    if(!vmini_device.get())
     {
       throw copy_exception("Device is not available");
       return;
@@ -784,4 +784,3 @@ namespace viennamos {
 
 
 #endif // COPY_HPP
-

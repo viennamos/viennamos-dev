@@ -30,11 +30,10 @@
 #include <exception>
 #include <iostream>
 
-#include "boost/shared_ptr.hpp"
-
 #include <stdexcept>
 
 #include <QDebug>
+
 class database_exception : public std::runtime_error
 {
 public:
@@ -46,8 +45,8 @@ class DataBase
 
 public:
 
-  typedef std::string             Key;
-  typedef std::map<Key, boost::shared_ptr<void> >    Storage;
+  typedef std::string               Key;
+  typedef std::map< Key, void* >    Storage;
 
 
   DataBase()
@@ -56,37 +55,33 @@ public:
   }
 
   template<typename T>
-  boost::shared_ptr<T> insert(Key key, boost::shared_ptr<T> value)
+  T& insert(Key const& key, T& value)
   {
     if(this->has_key(key))
-    {
-      throw database_exception("Could not insert new data the same key is already used!");
-    }
-    storage.insert(std::make_pair(key, value));
-    return this->at<boost::shared_ptr<T> >(key);
-  }
-
-  template<typename SharedPtrT>
-  SharedPtrT at(Key key)
-  {
-    if(!this->has_key(key))
-    {
-      throw database_exception("Could not find element!");
-    }
-    return boost::static_pointer_cast<typename SharedPtrT::element_type>(storage.at(key));
+      throw database_exception("Database cannot insert new element as key \""+key+"\" is already available");
+    storage.insert(std::make_pair(key, &value));
+    return this->at<T>(key);
   }
 
   template<typename T>
-  void erase(Key key)
+  T& at(Key const& key)
   {
-    if(this->has_key(key))
-    {
-      at<T>(key).reset();
-      storage.erase(key);
-    }
+    if(!this->has_key(key))
+      throw database_exception("Database does not have key \""+key+"\"");
+    return *static_cast<T*>(storage.at(key));
+    //return SharedPtrT( storage.at(key), static_cast<typename SharedPtrT::element_type*>(SharedPtrT.get()) );
+    //return boost::static_pointer_cast<typename SharedPtrT::element_type>(storage.at(key));
   }
 
-  bool has_key(Key key)
+  template<typename T>
+  void erase(Key const& key)
+  {
+    if(!this->has_key(key))
+      throw database_exception("Database does not have key \""+key+"\"");
+    storage.erase(key);
+  }
+
+  bool has_key(Key const& key)
   {
     return !(storage.find(key) == storage.end());
   }
@@ -109,5 +104,3 @@ private:
 
 
 #endif // DATABASE_HPP
-
-

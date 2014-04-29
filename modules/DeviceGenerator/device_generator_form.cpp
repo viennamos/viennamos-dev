@@ -80,12 +80,6 @@ DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     QObject::connect(ui->checkBoxSemiconductor, SIGNAL(toggled(bool)),
                      this,                      SLOT(makeCurrentSegmentSemiconductor(bool)));
 
-//    ui->comboBoxDeviceTemplates->addItem(key::device_capacitor_1d);
-    ui->comboBoxDeviceTemplates->addItem(key::device_capacitor_2d);
-    ui->comboBoxDeviceTemplates->addItem(key::device_capacitor_3d);
-    ui->comboBoxDeviceTemplates->addItem(key::device_diode_pn_2d);
-    ui->comboBoxDeviceTemplates->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-
     this->toggleSegmentContact(false);
     this->toggleSegmentOxide(false);
     this->toggleSegmentSemiconductor(false);
@@ -130,7 +124,7 @@ QString DeviceGeneratorForm::getMeshType()
 void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Render3D* renderer)
 {
     vmini_device_ = vmini_device;
-    viennamini::device::IndicesType& segment_indices = vmini_device_->segment_indices();
+    viennamini::device::indices_type& segment_indices = vmini_device_->segment_indices();
     ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(segment_indices.size());
     for(int i = 0; i < segment_indices.size(); i++)
@@ -167,7 +161,7 @@ void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Rende
     ui->lineEditScalingFactor->setText("1.0");
 
 
-  viennamaterials::library_handle matlib = vmini_device_->material_library();
+  viennamini::material_library_handle matlib = vmini_device_->material_library();
   viennamaterials::accessor_handle material_category  = matlib->register_accessor(new viennamini::xpath_material_category_accessor);
   viennamaterials::accessor_handle data               = matlib->register_accessor(new viennamini::xpath_data_accessor);
 
@@ -229,7 +223,7 @@ void DeviceGeneratorForm::on_pushButtonScaleDevice_clicked()
 void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the second parameter 'column' is obsolete atm
 {
     if(row < 0) return;
-    if(!vmini_device_) return;
+    if(!vmini_device_.get()) return;
 
 
     QTableWidgetItem* widgetItem = ui->tableWidget->item(row, ID_COLUMN);
@@ -251,8 +245,10 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
     ui->checkBoxSemiconductor->setChecked(vmini_device_->is_semiconductor(sid));
     ui->checkBoxSemiconductor->blockSignals(false);
 
-    ui->lineEditSemiconductorDonors->setText(QString::number(vmini_device_->get_donator_doping(sid)));
-    ui->lineEditSemiconductorAcceptors->setText(QString::number(vmini_device_->get_acceptor_doping(sid)));
+//    ui->lineEditSemiconductorDonors->setText(QString::number(vmini_device_->get_donator_doping(sid)));
+    ui->lineEditSemiconductorDonors->setText(QString::number( device_aux_quantity[viennamini::id::donor_doping()][sid]["m-3"] ));
+//    ui->lineEditSemiconductorAcceptors->setText(QString::number(vmini_device_->get_acceptor_doping(sid)));
+    ui->lineEditSemiconductorAcceptors->setText(QString::number( device_aux_quantity[viennamini::id::acceptor_doping()][sid]["m-3"] ));
 
     // based on is{contact,oxide,semiconductor} deactivate/activate the corresponding parameter ui elements
     if(vmini_device_->is_contact(sid))
@@ -283,7 +279,7 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
 
 void DeviceGeneratorForm::setSegmentName(QString const& name)
 {
-  if(!vmini_device_) return;
+  if(!vmini_device_.get()) return;
 
 //  qDebug() << "setting segment name " << ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt() << " name " << name;
 //    device_parameters[ui->tableWidget->item(ui->tableWidget->currentRow(), 0)->data(Qt::UserRole).toInt()].name = name;
@@ -300,12 +296,16 @@ void DeviceGeneratorForm::setSegmentMaterial(QString const& name)
 
 void DeviceGeneratorForm::setSegmentSCAcceptors(QString const& value_str)
 {
-  vmini_device_->set_acceptor_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble());
+//  vmini_device_->set_acceptor_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble());
+  vmini_device_->set_quantity(viennamini::id::acceptor_doping(), ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble(), "m-3");
+  device_aux_quantity[viennamini::id::acceptor_doping()][ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()]["m-3"] = value_str.toDouble();
 }
 
 void DeviceGeneratorForm::setSegmentSCDonors(QString const& value_str)
 {
-  vmini_device_->set_donator_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble());
+//  vmini_device_->set_donator_doping(ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble());
+  vmini_device_->set_quantity(viennamini::id::donor_doping(), ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt(), value_str.toDouble(), "m-3");
+  device_aux_quantity[viennamini::id::donor_doping()][ui->tableWidget->item(ui->tableWidget->currentRow(), ID_COLUMN)->data(Qt::UserRole).toInt()]["m-3"] = value_str.toDouble();
 }
 
 void DeviceGeneratorForm::makeCurrentSegmentContact(bool state)
@@ -314,13 +314,13 @@ void DeviceGeneratorForm::makeCurrentSegmentContact(bool state)
   if(state == Qt::Unchecked)
   {
 //      qDebug() << "contact unsetting segment " << sid;
-    vmini_device_->make_neutral(sid);
+    vmini_device_->set_role(sid, viennamini::role::none);
     this->toggleSegmentContact(false);
   }
   else
   {
 //      qDebug() << "making segment " << sid << " a contact";
-    vmini_device_->make_contact(sid);
+    vmini_device_->set_role(sid, viennamini::role::contact);
     ui->checkBoxSemiconductor->blockSignals(true);
     ui->checkBoxSemiconductor->setChecked(false);
     ui->checkBoxSemiconductor->blockSignals(false);
@@ -341,13 +341,13 @@ void DeviceGeneratorForm::makeCurrentSegmentOxide(bool state)
   if(state == Qt::Unchecked)
   {
 //      qDebug() << "oxide unsetting segment " << sid;
-    vmini_device_->make_neutral(sid);
+    vmini_device_->set_role(sid, viennamini::role::none);
     this->toggleSegmentOxide(false);
   }
   else
   {
 //      qDebug() << "making segment " << sid << " an oxide";
-    vmini_device_->make_oxide(sid);
+    vmini_device_->set_role(sid, viennamini::role::oxide);
 
     ui->checkBoxSemiconductor->blockSignals(true);
     ui->checkBoxSemiconductor->setChecked(false);
@@ -368,14 +368,14 @@ void DeviceGeneratorForm::makeCurrentSegmentSemiconductor(bool state)
   if(state == Qt::Unchecked)
   {
 //    qDebug() << "semiconductor unsetting segment " << sid;
-    vmini_device_->make_neutral(sid);
+    vmini_device_->set_role(sid, viennamini::role::none);
     this->toggleSegmentSemiconductor(false);
   }
   else
   {
 //      qDebug() << "making segment " << sid << " a semiconductor";
 
-    vmini_device_->make_semiconductor(sid);
+    vmini_device_->set_role(sid, viennamini::role::semiconductor);
     ui->checkBoxContact->blockSignals(true);
     ui->checkBoxContact->setChecked(false);
     ui->checkBoxContact->blockSignals(false);
@@ -449,11 +449,6 @@ void DeviceGeneratorForm::toggleParameters(bool state)
 //  ui->checkBoxSemiconductor->setEnabled(state);
 }
 
-
-void DeviceGeneratorForm::on_pushButtonLoadTemplate_clicked()
-{
-  emit deviceTemplateEntered(ui->comboBoxDeviceTemplates->currentText());
-}
 
 void DeviceGeneratorForm::on_pushButtonCSGEditor_clicked()
 {

@@ -218,6 +218,16 @@ MESSAGE(STATUS "ViennaMini Include Path: " ${VIENNAMINI_INCLUDE_DIRS})
 MESSAGE(STATUS "ViennaMini Libraries: " ${VIENNAMINI_LIBRARIES})
 INCLUDE_DIRECTORIES(${VIENNAMINI_INCLUDE_DIRS})
 
+FIND_PACKAGE(UDUNITS)
+IF(UDUNITS_FOUND)
+  INCLUDE_DIRECTORIES(${UDUNITS_INCLUDE_DIR})
+  SET(LIBRARIES ${LIBRARIES} ${UDUNITS_LIBRARIES})
+  ADD_DEFINITIONS(-DVIENNAMOS_WITH_UNITS)
+  MESSAGE(STATUS "ViennaMOS will be built with support for automatic unit conversions!")
+ELSE(UDUNITS_FOUND)
+  MESSAGE(WARNING "ViennaMOS will be built without support for automatic unit conversions!")
+ENDIF(UDUNITS_FOUND)
+
 # ------------------------------------------------------------------------------
 #
 # SET INSTALL PATH
@@ -256,4 +266,4 @@ ADD_SUBDIRECTORY(framework/)
 #
 # ------------------------------------------------------------------------------
 SET(VMOS_MODULE_PREFIX "vmos_module_")
-#ADD_SUBDIRECTORY(modules/)
+ADD_SUBDIRECTORY(modules/)

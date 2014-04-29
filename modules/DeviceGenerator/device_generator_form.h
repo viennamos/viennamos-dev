@@ -34,7 +34,6 @@
 // ViennaMini includes
 //
 #include "viennamini/device.hpp"
-#include "viennamini/device_template.hpp"
 
 // Local includes
 //
@@ -70,7 +69,6 @@ public slots:
 
 signals:
     void meshFileEntered(QString const& filename);
-    void deviceTemplateEntered(QString const& device_template_id);
     void csggeneratorTriggered();
     void scaleDevice(double factor);
 
@@ -90,14 +88,13 @@ private slots:
     void toggleSegmentOxide(bool state);
     void toggleSegmentSemiconductor(bool state);
     void toggleParameters(bool state);
-
-    void on_pushButtonLoadTemplate_clicked();
-
     void on_pushButtonCSGEditor_clicked();
 
 private:
   Ui::DeviceGeneratorForm *ui;
   QString             meshfile;
+
+  std::map<std::string, std::map<int, std::map<std::string, double> > >   device_aux_quantity;
 
   viennamini::device_handle vmini_device_;
 };
