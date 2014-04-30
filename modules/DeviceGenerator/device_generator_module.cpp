@@ -282,7 +282,7 @@ void DeviceGeneratorModule::generateCSGDevice(QString const& csg_string)
 //  viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
 //  viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
 
-  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesh_generator() );
+//  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesh_generator() );
 //  mesher->set_input( "default", csg_string.toStdString() );
 //  mesher->set_input( "delaunay", true );                    // use delaunay meshing
 ////  mesher->set_input( "cell_size", 1.0 );                    // set the cell size
