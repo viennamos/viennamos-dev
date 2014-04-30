@@ -35,7 +35,6 @@
 //
 #include "viennaminiform.h"
 
-#include "viennamini/forwards.h"
 #include "viennamini/simulator.hpp"
 
 
