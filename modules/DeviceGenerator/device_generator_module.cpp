@@ -166,62 +166,64 @@ void DeviceGeneratorModule::execute()
  */
 void DeviceGeneratorModule::loadMeshFile(QString const& filename)
 {
-  QString suffix = QFileInfo(filename).suffix();
-
   // completly reset the simulator object, as a new device
   // forces us to reset everything and begin from scratch
   //
   if(vmini_device_.get()) vmini_device_.reset();
   vmini_device_ = viennamini::device_handle(new viennamini::device); // TODO pass a stream object into the c'tor
 
-
-
   std::vector<int> segment_ids;
 
-  if(suffix == "mesh")
-  {
-    QString type = widget->getMeshType();
+  QString type = widget->getMeshType();
 
-    if(type == viennamos::key::triangular2d)
+  if(type == viennamos::key::line1d)
+  {
+    try
     {
-      try
-      {
-        vmini_device_->read(filename.toStdString(), viennamini::triangular_2d());
-        viennamos::copy(vmini_device_, multiview);
-      }
-      catch(std::exception& e) {
-        QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
-        return;
-      }
+      vmini_device_->read(filename.toStdString(), viennamini::line_1d());
+      viennamos::copy(vmini_device_, multiview);
     }
-    else
-    if(type == viennamos::key::tetrahedral3d)
-    {
-      try
-      {
-        vmini_device_->read(filename.toStdString(), viennamini::tetrahedral_3d());
-        viennamos::copy(vmini_device_, multiview);
-      }
-      catch(std::exception& e) {
-        QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
-        return;
-      }
+    catch(std::exception& e) {
+      QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
+      return;
     }
-    else
+  }
+  else
+  if(type == viennamos::key::triangular2d)
+  {
+    try
     {
-      QMessageBox::critical(0, QString(this->name()+" Error"), QString("Mesh dimension/type not supported!"));
+      vmini_device_->read(filename.toStdString(), viennamini::triangular_2d());
+      viennamos::copy(vmini_device_, multiview);
+    }
+    catch(std::exception& e) {
+      QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
+      return;
+    }
+  }
+  else
+  if(type == viennamos::key::tetrahedral3d)
+  {
+    try
+    {
+      vmini_device_->read(filename.toStdString(), viennamini::tetrahedral_3d());
+      viennamos::copy(vmini_device_, multiview);
+    }
+    catch(std::exception& e) {
+      QMessageBox::critical(0, QString(this->name()+" Error"), QString(e.what()));
       return;
     }
   }
   else
   {
-    QMessageBox::critical(0, QString(this->name()+" Error"), "Mesh File format not supported!");
+    QMessageBox::critical(0, QString(this->name()+" Error"), QString("Mesh dimension/type not supported!"));
     return;
   }
 
+
   // link the material database with the device ..
   //
-//  vmini_device_->set_material_library(material_manager->getLibrary());
+  vmini_device_->set_material_database(material_manager->getLibrary());
 
   // which it requires to finalize the device, e.g., assign material-specific permittivities
   //
@@ -277,10 +279,10 @@ void DeviceGeneratorModule::generateCSGDevice(QString const& csg_string)
 
   // deactivate viennamesh output
   //
-  viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
-  viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
+//  viennamesh::logger().set_log_level<viennamesh::info_tag>(0);
+//  viennamesh::logger().set_log_level<viennamesh::stack_tag>(0);
 
-//  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesh_generator() );
+  viennamesh::algorithm_handle mesher( new viennamesh::netgen::csg_mesh_generator() );
 //  mesher->set_input( "default", csg_string.toStdString() );
 //  mesher->set_input( "delaunay", true );                    // use delaunay meshing
 ////  mesher->set_input( "cell_size", 1.0 );                    // set the cell size

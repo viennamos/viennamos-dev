@@ -53,6 +53,7 @@ DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     // and the number of segments is available ...
     ui->tabWidget->setTabEnabled(1, false);
 
+    ui->comboBoxMeshType->addItem(viennamos::key::line1d);
     ui->comboBoxMeshType->addItem(viennamos::key::triangular2d);
     ui->comboBoxMeshType->addItem(viennamos::key::tetrahedral3d);
     ui->comboBoxMeshType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -87,7 +88,7 @@ DeviceGeneratorForm::DeviceGeneratorForm(QWidget *parent) :
     ui->tableWidget->setColumnCount(2);
     ui->tableWidget->setColumnWidth(COLOR_COLUMN, 20);
     QStringList header;
-    header << "" << "Index";
+    header << "" << "Segment ID";
     ui->tableWidget->verticalHeader()->setVisible(false);
     ui->tableWidget->setHorizontalHeaderLabels(header);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -109,7 +110,7 @@ void DeviceGeneratorForm::on_pushButtonLoadMesh_clicked()
 
   meshfile = dir.relativeFilePath(
         QFileDialog::getOpenFileName(this, tr("Open Mesh File"), QDir::currentPath(),
-                                    "All files (*.*);;Netgen mesh files (*.mesh)")
+                                    "All files (*.*);;Netgen (*.mesh);;VTK (*.vtu *.pvd)")
   );
 
   if(meshfile.isEmpty()) return; // if the cancel button has been clicked ..
@@ -123,45 +124,50 @@ QString DeviceGeneratorForm::getMeshType()
 
 void DeviceGeneratorForm::process(viennamini::device_handle& vmini_device, Render3D* renderer)
 {
-    vmini_device_ = vmini_device;
-    viennamini::device::indices_type& segment_indices = vmini_device_->segment_indices();
-    ui->tableWidget->clearContents();
-    ui->tableWidget->setRowCount(segment_indices.size());
-    for(int i = 0; i < segment_indices.size(); i++)
+  vmini_device_ = vmini_device;
+  viennamini::device::indices_type& segment_indices = vmini_device_->segment_indices();
+  ui->tableWidget->clearContents();
+  ui->tableWidget->setRowCount(segment_indices.size());
+  for(int i = 0; i < segment_indices.size(); i++)
+  {
+    if(renderer)
     {
-        if(renderer)
-        {
-          Render3D::RGB rgb;
-          renderer->get_segment_color(i, rgb);
-          QTableWidgetItem *color = new QTableWidgetItem;
-          color->setBackground(QBrush(QColor::fromRgbF(rgb[0], rgb[1], rgb[2])));
-          color->setFlags(Qt::ItemIsEnabled); // make item not selectable
-          ui->tableWidget->setItem(i, COLOR_COLUMN, color);
-        }
-
-        QTableWidgetItem *id = new QTableWidgetItem(QString::number(segment_indices[i]));
-        id->setFlags(id->flags() ^ Qt::ItemIsEditable); // make the item not editable
-        id->setData(Qt::UserRole, qint32(segment_indices[i]));
-        ui->tableWidget->setItem(i, ID_COLUMN, id);
+      Render3D::RGB rgb;
+      renderer->get_segment_color(i, rgb);
+      QTableWidgetItem *color = new QTableWidgetItem;
+      color->setBackground(QBrush(QColor::fromRgbF(rgb[0], rgb[1], rgb[2])));
+      color->setFlags(Qt::ItemIsEnabled); // make item not selectable
+      ui->tableWidget->setItem(i, COLOR_COLUMN, color);
     }
-    ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-    //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 
-    // now, activate the device tab!
-    ui->tabWidget->setTabEnabled(1, true);
+    QTableWidgetItem *id = new QTableWidgetItem(QString::number(segment_indices[i]));
+    id->setFlags(id->flags() ^ Qt::ItemIsEditable); // make the item not editable
+    id->setData(Qt::UserRole, qint32(segment_indices[i]));
+    ui->tableWidget->setItem(i, ID_COLUMN, id);
 
-    // select the first segment by default
-    ui->tableWidget->setCurrentCell(0, ID_COLUMN);
-//    this->toggleParameters(true);
-//    this->showSegmentParameters(0,0); //show default parameters for the initial selection
+    // initialize required quantities for filling the widgets in the subsequent steps
+//    device_aux_quantity[viennamini::id::donor_doping()][segment_indices[i]]["m-3"] = 1.0E24;
+//    device_aux_quantity[viennamini::id::acceptor_doping()][segment_indices[i]]["m-3"] = 1.0E24;
+  }
 
-    // with a new mesh coming in, reset the scaling factor to default
-    //
-    ui->lineEditScalingFactor->setText("1.0");
+  ui->tableWidget->resizeColumnsToContents();
+  ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+  //ui->tableWidget->verticalHeader()->setStretchLastSection(true);
+
+  // now, activate the device tab!
+  ui->tabWidget->setTabEnabled(1, true);
+
+  // select the first segment by default
+  ui->tableWidget->setCurrentCell(0, ID_COLUMN);
+  this->toggleParameters(true);
+  //this->showSegmentParameters(0,0); //show default parameters for the initial selection
+
+  // with a new mesh coming in, reset the scaling factor to default
+  //
+  ui->lineEditScalingFactor->setText("1.0");
 
 
-  viennamini::material_library_handle matlib = vmini_device_->material_library();
+  viennamaterials::library_handle& matlib = vmini_device_->material_library();
   viennamaterials::accessor_handle material_category  = matlib->register_accessor(new viennamini::xpath_material_category_accessor);
   viennamaterials::accessor_handle data               = matlib->register_accessor(new viennamini::xpath_data_accessor);
 
@@ -229,8 +235,6 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
     QTableWidgetItem* widgetItem = ui->tableWidget->item(row, ID_COLUMN);
     int sid = widgetItem->data(Qt::UserRole).toInt();
 
-//    qDebug() << "showing segment " << sid;
-
     ui->lineEditSegmentName->setText(QString::fromStdString(vmini_device_->get_name(sid)));
 
     ui->checkBoxContact->blockSignals(true);
@@ -245,10 +249,27 @@ void DeviceGeneratorForm::showSegmentParameters(int row, int, int, int) // the s
     ui->checkBoxSemiconductor->setChecked(vmini_device_->is_semiconductor(sid));
     ui->checkBoxSemiconductor->blockSignals(false);
 
+
+
+
 //    ui->lineEditSemiconductorDonors->setText(QString::number(vmini_device_->get_donator_doping(sid)));
-    ui->lineEditSemiconductorDonors->setText(QString::number( device_aux_quantity[viennamini::id::donor_doping()][sid]["m-3"] ));
 //    ui->lineEditSemiconductorAcceptors->setText(QString::number(vmini_device_->get_acceptor_doping(sid)));
-    ui->lineEditSemiconductorAcceptors->setText(QString::number( device_aux_quantity[viennamini::id::acceptor_doping()][sid]["m-3"] ));
+    ui->lineEditSemiconductorDonors->blockSignals(true);
+    double value = device_aux_quantity[viennamini::id::donor_doping()][sid]["m-3"];
+    if(value == 0.0)
+      ui->lineEditSemiconductorDonors->setText("");
+    else
+      ui->lineEditSemiconductorDonors->setText(QString::number(value));
+    ui->lineEditSemiconductorDonors->blockSignals(false);
+
+    ui->lineEditSemiconductorAcceptors->blockSignals(true);
+    value = device_aux_quantity[viennamini::id::acceptor_doping()][sid]["m-3"];
+    if(value == 0.0)
+      ui->lineEditSemiconductorAcceptors->setText("");
+    else
+      ui->lineEditSemiconductorAcceptors->setText(QString::number( value ));
+    ui->lineEditSemiconductorAcceptors->blockSignals(false);
+
 
     // based on is{contact,oxide,semiconductor} deactivate/activate the corresponding parameter ui elements
     if(vmini_device_->is_contact(sid))

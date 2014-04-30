@@ -93,8 +93,9 @@ namespace viennamos
   static const QString png_suffix = "png";
   static const QString png_filter = "PNG files (*."+key::png_suffix+")";
 
-  static const QString triangular2d = "2D Triangle";
-  static const QString tetrahedral3d = "3D Tetradron";
+  static const QString line1d        = "Line 1D";
+  static const QString triangular2d  = "Triangular 2D";
+  static const QString tetrahedral3d = "Tetrahedral 3D";
 
   } // namespace key
 
@@ -133,4 +134,3 @@ namespace viennamos
 } // viennamos
 
 #endif
-
