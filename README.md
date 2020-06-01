@@ -12,9 +12,11 @@ Git snapshot packages and releases are available at [sourceforge](https://source
 System requirements
 --------------------------
 
-* Ubuntu 
+* Ubuntu 14.04 (newer might give problems)
+* 2-4 GB RAM (add swap space!)
+* 20-30 GB Disk-Space
 * [Qt](http://qt-project.org/) 4.8
-* [VTK](http://www.vtk.org/) 5.10.1 (with [Qt support](http://www.vtk.org/Wiki/VTK/Tutorials/QtSetup)!)
+* [VTK](http://www.vtk.org/) 5.8 - 5.10.1 (with [Qt support](http://www.vtk.org/Wiki/VTK/Tutorials/QtSetup)!)
 * [Boost](http://www.boost.org/) >=1.47
 
 <pre>
