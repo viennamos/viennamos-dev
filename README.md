@@ -12,11 +12,14 @@ Git snapshot packages and releases are available at [sourceforge](https://source
 System requirements
 --------------------------
 
+* Ubuntu 
 * [Qt](http://qt-project.org/) 4.8
 * [VTK](http://www.vtk.org/) 5.10.1 (with [Qt support](http://www.vtk.org/Wiki/VTK/Tutorials/QtSetup)!)
 * [Boost](http://www.boost.org/) >=1.47
 
-
+<pre>
+$> sudo apt-get install git wget g++ cmake libqt4-dev libboost1.55-all-dev
+</pre>
 
 Building instructions 
 --------------------------
@@ -24,12 +27,14 @@ Building instructions
 To build the developer version of ViennaMOS, simply clone the repository and issue the following suggested commands (the following steps are for Unix-based systems):
 
 <pre>
+$> git clone https://github.com/thesourcerer8/viennamos-dev/
 $> cd viennamos-dev  # the checked-out GIT folder 
 $> mkdir build       # the build folder
 </pre>
 
 Configure the build, default build type is the 'optimized/release' mode:
 <pre>
+$> cd build
 $> cmake ..  
 </pre>
 
