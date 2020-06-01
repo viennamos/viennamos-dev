@@ -47,4 +47,5 @@ Now build and install the executable and libraries (install folder is a subfolde
 <pre>
 $> make -j4  # adjust to your CPU core count for efficient parallel building
 $> make install
+$> framework/viennamos
 </pre>
