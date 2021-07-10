@@ -71,7 +71,7 @@ ELSE ()
 ENDIF ()
 
 IF(DEFINED CXX11_FLAG)
-  MESSAGE(STATUS "C++11 supported - using flag: "${CXX11_FLAG})
+  MESSAGE(STATUS "C++11 supported - using flag: " ${CXX11_FLAG})
   SET(CXX11_AVAIL TRUE)
 ELSE(DEFINED CXX11_FLAG)
   SET(CXX11_AVAIL FALSE)
@@ -88,8 +88,8 @@ FIND_PACKAGE(Qt4 REQUIRED QtCore QtGui QtXml)
 INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 SET(LIBRARIES ${QT_LIBRARIES})
-MESSAGE(STATUS "Qt Include Path: "${QT_INCLUDE_DIR})
-MESSAGE(STATUS "Qt Library Path: "${QT_LIBRARY_DIR})
+MESSAGE(STATUS "Qt Include Path: " ${QT_INCLUDE_DIR})
+MESSAGE(STATUS "Qt Library Path: " ${QT_LIBRARY_DIR})
 
 # ------------------------------------------------------------------------------
 #
@@ -98,7 +98,7 @@ MESSAGE(STATUS "Qt Library Path: "${QT_LIBRARY_DIR})
 # ------------------------------------------------------------------------------
 FIND_PACKAGE(VTK REQUIRED NO_MODULE)
 IF(VTK_FOUND)
-  MESSAGE(STATUS "VTK found (Version "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")")
+  MESSAGE(STATUS "VTK found (Version " ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION} ")")
   MESSAGE(STATUS "VTK Include Path: " ${VTK_INCLUDE_DIRS})
   MESSAGE(STATUS "VTK Library Path: " ${VTK_LIBRARY_DIRS})
 
@@ -186,15 +186,15 @@ SET(BOOST_MIN_VERSION 1.46.1)
 FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} COMPONENTS ${BOOST_LIBS} REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})   
 SET(LIBRARIES ${LIBRARIES} ${Boost_LIBRARIES})
-MESSAGE(STATUS "Boost Include Path: "${Boost_INCLUDE_DIR})
-MESSAGE(STATUS "Boost Library Path: "${Boost_LIBRARY_DIRS})
+MESSAGE(STATUS "Boost Include Path: " ${Boost_INCLUDE_DIR})
+MESSAGE(STATUS "Boost Library Path: " ${Boost_LIBRARY_DIRS})
 
 # ------------------------------------------------------------------------------
 #
 # Print the list of libraries to be linked against ViennaMOS
 #
 # ------------------------------------------------------------------------------
-MESSAGE(STATUS "Libraries to be linked: "${LIBRARIES})
+MESSAGE(STATUS "Libraries to be linked: " ${LIBRARIES})
 
 # ------------------------------------------------------------------------------
 #
@@ -250,4 +250,3 @@ ADD_SUBDIRECTORY(framework/)
 #
 # ------------------------------------------------------------------------------
 ADD_SUBDIRECTORY(modules/)
-
